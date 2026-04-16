@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>내 깃허브 프로그램</title>
+    <style>
+        /* CSS로 디자인을 수정할 수 있습니다 */
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>안녕하세요!</h1>
+        <p>이것은 깃허브에서 실행되는 HTML 프로그램입니다.</p>
+        <button onclick="greet()">클릭해보세요</button>
+        <p id="message"></p>
+    </div>
+
+    <script>
+        // JavaScript로 기능을 추가할 수 있습니다
+        function greet() {
+            document.getElementById('message').innerText = "반갑습니다! 프로그램이 정상 작동하네요.";
+        }
+    </script>
+</body>
+</html>
