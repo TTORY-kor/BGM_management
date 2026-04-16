@@ -3,49 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>내 깃허브 프로그램</title>
+    <title>시나리오 BGM 라이브러리</title>
     <style>
-        /* CSS로 디자인을 수정할 수 있습니다 */
-        body {
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f4f4f9;
+        :root {
+            --primary-color: #6366f1;
+            --bg-color: #f8fafc;
         }
-        .container {
-            text-align: center;
-            padding: 20px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        button {
-            padding: 10px 20px;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            background-color: #007bff;
-            color: white;
-        }
+        body { font-family: sans-serif; background: var(--bg-color); margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 15px rgba(0,0,0,0.05); }
+        h1 { color: #1e293b; text-align: center; }
+        
+        /* 입력 폼 */
+        .input-group { display: grid; grid-template-columns: 1fr 1fr 100px; gap: 10px; margin-bottom: 20px; }
+        input, select { padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
+        button { background: var(--primary-color); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        button:hover { opacity: 0.9; }
+
+        /* 필터 버튼 */
+        .filters { margin-bottom: 20px; display: flex; gap: 8px; flex-wrap: wrap; }
+        .filter-btn { padding: 5px 15px; background: #e2e8f0; border-radius: 20px; font-size: 0.9rem; cursor: pointer; border: none; }
+        .filter-btn.active { background: var(--primary-color); color: white; }
+
+        /* 리스트 항목 */
+        .bgm-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #f1f5f9; transition: 0.2s; }
+        .bgm-item:hover { background: #fdfdfd; }
+        .bgm-info { flex-grow: 1; }
+        .bgm-tag { font-size: 0.75rem; background: #ede9fe; color: #5b21b6; padding: 2px 8px; border-radius: 4px; margin-left: 10px; }
+        .play-btn { color: #ef4444; text-decoration: none; font-weight: bold; margin-right: 15px; }
+        .delete-btn { background: #fee2e2; color: #ef4444; padding: 5px 10px; font-size: 0.8rem; border-radius: 5px; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>안녕하세요!</h1>
-        <p>이것은 깃허브에서 실행되는 HTML 프로그램입니다.</p>
-        <button onclick="greet()">클릭해보세요</button>
-        <p id="message"></p>
+<div class="container">
+    <h1>🎬 Scenario BGM Manager</h1>
+
+    <div class="input-group">
+        <input type="text" id="bgmTitle" placeholder="곡 제목 또는 장면 설명">
+        <input type="text" id="bgmUrl" placeholder="유튜브 URL (https://...)">
+        <select id="bgmTag">
+            <option value="긴장됨">🚨 긴장됨</option>
+            <option value="슬픔">💧 슬픔</option>
+            <option value="웅장함">⚔️ 웅장함</option>
+            <option value="평화로움">🌿 평화로움</option>
+            <option value="일상">☕ 일상</option>
+        </select>
+        <button onclick="addBGM()" style="grid-column: span 3;">추가하기</button>
     </div>
 
-    <script>
-        // JavaScript로 기능을 추가할 수 있습니다
-        function greet() {
-            document.getElementById('message').innerText = "반갑습니다! 프로그램이 정상 작동하네요.";
-        }
-    </script>
+    <div class="filters" id="filterBar">
+        <button class="filter-btn active" onclick="filterList('전체')">전체</button>
+    </div>
+
+    <div id="bgmList"></div>
+</div>
+
+<script>
+    let bgms = JSON.parse(localStorage.getItem('myBgms')) || [];
+
+    function addBGM() {
+        const title = document.getElementById('bgmTitle').value;
+        const url = document.getElementById('bgmUrl').value;
+        const tag = document.getElementById('bgmTag').value;
+
+        if(!title || !url) return alert("제목과 URL을 입력해주세요!");
+
+        const newBgm = { id: Date.now(), title, url, tag };
+        bgms.push(newBgm);
+        saveAndRender();
+        
+        document.getElementById('bgmTitle').value = '';
+        document.getElementById('bgmUrl').value = '';
+    }
+
+    function deleteBGM(id) {
+        bgms = bgms.filter(b => b.id !== id);
+        saveAndRender();
+    }
+
+    function saveAndRender() {
+        localStorage.setItem('myBgms', JSON.stringify(bgms));
+        render();
+        renderFilters();
+    }
+
+    function render(filterTag = '전체') {
+        const listDiv = document.getElementById('bgmList');
+        listDiv.innerHTML = '';
+
+        const displayItems = filterTag === '전체' ? bgms : bgms.filter(b => b.tag === filterTag);
+
+        displayItems.forEach(bgm => {
+            listDiv.innerHTML += `
+                <div class="bgm-item">
+                    <div class="bgm-info">
+                        <strong>${bgm.title}</strong>
+                        <span class="bgm-tag">${bgm.tag}</span>
+                    </div>
+                    <div>
+                        <a href="${bgm.url}" target="_blank" class="play-btn">▶ 재생</a>
+                        <button class="delete-btn" onclick="deleteBGM(${bgm.id})">삭제</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function renderFilters() {
+        const filterBar = document.getElementById('filterBar');
+        const tags = ['전체', ...new Set(bgms.map(b => b.tag))];
+        filterBar.innerHTML = tags.map(t => `
+            <button class="filter-btn" onclick="filterList('${t}')">${t}</button>
+        `).join('');
+    }
+
+    function filterList(tag) {
+        render(tag);
+    }
+
+    // 초기 실행
+    render();
+    renderFilters();
+</script>
+
 </body>
 </html>
