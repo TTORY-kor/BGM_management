@@ -3,127 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>시나리오 BGM 라이브러리</title>
+    <title>시나리오 BGM 플레이어</title>
     <style>
-        :root {
-            --primary-color: #6366f1;
-            --bg-color: #f8fafc;
-        }
-        body { font-family: sans-serif; background: var(--bg-color); margin: 0; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 15px rgba(0,0,0,0.05); }
-        h1 { color: #1e293b; text-align: center; }
+        :root { --primary-color: #6366f1; --bg-color: #f1f5f9; }
+        body { font-family: 'Pretendard', sans-serif; background: var(--bg-color); padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 20px; shadow: 0 10px 25px rgba(0,0,0,0.1); }
         
-        /* 입력 폼 */
-        .input-group { display: grid; grid-template-columns: 1fr 1fr 100px; gap: 10px; margin-bottom: 20px; }
-        input, select { padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
-        button { background: var(--primary-color); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        button:hover { opacity: 0.9; }
+        /* 입력부 스타일 */
+        .input-group { display: grid; grid-template-columns: 1fr 1fr 120px; gap: 10px; margin-bottom: 30px; }
+        input, select, button { padding: 12px; border-radius: 10px; border: 1px solid #ddd; }
+        .add-btn { background: var(--primary-color); color: white; border: none; cursor: pointer; grid-column: span 3; font-weight: bold; }
 
-        /* 필터 버튼 */
-        .filters { margin-bottom: 20px; display: flex; gap: 8px; flex-wrap: wrap; }
-        .filter-btn { padding: 5px 15px; background: #e2e8f0; border-radius: 20px; font-size: 0.9rem; cursor: pointer; border: none; }
-        .filter-btn.active { background: var(--primary-color); color: white; }
+        /* 리스트 및 카드 스타일 */
+        .bgm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .bgm-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 15px; overflow: hidden; display: flex; flex-direction: column; }
+        
+        /* 유튜브 플레이어 영역 */
+        .video-container { position: relative; width: 100%; padding-bottom: 56.25%; height: 0; background: #000; }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
-        /* 리스트 항목 */
-        .bgm-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #f1f5f9; transition: 0.2s; }
-        .bgm-item:hover { background: #fdfdfd; }
-        .bgm-info { flex-grow: 1; }
-        .bgm-tag { font-size: 0.75rem; background: #ede9fe; color: #5b21b6; padding: 2px 8px; border-radius: 4px; margin-left: 10px; }
-        .play-btn { color: #ef4444; text-decoration: none; font-weight: bold; margin-right: 15px; }
-        .delete-btn { background: #fee2e2; color: #ef4444; padding: 5px 10px; font-size: 0.8rem; border-radius: 5px; }
+        .card-content { padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .bgm-tag { font-size: 0.7rem; background: #ede9fe; color: #6366f1; padding: 3px 8px; border-radius: 5px; }
+        .delete-btn { background: none; border: none; color: #ff4d4d; cursor: pointer; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🎬 Scenario BGM Manager</h1>
+    <h1 style="text-align: center;">🎬 BGM Scenario Player</h1>
 
     <div class="input-group">
-        <input type="text" id="bgmTitle" placeholder="곡 제목 또는 장면 설명">
-        <input type="text" id="bgmUrl" placeholder="유튜브 URL (https://...)">
+        <input type="text" id="bgmTitle" placeholder="장면 설명 (예: 추격전)">
+        <input type="text" id="bgmUrl" placeholder="유튜브 주소 복사/붙여넣기">
         <select id="bgmTag">
-            <option value="긴장됨">🚨 긴장됨</option>
-            <option value="슬픔">💧 슬픔</option>
-            <option value="웅장함">⚔️ 웅장함</option>
-            <option value="평화로움">🌿 평화로움</option>
-            <option value="일상">☕ 일상</option>
+            <option value="긴박">🚨 긴박</option>
+            <option value="감동">🥺 감동</option>
+            <option value="미스터리">🔍 미스터리</option>
+            <option value="평온">☕ 평온</option>
         </select>
-        <button onclick="addBGM()" style="grid-column: span 3;">추가하기</button>
+        <button class="add-btn" onclick="addBGM()">라이브러리에 추가</button>
     </div>
 
-    <div class="filters" id="filterBar">
-        <button class="filter-btn active" onclick="filterList('전체')">전체</button>
-    </div>
-
-    <div id="bgmList"></div>
+    <div id="bgmGrid" class="bgm-grid"></div>
 </div>
 
 <script>
     let bgms = JSON.parse(localStorage.getItem('myBgms')) || [];
 
+    // 유튜브 URL에서 영상 ID만 추출하는 함수
+    function getYoutubeId(url) {
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : null;
+    }
+
     function addBGM() {
         const title = document.getElementById('bgmTitle').value;
         const url = document.getElementById('bgmUrl').value;
         const tag = document.getElementById('bgmTag').value;
+        const videoId = getYoutubeId(url);
 
-        if(!title || !url) return alert("제목과 URL을 입력해주세요!");
+        if(!title || !videoId) return alert("올바른 유튜브 주소를 입력해주세요!");
 
-        const newBgm = { id: Date.now(), title, url, tag };
-        bgms.push(newBgm);
+        bgms.push({ id: Date.now(), title, videoId, tag });
         saveAndRender();
-        
         document.getElementById('bgmTitle').value = '';
         document.getElementById('bgmUrl').value = '';
     }
 
     function deleteBGM(id) {
-        bgms = bgms.filter(b => b.id !== id);
-        saveAndRender();
+        if(confirm("이 BGM을 삭제할까요?")) {
+            bgms = bgms.filter(b => b.id !== id);
+            saveAndRender();
+        }
     }
 
     function saveAndRender() {
         localStorage.setItem('myBgms', JSON.stringify(bgms));
         render();
-        renderFilters();
     }
 
-    function render(filterTag = '전체') {
-        const listDiv = document.getElementById('bgmList');
-        listDiv.innerHTML = '';
-
-        const displayItems = filterTag === '전체' ? bgms : bgms.filter(b => b.tag === filterTag);
-
-        displayItems.forEach(bgm => {
-            listDiv.innerHTML += `
-                <div class="bgm-item">
-                    <div class="bgm-info">
-                        <strong>${bgm.title}</strong>
+    function render() {
+        const grid = document.getElementById('bgmGrid');
+        grid.innerHTML = bgms.map(bgm => `
+            <div class="bgm-card">
+                <div class="video-container">
+                    <iframe src="https://www.youtube.com/embed/${bgm.videoId}" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen></iframe>
+                </div>
+                <div class="card-content">
+                    <div>
+                        <strong style="display:block; margin-bottom:5px;">${bgm.title}</strong>
                         <span class="bgm-tag">${bgm.tag}</span>
                     </div>
-                    <div>
-                        <a href="${bgm.url}" target="_blank" class="play-btn">▶ 재생</a>
-                        <button class="delete-btn" onclick="deleteBGM(${bgm.id})">삭제</button>
-                    </div>
+                    <button class="delete-btn" onclick="deleteBGM(${bgm.id})">삭제</button>
                 </div>
-            `;
-        });
-    }
-
-    function renderFilters() {
-        const filterBar = document.getElementById('filterBar');
-        const tags = ['전체', ...new Set(bgms.map(b => b.tag))];
-        filterBar.innerHTML = tags.map(t => `
-            <button class="filter-btn" onclick="filterList('${t}')">${t}</button>
+            </div>
         `).join('');
     }
 
-    function filterList(tag) {
-        render(tag);
-    }
-
-    // 초기 실행
     render();
-    renderFilters();
 </script>
 
 </body>
