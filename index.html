@@ -509,7 +509,8 @@ body.sidebar-collapsed .sidebar-section { padding: 10px 8px 0; }
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
 .card-date {
-  font-size: .68rem; color: var(--faint); line-height: 1.5; white-space: pre-line;
+  font-size: .67rem; color: var(--faint); line-height: 1.4; white-space: nowrap;
+  letter-spacing: .01em;
 }
 .card-url {
   display: inline-flex; align-items: center; gap: 4px;
@@ -1001,7 +1002,22 @@ body.sidebar-collapsed .sidebar-section { padding: 10px 8px 0; }
       return null;
     }
     function isValidYoutubeUrl(url) { return !!getYoutubeId(url); }
-    function formatDateText(createdAt, updatedAt) { return `등록: ${createdAt || '-'}\n수정: ${updatedAt || '-'}`; }
+    function formatDateText(createdAt, updatedAt) {
+      function shorten(d) {
+        if (!d) return '-';
+        // "2024. 3. 15. 오후 2:30:00" 같은 형태 → "24.03.15"
+        const dt = new Date(d);
+        if (!isNaN(dt.getTime())) {
+          const yy = String(dt.getFullYear()).slice(2);
+          const mm = String(dt.getMonth()+1).padStart(2,'0');
+          const dd = String(dt.getDate()).padStart(2,'0');
+          return `${yy}.${mm}.${dd}`;
+        }
+        // 파싱 실패 시 앞 10자만
+        return String(d).slice(0, 10);
+      }
+      return `등록 ${shorten(createdAt)}  수정 ${shorten(updatedAt)}`;
+    }
     function parseDateSafe(text) {
       const value = new Date(text);
       return Number.isNaN(value.getTime()) ? new Date(0) : value;
