@@ -3,60 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>시나리오 BGM 워크스테이션</title>
+    <title>BGM 시나리오 워크스테이션 PRO</title>
     <style>
-        :root { --primary: #4f46e5; --bg: #f8fafc; }
-        body { font-family: 'Pretendard', sans-serif; background: var(--bg); margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        :root { --primary: #6366f1; --bg: #f8fafc; --sidebar-bg: #0f172a; }
+        body { font-family: 'Pretendard', -apple-system, sans-serif; background: var(--bg); margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
-        /* 사이드바 (폴더 목록) */
-        .sidebar { width: 260px; background: #1e293b; color: white; padding: 20px; display: flex; flex-direction: column; }
-        .folder-item { padding: 12px; margin-bottom: 8px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; transition: 0.2s; }
-        .folder-item:hover { background: #334155; }
-        .folder-item.active { background: #475569; border-left: 4px solid var(--primary); }
-        .color-dot { width: 12px; height: 12px; border-radius: 50%; margin-right: 10px; }
+        /* 사이드바 */
+        .sidebar { width: 280px; background: var(--sidebar-bg); color: #f8fafc; padding: 20px; display: flex; flex-direction: column; border-right: 1px solid #334155; }
+        .sidebar-section { margin-bottom: 30px; }
+        .sidebar h3 { font-size: 0.8rem; text-transform: uppercase; color: #94a3b8; margin-bottom: 15px; letter-spacing: 0.05em; }
         
-        /* 메인 영역 */
-        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 30px; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        
-        /* 입력창 구역 */
-        .input-card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 25px; }
-        .input-grid { display: grid; grid-template-columns: 2fr 2fr 1fr 100px; gap: 10px; }
-        input, select, button { padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; }
-        .btn-add { background: var(--primary); color: white; border: none; cursor: pointer; font-weight: bold; }
+        .menu-item { padding: 12px; margin-bottom: 4px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; transition: 0.2s; font-size: 0.95rem; }
+        .menu-item:hover { background: #1e293b; }
+        .menu-item.active { background: #334155; color: white; box-shadow: inset 4px 0 0 var(--primary); }
+        .color-dot { width: 10px; height: 10px; border-radius: 50%; margin-right: 12px; }
 
-        /* BGM 카드 그리드 */
-        .bgm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .bgm-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        /* 메인 영역 */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 40px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        
+        /* 입력 카드 */
+        .input-card { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 30px; border: 1px solid #e2e8f0; }
+        .input-grid { display: grid; grid-template-columns: 1.5fr 1.5fr 1fr 80px; gap: 12px; }
+        input, select, button { padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0; outline: none; }
+        .btn-add { background: var(--primary); color: white; border: none; cursor: pointer; font-weight: 600; }
+
+        /* 필터 바 */
+        .filter-status { margin-bottom: 20px; font-size: 0.9rem; color: #64748b; display: flex; align-items: center; gap: 10px; }
+        .clear-filter { font-size: 0.8rem; color: var(--primary); cursor: pointer; text-decoration: underline; }
+
+        /* BGM 카드 */
+        .bgm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+        .bgm-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; transition: transform 0.2s; }
+        .bgm-card:hover { transform: translateY(-4px); }
         .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: #000; }
         .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-        .card-info { padding: 15px; }
-        .tag-badge { font-size: 0.75rem; background: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 4px; margin-right: 5px; }
+        .card-info { padding: 18px; }
+        .tag-badge { font-size: 0.75rem; background: #eef2ff; color: var(--primary); padding: 4px 10px; border-radius: 20px; cursor: pointer; font-weight: 500; }
+        .tag-badge:hover { background: var(--primary); color: white; }
         
-        /* 모달 스타일 */
-        .modal { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:25px; border-radius:15px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.1); z-index:100; }
-        .overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:90; }
+        /* 모달 */
+        .modal { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:30px; border-radius:20px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); z-index:100; width: 350px; }
+        .overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.7); z-index:90; backdrop-filter: blur(4px); }
     </style>
 </head>
 <body>
 
 <div class="sidebar">
-    <h2>📁 폴더</h2>
-    <div id="folderList"></div>
-    <button onclick="openFolderModal()" style="margin-top:20px; background:#334155; color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;">+ 폴더 추가</button>
+    <div class="sidebar-section">
+        <h3>Menu</h3>
+        <div class="menu-item" id="menu-all" onclick="selectView('all')">🌐 전체 보기</div>
+    </div>
+
+    <div class="sidebar-section">
+        <h3>Folders</h3>
+        <div id="folderList"></div>
+        <button onclick="openModal('folderModal')" style="width:100%; margin-top:10px; background:#1e293b; color:#cbd5e1; border:1px dashed #334155; padding:10px; border-radius:8px; cursor:pointer;">+ 폴더 추가</button>
+    </div>
+
+    <div class="sidebar-section">
+        <h3>Tag Management</h3>
+        <div id="tagManageList" style="display:flex; flex-wrap:wrap; gap:5px; margin-bottom:10px;"></div>
+        <button onclick="openModal('tagModal')" style="width:100%; background:#1e293b; color:#cbd5e1; border:1px dashed #334155; padding:10px; border-radius:8px; cursor:pointer;">+ 태그 관리</button>
+    </div>
 </div>
 
 <div class="main-content">
     <div class="header">
-        <h1 id="currentFolderName">폴더를 선택해주세요</h1>
-        <button onclick="deleteFolder()" id="delFolderBtn" style="display:none; color: #ff4d4d; border:none; background:none; cursor:pointer;">폴더 삭제</button>
+        <h1 id="viewTitle">전체 보기</h1>
+        <button onclick="deleteCurrentFolder()" id="delFolderBtn" style="display:none; color: #ef4444; border:none; background:none; cursor:pointer; font-size: 0.9rem;">이 폴더 삭제</button>
+    </div>
+
+    <div class="filter-status" id="filterStatus" style="display:none;">
+        <span id="filterText"></span>
+        <span class="clear-filter" onclick="clearTagFilter()">필터 해제</span>
     </div>
 
     <div class="input-card" id="inputSection" style="display:none;">
         <div class="input-grid">
-            <input type="text" id="bgmTitle" placeholder="곡 제목/장면">
+            <input type="text" id="bgmTitle" placeholder="제목/장면">
             <input type="text" id="bgmUrl" placeholder="유튜브 URL">
-            <input type="text" id="bgmTag" placeholder="태그 입력 (엔터)">
+            <select id="bgmTagSelect">
+                <option value="">태그 선택 안함</option>
+            </select>
             <button class="btn-add" onclick="addBGM()">추가</button>
         </div>
     </div>
@@ -64,75 +93,166 @@
     <div id="bgmGrid" class="bgm-grid"></div>
 </div>
 
-<div class="overlay" id="overlay" onclick="closeModal()"></div>
+<div class="overlay" id="overlay" onclick="closeAllModals()"></div>
+
 <div class="modal" id="folderModal">
-    <h3>새 폴더 생성</h3>
-    <input type="text" id="newFolderName" placeholder="폴더 이름" style="width:100%; margin-bottom:10px;">
-    <input type="color" id="newFolderColor" value="#4f46e5" style="width:100%; height:40px; margin-bottom:15px;">
+    <h3 style="margin-top:0">새 폴더 생성</h3>
+    <input type="text" id="newFolderName" placeholder="폴더 이름" style="width:100%; margin-bottom:15px; box-sizing:border-box;">
+    <label style="font-size:0.8rem; color:#64748b;">폴더 색상</label>
+    <input type="color" id="newFolderColor" value="#6366f1" style="width:100%; height:40px; margin:10px 0 20px 0;">
     <button onclick="addFolder()" class="btn-add" style="width:100%;">생성하기</button>
 </div>
 
+<div class="modal" id="tagModal">
+    <h3 style="margin-top:0">태그 관리</h3>
+    <div style="display:flex; gap:5px; margin-bottom:15px;">
+        <input type="text" id="newTagName" placeholder="새 태그 이름" style="flex:1">
+        <button onclick="addTag()" class="btn-add">추가</button>
+    </div>
+    <div id="tagEditList" style="max-height:200px; overflow-y:auto; border-top:1px solid #eee; padding-top:10px;"></div>
+</div>
+
 <script>
-    let data = JSON.parse(localStorage.getItem('bgm_app_data')) || { folders: [], lastId: 0 };
-    let currentFolderId = null;
+    // 데이터 구조 초기화
+    let data = JSON.parse(localStorage.getItem('bgm_pro_data')) || { 
+        folders: [], 
+        tags: ["긴장", "평온", "슬픔", "웅장"],
+        currentView: 'all',
+        selectedFolderId: null,
+        activeTagFilter: null
+    };
 
-    // --- 폴더 기능 ---
-    function openFolderModal() { 
-        document.getElementById('folderModal').style.display = 'block';
-        document.getElementById('overlay').style.display = 'block';
-    }
-    function closeModal() { 
-        document.getElementById('folderModal').style.display = 'none';
-        document.getElementById('overlay').style.display = 'none';
+    // --- 초기 실행 ---
+    function init() {
+        renderFolders();
+        renderTagOptions();
+        renderTagManagement();
+        renderBgms();
+        updateUI();
     }
 
+    function save() {
+        localStorage.setItem('bgm_pro_data', JSON.stringify(data));
+    }
+
+    // --- UI 업데이트 ---
+    function updateUI() {
+        const title = document.getElementById('viewTitle');
+        const inputSec = document.getElementById('inputSection');
+        const delBtn = document.getElementById('delFolderBtn');
+        const menuAll = document.getElementById('menu-all');
+
+        menuAll.classList.toggle('active', data.currentView === 'all');
+        
+        if(data.currentView === 'all') {
+            title.innerText = "🌐 전체 보기";
+            inputSec.style.display = 'none';
+            delBtn.style.display = 'none';
+        } else {
+            const folder = data.folders.find(f => f.id === data.selectedFolderId);
+            title.innerText = folder ? folder.name : "폴더 없음";
+            inputSec.style.display = 'block';
+            delBtn.style.display = 'block';
+        }
+
+        const filterBar = document.getElementById('filterStatus');
+        if(data.activeTagFilter) {
+            filterBar.style.display = 'flex';
+            document.getElementById('filterText').innerText = `태그 필터: #${data.activeTagFilter}`;
+        } else {
+            filterBar.style.display = 'none';
+        }
+    }
+
+    // --- 폴더 관리 ---
     function addFolder() {
         const name = document.getElementById('newFolderName').value;
         const color = document.getElementById('newFolderColor').value;
         if(!name) return;
-
-        const newFolder = { id: Date.now(), name, color, items: [] };
-        data.folders.push(newFolder);
+        data.folders.push({ id: Date.now(), name, color, items: [] });
         save();
         renderFolders();
-        closeModal();
+        closeAllModals();
         document.getElementById('newFolderName').value = '';
+    }
+
+    function selectView(view, folderId = null) {
+        data.currentView = view;
+        data.selectedFolderId = folderId;
+        data.activeTagFilter = null; // 뷰 전환 시 태그 필터 초기화
+        save();
+        init();
     }
 
     function renderFolders() {
         const list = document.getElementById('folderList');
         list.innerHTML = data.folders.map(f => `
-            <div class="folder-item ${currentFolderId === f.id ? 'active' : ''}" onclick="selectFolder(${f.id})">
+            <div class="menu-item ${data.selectedFolderId === f.id ? 'active' : ''}" onclick="selectView('folder', ${f.id})">
                 <div class="color-dot" style="background:${f.color}"></div>
                 ${f.name}
             </div>
         `).join('');
     }
 
-    function selectFolder(id) {
-        currentFolderId = id;
-        const folder = data.folders.find(f => f.id === id);
-        document.getElementById('currentFolderName').innerText = folder.name;
-        document.getElementById('inputSection').style.display = 'block';
-        document.getElementById('delFolderBtn').style.display = 'block';
-        renderFolders();
-        renderBgms();
+    function deleteCurrentFolder() {
+        if(!confirm("이 폴더의 모든 BGM이 삭제됩니다.")) return;
+        data.folders = data.folders.filter(f => f.id !== data.selectedFolderId);
+        selectView('all');
     }
 
-    function deleteFolder() {
-        if(confirm("폴더와 내부 BGM이 모두 삭제됩니다. 계속할까요?")) {
-            data.folders = data.folders.filter(f => f.id !== currentFolderId);
-            currentFolderId = null;
-            document.getElementById('inputSection').style.display = 'none';
-            document.getElementById('delFolderBtn').style.display = 'none';
-            document.getElementById('currentFolderName').innerText = "폴더를 선택해주세요";
+    // --- 태그 관리 ---
+    function renderTagOptions() {
+        const select = document.getElementById('bgmTagSelect');
+        select.innerHTML = '<option value="">태그 선택 안함</option>' + 
+            data.tags.map(t => `<option value="${t}">${t}</option>`).join('');
+    }
+
+    function renderTagManagement() {
+        const editList = document.getElementById('tagEditList');
+        editList.innerHTML = data.tags.map(t => `
+            <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f8fafc; font-size:0.9rem;">
+                <span># ${t}</span>
+                <span onclick="deleteTag('${t}')" style="color:#ef4444; cursor:pointer;">삭제</span>
+            </div>
+        `).join('');
+        
+        const sideList = document.getElementById('tagManageList');
+        sideList.innerHTML = data.tags.map(t => `<span class="tag-badge" onclick="setTagFilter('${t}')">#${t}</span>`).join('');
+    }
+
+    function addTag() {
+        const name = document.getElementById('newTagName').value.trim();
+        if(name && !data.tags.includes(name)) {
+            data.tags.push(name);
             save();
-            renderFolders();
-            renderBgms();
+            renderTagOptions();
+            renderTagManagement();
+            document.getElementById('newTagName').value = '';
         }
     }
 
-    // --- BGM 기능 ---
+    function deleteTag(tagName) {
+        data.tags = data.tags.filter(t => t !== tagName);
+        save();
+        renderTagOptions();
+        renderTagManagement();
+    }
+
+    // --- BGM 관리 ---
+    function setTagFilter(tagName) {
+        data.activeTagFilter = tagName;
+        save();
+        updateUI();
+        renderBgms();
+    }
+
+    function clearTagFilter() {
+        data.activeTagFilter = null;
+        save();
+        updateUI();
+        renderBgms();
+    }
+
     function getYoutubeId(url) {
         const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
         const match = url.match(regExp);
@@ -142,57 +262,72 @@
     function addBGM() {
         const title = document.getElementById('bgmTitle').value;
         const url = document.getElementById('bgmUrl').value;
-        const tag = document.getElementById('bgmTag').value;
+        const tag = document.getElementById('bgmTagSelect').value;
         const videoId = getYoutubeId(url);
 
-        if(!title || !videoId) return alert("제목과 올바른 URL을 입력하세요.");
+        if(!title || !videoId) return alert("제목과 유튜브 주소를 확인해주세요.");
 
-        const folder = data.folders.find(f => f.id === currentFolderId);
+        const folder = data.folders.find(f => f.id === data.selectedFolderId);
         folder.items.push({ id: Date.now(), title, videoId, tag });
-        
         save();
         renderBgms();
         document.getElementById('bgmTitle').value = '';
         document.getElementById('bgmUrl').value = '';
-        document.getElementById('bgmTag').value = '';
     }
 
-    function deleteBGM(id) {
-        const folder = data.folders.find(f => f.id === currentFolderId);
-        folder.items = folder.items.filter(item => item.id !== id);
+    function deleteBGM(folderId, itemId) {
+        const folder = data.folders.find(f => f.id === folderId);
+        folder.items = folder.items.filter(i => i.id !== itemId);
         save();
         renderBgms();
     }
 
     function renderBgms() {
         const grid = document.getElementById('bgmGrid');
-        grid.innerHTML = '';
-        if(!currentFolderId) return;
+        let allItems = [];
 
-        const folder = data.folders.find(f => f.id === currentFolderId);
-        grid.innerHTML = folder.items.map(item => `
-            <div class="bgm-card">
+        if(data.currentView === 'all') {
+            data.folders.forEach(f => {
+                f.items.forEach(i => allItems.push({...i, folderId: f.id, folderColor: f.color}));
+            });
+        } else {
+            const folder = data.folders.find(f => f.id === data.selectedFolderId);
+            if(folder) folder.items.forEach(i => allItems.push({...i, folderId: folder.id, folderColor: folder.color}));
+        }
+
+        // 태그 필터 적용
+        if(data.activeTagFilter) {
+            allItems = allItems.filter(i => i.tag === data.activeTagFilter);
+        }
+
+        grid.innerHTML = allItems.map(item => `
+            <div class="bgm-card" style="border-top: 4px solid ${item.folderColor}">
                 <div class="video-wrapper">
                     <iframe src="https://www.youtube.com/embed/${item.videoId}" allowfullscreen></iframe>
                 </div>
                 <div class="card-info">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                         <div>
-                            <div style="font-weight:bold; margin-bottom:5px;">${item.title}</div>
-                            ${item.tag ? `<span class="tag-badge"># ${item.tag}</span>` : ''}
+                            <div style="font-weight:bold; margin-bottom:8px;">${item.title}</div>
+                            ${item.tag ? `<span class="tag-badge" onclick="setTagFilter('${item.tag}')"># ${item.tag}</span>` : ''}
                         </div>
-                        <button onclick="deleteBGM(${item.id})" style="border:none; background:none; color:#ccc; cursor:pointer;">&times;</button>
+                        <button onclick="deleteBGM(${item.folderId}, ${item.id})" style="border:none; background:none; color:#cbd5e1; cursor:pointer;">&times;</button>
                     </div>
                 </div>
             </div>
         `).join('');
     }
 
-    function save() {
-        localStorage.setItem('bgm_app_data', JSON.stringify(data));
+    // --- 모달 제어 ---
+    function openModal(id) {
+        document.getElementById(id).style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+    }
+    function closeAllModals() {
+        document.querySelectorAll('.modal, .overlay').forEach(el => el.style.display = 'none');
     }
 
-    renderFolders();
+    init();
 </script>
 </body>
 </html>
