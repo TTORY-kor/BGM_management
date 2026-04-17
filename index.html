@@ -615,7 +615,7 @@
   </main>
 
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwGC4yrJQ3OUpGM0Jb9ItIUv_FjKFCJFuGHkFupxMctYox4-jO5qXZI3LyeR1cQ6yA/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwARJt00LvRo2jFC9sqTtIDeUNaSBRyAqEFCU-ukcVyLpb3OAegyApQ9bfPF_FBId4/exec';
 
     let allItems = [];
     let currentFilter = { type: 'folder', value: '전체' };
@@ -1049,52 +1049,47 @@
 
     async function saveToSheet() {
       if (isSaving) return;
-
+    
       const id = normalizeText(els.editId.value);
       const title = normalizeText(els.inTitle.value);
       const url = normalizeText(els.inUrl.value);
       const tag = normalizeText(els.inTag.value);
       const folder = normalizeText(els.inFolder.value) || '기타';
-
+    
       if (!title || !url) {
         showMessage('곡 제목과 URL은 필수입니다.', 'error');
         return;
       }
-
+    
       if (!isValidYoutubeUrl(url)) {
         showMessage('유효한 유튜브 URL을 입력해주세요.', 'error');
         return;
       }
-
+    
       isSaving = true;
       els.saveBtn.disabled = true;
       els.saveBtn.textContent = '저장 중...';
-
+    
       try {
         hideMessage();
-
-        const payload = {
-          action: id ? 'edit' : 'add',
-          id: id || undefined,
-          title,
-          url,
-          tag,
-          folder
-        };
-
+    
+        const payload = new URLSearchParams();
+        payload.append('action', id ? 'edit' : 'add');
+        if (id) payload.append('id', id);
+        payload.append('title', title);
+        payload.append('url', url);
+        payload.append('tag', tag);
+        payload.append('folder', folder);
+    
         const result = await requestJSON(API_URL, {
           method: 'POST',
-          mode: 'cors',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
+          body: payload
         });
-
+    
         if (!result.ok) {
           throw new Error(result.error || '저장 실패');
         }
-
+    
         showMessage(id ? '수정이 완료되었습니다.' : '새 곡이 추가되었습니다.', 'success');
         toggleInput(false);
         resetForm();
@@ -1114,29 +1109,26 @@
         showMessage('삭제할 id가 없습니다.', 'error');
         return;
       }
-
+    
       const ok = confirm('정말 이 곡을 삭제하시겠습니까?');
       if (!ok) return;
-
+    
       try {
         hideMessage();
-
+    
+        const payload = new URLSearchParams();
+        payload.append('action', 'delete');
+        payload.append('id', id);
+    
         const result = await requestJSON(API_URL, {
           method: 'POST',
-          mode: 'cors',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            action: 'delete',
-            id
-          })
+          body: payload
         });
-
+    
         if (!result.ok) {
           throw new Error(result.error || '삭제 실패');
         }
-
+    
         showMessage('삭제가 완료되었습니다.', 'success');
         await loadData(false);
       } catch (error) {
