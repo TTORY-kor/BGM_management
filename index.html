@@ -3,77 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BGM 공유 워크스테이션</title>
+    <title>BGM 워크스테이션 PRO</title>
     <style>
-        :root { --primary: #6366f1; --primary-dark: #4f46e5; --bg: #f8fafc; }
-        body { font-family: 'Pretendard', sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #1e293b; }
-        .container { max-width: 1100px; margin: 0 auto; }
+        :root { --primary: #6366f1; --sidebar-bg: #0f172a; --bg: #f8fafc; --text-main: #1e293b; }
+        body { font-family: 'Pretendard', sans-serif; background: var(--bg); margin: 0; display: flex; height: 100vh; overflow: hidden; color: var(--text-main); }
         
-        header { text-align: center; margin-bottom: 30px; }
-        header h1 { margin-bottom: 5px; color: #0f172a; }
+        /* 사이드바 스타일 */
+        .sidebar { width: 260px; background: var(--sidebar-bg); color: #f8fafc; padding: 25px; display: flex; flex-direction: column; flex-shrink: 0; }
+        .sidebar h2 { font-size: 1.2rem; margin-bottom: 30px; color: white; display: flex; align-items: center; gap: 10px; }
+        .sidebar-section { margin-bottom: 25px; }
+        .sidebar-section h3 { font-size: 0.75rem; text-transform: uppercase; color: #64748b; margin-bottom: 12px; letter-spacing: 0.05em; }
         
-        /* 입력 폼 섹션 */
-        .input-card { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 40px; }
-        .input-card h3 { margin-top: 0; font-size: 1.1rem; margin-bottom: 15px; }
-        .input-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 100px; gap: 12px; }
-        input { padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.9rem; }
-        .btn-save { background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        .btn-save:hover { background: var(--primary-dark); }
-        .btn-save:disabled { background: #cbd5e1; cursor: not-allowed; }
+        .menu-item { padding: 10px 12px; margin-bottom: 5px; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 0.9rem; display: flex; align-items: center; color: #94a3b8; }
+        .menu-item:hover { background: #1e293b; color: white; }
+        .menu-item.active { background: #334155; color: white; font-weight: 600; }
+        .tag-badge { font-size: 0.75rem; background: #1e293b; padding: 3px 8px; border-radius: 4px; margin: 3px; display: inline-block; cursor: pointer; border: 1px solid #334155; }
+        .tag-badge:hover { border-color: var(--primary); color: white; }
 
-        /* 필터 및 목록 섹션 */
-        .filter-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
-        .filter-btn { padding: 8px 18px; border-radius: 20px; border: 1px solid #e2e8f0; background: white; cursor: pointer; font-size: 0.9rem; }
-        .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        /* 메인 영역 */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 35px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        
+        /* 입력 폼 가독성 강화 */
+        .input-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; margin-bottom: 30px; }
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 90px; gap: 10px; }
+        input { padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 0.85rem; }
+        .save-btn { background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
 
-        .bgm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
-        .bgm-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        /* 그리드 및 카드 디자인 */
+        .bgm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .bgm-card { background: white; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; transition: 0.2s; }
+        .bgm-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
         .video-box { position: relative; padding-bottom: 56.25%; height: 0; background: #000; }
         .video-box iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-        .card-body { padding: 18px; }
-        .folder-label { font-size: 0.7rem; font-weight: bold; color: var(--primary); margin-bottom: 4px; display: block; }
-        .title-label { font-size: 1.05rem; font-weight: 700; margin-bottom: 10px; display: block; }
-        .tag-list { display: flex; flex-wrap: wrap; gap: 5px; }
-        .tag-item { font-size: 0.75rem; background: #f1f5f9; color: #64748b; padding: 2px 8px; border-radius: 4px; }
+        .card-body { padding: 15px; }
+        .card-folder { font-size: 0.7rem; color: var(--primary); font-weight: bold; margin-bottom: 5px; }
+        .card-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 10px; display: block; }
+        .card-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+        .card-tag { font-size: 0.7rem; color: #64748b; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; }
 
-        .loading { text-align: center; padding: 50px; color: #94a3b8; }
+        .loading { text-align: center; margin-top: 100px; color: #94a3b8; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1>🎬 BGM 워크스테이션</h1>
-        <p>우리 팀의 시나리오 BGM 라이브러리</p>
-    </header>
+<div class="sidebar">
+    <h2>🎵 BGM Library</h2>
+    
+    <div class="sidebar-section">
+        <h3>Menu</h3>
+        <div class="menu-item active" id="menu-all" onclick="setFilter('전체', 'folder')">🌐 전체 보기</div>
+    </div>
+
+    <div class="sidebar-section">
+        <h3>Folders</h3>
+        <div id="folderMenu"></div>
+    </div>
+
+    <div class="sidebar-section">
+        <h3>Tags</h3>
+        <div id="tagMenu"></div>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="header">
+        <h1 id="viewTitle">전체 목록</h1>
+        <small id="statusMsg" style="color: #94a3b8;"></small>
+    </div>
 
     <div class="input-card">
-        <h3>➕ 새로운 BGM 추가</h3>
         <div class="input-grid">
-            <input type="text" id="inTitle" placeholder="곡 제목 / 장면">
+            <input type="text" id="inTitle" placeholder="제목/장면">
             <input type="text" id="inUrl" placeholder="유튜브 URL">
-            <input type="text" id="inTag" placeholder="태그 (슬픔|긴장)">
+            <input type="text" id="inTag" placeholder="태그(예: 긴장|슬픔)">
             <input type="text" id="inFolder" placeholder="폴더명">
-            <button class="btn-save" onclick="saveToSheet()">저장하기</button>
+            <button class="save-btn" onclick="saveToSheet()">저장</button>
         </div>
     </div>
 
-    <div class="filter-bar" id="filterBar">
-        <button class="filter-btn active" onclick="filterList('전체', this)">전체</button>
-    </div>
-
-    <div id="loading" class="loading">데이터 동기화 중...</div>
+    <div id="loading" class="loading">데이터를 불러오는 중...</div>
     <div id="bgmGrid" class="bgm-grid"></div>
 </div>
 
 <script>
-    // 연결된 주소 설정
     const API_URL = 'https://script.google.com/macros/s/AKfycbwqRkmp_jE5WYDWHHdFWFv9eNVBEpSkemiPEKlxDUW_ZzfZYTygMIbAV36nxH-Sy3s/exec';
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQCL8oO_ZGrgfzsU62QiBleCD8Fd-chR0kYzQC67DD7ENumxN0iTt-l9H134kxmgPt55AbtknAdgWmO/pub?output=csv';
 
     let allItems = [];
+    let currentFilter = { type: 'folder', value: '전체' };
 
-    // 1. 유튜브 ID 추출
     function getYoutubeId(url) {
         if (!url) return null;
         const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -81,59 +100,36 @@
         return (match && match[2].length === 11) ? match[2] : null;
     }
 
-    // 2. 데이터 시트에 저장 (입력 기능)
     async function saveToSheet() {
         const title = document.getElementById('inTitle').value;
         const url = document.getElementById('inUrl').value;
         const tag = document.getElementById('inTag').value;
         const folder = document.getElementById('inFolder').value;
-        const btn = document.querySelector('.btn-save');
+        const btn = document.querySelector('.save-btn');
 
-        if (!title || !url) return alert("제목과 URL은 필수입니다!");
+        if (!title || !url) return alert("제목과 주소를 입력해주세요.");
 
         btn.disabled = true;
-        btn.innerText = "저장 중...";
-
-        const payload = { title, url, tag, folder };
+        btn.innerText = "저장중";
 
         try {
-            // Google Apps Script는 CORS 정책 때문에 'no-cors' 모드로 보냅니다.
-            await fetch(API_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                cache: 'no-cache',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            alert("구글 시트에 성공적으로 저장되었습니다!\n웹 게시 반영까지 약 1분 정도 소요될 수 있습니다.");
-            
-            // 입력창 비우기
-            document.getElementById('inTitle').value = '';
-            document.getElementById('inUrl').value = '';
-            document.getElementById('inTag').value = '';
-            document.getElementById('inFolder').value = '';
-            
-            // 데이터 갱신을 위해 페이지 새로고침
+            await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ title, url, tag, folder }) });
+            alert("저장되었습니다! 반영까지 잠시만 기다려주세요.");
             location.reload();
         } catch (e) {
-            console.error(e);
-            alert("저장 중 오류가 발생했습니다.");
-        } finally {
+            alert("저장 오류 발생");
             btn.disabled = false;
-            btn.innerText = "저장하기";
+            btn.innerText = "저장";
         }
     }
 
-    // 3. 데이터 불러오기 (조회 기능)
     async function loadData() {
         try {
-            const response = await fetch(CSV_URL);
-            const text = await response.text();
+            const res = await fetch(CSV_URL);
+            const text = await res.text();
             const rows = text.split('\n').slice(1);
 
             allItems = rows.map(row => {
-                // CSV 행 파싱 (따옴표 등 고려 안 한 단순 파싱)
                 const cols = row.split(',');
                 if (cols.length < 2) return null;
                 return {
@@ -142,46 +138,63 @@
                     tags: cols[2] ? cols[2].split('|').map(t => t.trim()) : [],
                     folder: cols[3]?.trim() || '기타'
                 };
-            }).filter(item => item && getYoutubeId(item.url));
+            }).filter(i => i && getYoutubeId(i.url));
 
-            renderFilters();
-            renderGrid(allItems);
+            renderSideMenu();
+            renderGrid();
             document.getElementById('loading').style.display = 'none';
         } catch (e) {
-            document.getElementById('loading').innerText = "데이터를 불러올 수 없습니다.";
+            document.getElementById('loading').innerText = "데이터 로드 실패";
         }
     }
 
-    // 4. 필터 버튼 생성
-    function renderFilters() {
-        const folders = ['전체', ...new Set(allItems.map(i => i.folder))];
-        const bar = document.getElementById('filterBar');
-        bar.innerHTML = folders.map(f => `
-            <button class="filter-btn ${f === '전체' ? 'active' : ''}" onclick="filterList('${f}', this)">${f}</button>
+    function renderSideMenu() {
+        // 폴더 메뉴
+        const folders = [...new Set(allItems.map(i => i.folder))];
+        document.getElementById('folderMenu').innerHTML = folders.map(f => `
+            <div class="menu-item" onclick="setFilter('${f}', 'folder')">📁 ${f}</div>
+        `).join('');
+
+        // 태그 메뉴
+        const tags = [...new Set(allItems.flatMap(i => i.tags))].filter(t => t);
+        document.getElementById('tagMenu').innerHTML = tags.map(t => `
+            <span class="tag-badge" onclick="setFilter('${t}', 'tag')">#${t}</span>
         `).join('');
     }
 
-    function filterList(folder, btn) {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        const filtered = folder === '전체' ? allItems : allItems.filter(i => i.folder === folder);
-        renderGrid(filtered);
+    function setFilter(val, type) {
+        currentFilter = { type, value: val };
+        
+        // UI 상태 변경
+        document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+        if(val === '전체') document.getElementById('menu-all').classList.add('active');
+        
+        document.getElementById('viewTitle').innerText = val === '전체' ? "전체 목록" : `${type === 'tag' ? '#' : '📁'} ${val}`;
+        renderGrid();
     }
 
-    // 5. 그리드 렌더링
-    function renderGrid(items) {
+    function renderGrid() {
         const grid = document.getElementById('bgmGrid');
-        grid.innerHTML = items.map(item => `
+        let filtered = allItems;
+
+        if (currentFilter.value !== '전체') {
+            if (currentFilter.type === 'folder') {
+                filtered = allItems.filter(i => i.folder === currentFilter.value);
+            } else {
+                filtered = allItems.filter(i => i.tags.includes(currentFilter.value));
+            }
+        }
+
+        grid.innerHTML = filtered.map(item => `
             <div class="bgm-card">
                 <div class="video-box">
                     <iframe src="https://www.youtube.com/embed/${getYoutubeId(item.url)}" allowfullscreen></iframe>
                 </div>
                 <div class="card-body">
-                    <span class="folder-label">${item.folder}</span>
-                    <strong class="title-label">${item.title}</strong>
-                    <div class="tag-list">
-                        ${item.tags.map(t => `<span class="tag-item">#${t}</span>`).join('')}
+                    <div class="card-folder">${item.folder}</div>
+                    <strong class="card-title">${item.title}</strong>
+                    <div class="card-tags">
+                        ${item.tags.map(t => `<span class="card-tag">#${t}</span>`).join('')}
                     </div>
                 </div>
             </div>
@@ -190,6 +203,5 @@
 
     loadData();
 </script>
-
 </body>
 </html>
