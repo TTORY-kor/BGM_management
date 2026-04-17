@@ -3,624 +3,487 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BGM 워크스테이션 PRO</title>
+  <title>BGM 워크스테이션 PRO+</title>
   <style>
     :root {
-      --primary: #6366f1;
-      --primary-dark: #4f46e5;
-      --sidebar-bg: #2d3436;
-      --main-bg: #e5e7eb;
-      --card-bg: #ffffff;
-      --text-main: #111827;
+      --bg: #f4f6fb;
+      --panel: rgba(255,255,255,0.82);
+      --panel-strong: rgba(255,255,255,0.94);
+      --sidebar: #171a21;
+      --text: #111827;
       --text-sub: #6b7280;
-      --line: #d1d5db;
+      --line: rgba(17,24,39,0.08);
+      --primary: #6d5efc;
+      --primary-strong: #5747f0;
+      --primary-soft: rgba(109,94,252,0.12);
       --danger: #ef4444;
-      --danger-dark: #dc2626;
       --success: #16a34a;
-      --success-dark: #15803d;
-      --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+      --shadow-lg: 0 24px 70px rgba(15,23,42,0.12);
+      --shadow-md: 0 12px 28px rgba(15,23,42,0.08);
+      --radius-xl: 22px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --sidebar-width: 300px;
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
+    * { box-sizing: border-box; }
     html, body {
       margin: 0;
-      height: 100%;
+      min-height: 100%;
       font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
-      background: var(--main-bg);
-      color: var(--text-main);
+      background:
+        radial-gradient(circle at top left, rgba(109,94,252,0.12), transparent 24%),
+        radial-gradient(circle at top right, rgba(56,189,248,0.10), transparent 28%),
+        var(--bg);
+      color: var(--text);
     }
-
-    body {
-      display: flex;
-      overflow: hidden;
-    }
-
-    button, input {
-      font: inherit;
-    }
+    body { display: flex; overflow: hidden; }
+    button, input, select { font: inherit; }
 
     .sidebar {
-      width: 280px;
-      background: var(--sidebar-bg);
-      color: #dfe6e9;
-      padding: 24px;
+      width: var(--sidebar-width);
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)), var(--sidebar);
+      color: #eef2ff;
+      padding: 22px 18px;
       display: flex;
       flex-direction: column;
+      gap: 18px;
       flex-shrink: 0;
       overflow-y: auto;
-      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      border-right: 1px solid rgba(255,255,255,0.05);
+      transition: width .2s ease, padding .2s ease;
+    }
+    body.sidebar-collapsed .sidebar { width: 86px; padding-inline: 14px; }
+
+    .brand {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      padding: 4px 4px 12px; border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .brand-main { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .brand-icon {
+      width: 42px; height: 42px; border-radius: 14px;
+      background: linear-gradient(135deg, #7c6bff, #4f9cff);
+      display: grid; place-items: center; font-size: 1.15rem;
+      box-shadow: 0 10px 22px rgba(79,70,229,0.28); flex-shrink: 0;
+    }
+    .brand-title { font-size: 1rem; font-weight: 800; letter-spacing: -0.03em; white-space: nowrap; }
+    .brand-sub { margin-top: 4px; font-size: .75rem; color: rgba(238,242,255,.7); white-space: nowrap; }
+    .collapse-btn {
+      width: 36px; height: 36px; border-radius: 12px; border: 0;
+      background: rgba(255,255,255,0.08); color: #fff; cursor: pointer;
+    }
+    .collapse-btn:hover { background: rgba(255,255,255,0.14); }
+
+    body.sidebar-collapsed .brand-text,
+    body.sidebar-collapsed .section-title span,
+    body.sidebar-collapsed .menu-label,
+    body.sidebar-collapsed .sidebar-search,
+    body.sidebar-collapsed .tag-cloud,
+    body.sidebar-collapsed .folderMenuWrap,
+    body.sidebar-collapsed .side-meta,
+    body.sidebar-collapsed .menu-item.add-btn-main .menu-label {
+      display: none !important;
     }
 
-    .sidebar h2 {
-      font-size: 1.15rem;
-      margin: 0 0 24px;
-      color: white;
-      border-bottom: 1px solid #636e72;
-      padding-bottom: 14px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
+    .sidebar-section { display: flex; flex-direction: column; gap: 10px; }
+    .section-title {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: .72rem; text-transform: uppercase; letter-spacing: .12em;
+      color: rgba(238,242,255,.62); padding: 0 4px; font-weight: 700;
     }
-
-    .sidebar-section {
-      margin-bottom: 28px;
+    .sidebar-search {
+      display: flex; align-items: center; gap: 8px; padding: 10px 12px;
+      border-radius: 14px; background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.06);
     }
-
-    .sidebar-section h3 {
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      color: #b2bec3;
-      margin: 0 0 12px;
-      letter-spacing: 0.12em;
-      font-weight: 700;
+    .sidebar-search input {
+      width: 100%; background: transparent; border: 0; outline: none; color: #fff;
     }
-
-    .menu-list {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
+    .sidebar-search input::placeholder { color: rgba(255,255,255,.5); }
+    .menu-list { display: flex; flex-direction: column; gap: 8px; }
     .menu-item {
-      padding: 10px 12px;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: 0.2s;
-      font-size: 0.87rem;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #c7d0d3;
-      min-height: 40px;
-      user-select: none;
-      word-break: break-word;
+      display: flex; align-items: center; gap: 10px; min-height: 42px;
+      border-radius: 14px; cursor: pointer; color: rgba(238,242,255,.82);
+      padding: 10px 12px; transition: .18s ease; user-select: none;
     }
-
-    .menu-item:hover {
-      background: #4b5563;
-      color: white;
-    }
-
+    .menu-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
     .menu-item.active {
-      background: var(--primary);
-      color: white;
-      font-weight: 700;
+      background: linear-gradient(135deg, rgba(109,94,252,.95), rgba(79,156,255,.85));
+      color: #fff; box-shadow: 0 10px 26px rgba(79,70,229,0.24); font-weight: 700;
     }
-
     .menu-item.add-btn-main {
-      background: #4b5563;
-      color: #fff;
-      margin-top: 8px;
-      border: 1px dashed #7f8c8d;
-      justify-content: center;
-      font-weight: 700;
+      border: 1px dashed rgba(255,255,255,.18);
+      background: rgba(255,255,255,0.04); justify-content: center; font-weight: 700;
     }
-
-    .menu-item.add-btn-main:hover {
-      background: #59626d;
-    }
-
-    .color-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 999px;
-      flex-shrink: 0;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18);
-    }
-
-    .tag-cloud {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
+    .menu-icon { width: 20px; text-align: center; flex-shrink: 0; }
+    .menu-label { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .menu-count { font-size: .72rem; color: rgba(255,255,255,.6); flex-shrink: 0; }
+    .menu-item.active .menu-count { color: rgba(255,255,255,.9); }
+    .color-dot { width: 10px; height: 10px; border-radius: 999px; flex-shrink: 0; }
+    .tag-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
     .tag-chip {
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 6px 10px;
-      border-radius: 999px;
-      cursor: pointer;
-      border: none;
-      transition: 0.2s;
+      font-size: .74rem; font-weight: 700; padding: 7px 10px; border-radius: 999px;
+      cursor: pointer; border: 0; transition: .18s ease;
+    }
+    .tag-chip:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(15,23,42,0.14); }
+    .side-meta {
+      margin-top: auto; padding: 14px; border-radius: 16px;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.06);
+      font-size: .78rem; color: rgba(238,242,255,.78); line-height: 1.6;
     }
 
-    .tag-chip:hover {
-      transform: translateY(-1px);
+    .main-content { flex: 1; overflow-y: auto; padding: 26px; }
+    .topbar, .surface {
+      background: var(--panel); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.65); box-shadow: var(--shadow-md); border-radius: var(--radius-xl);
     }
-
-    .main-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-      padding: 32px;
-      background: var(--main-bg);
+    .topbar {
+      padding: 20px; display: flex; flex-wrap: wrap; align-items: center;
+      justify-content: space-between; gap: 16px; margin-bottom: 18px;
     }
-
-    .header {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 14px;
-      margin-bottom: 20px;
-    }
-
-    .header-left h1 {
-      margin: 0;
-      font-size: 1.7rem;
-      letter-spacing: -0.03em;
-    }
-
-    .header-left p {
-      margin: 8px 0 0;
-      color: var(--text-sub);
-      font-size: 0.92rem;
-    }
+    .title-block h1 { margin: 0; font-size: clamp(1.45rem, 2vw, 2rem); letter-spacing: -0.04em; }
+    .title-block p { margin: 8px 0 0; color: var(--text-sub); font-size: .93rem; }
+    .top-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 
     .toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
+      padding: 16px; display: grid; grid-template-columns: minmax(240px, 1.2fr) repeat(4, minmax(140px, .6fr));
+      gap: 10px; align-items: center; margin-bottom: 14px;
     }
-
-    .search-box {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: white;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 0 12px;
-      min-width: 300px;
-      height: 44px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    .search-box, .select-box {
+      display: flex; align-items: center; gap: 10px; min-height: 46px;
+      background: var(--panel-strong); border: 1px solid var(--line); border-radius: 14px; padding: 0 14px;
     }
-
-    .search-box input {
-      border: none;
-      outline: none;
-      background: transparent;
-      width: 100%;
-      color: var(--text-main);
+    .search-box input, .select-box select {
+      width: 100%; background: transparent; border: 0; outline: none; color: var(--text); height: 44px;
     }
-
+    .button-group { display: flex; gap: 10px; align-items: center; }
     .toolbar-btn {
-      border: 1px solid var(--line);
-      background: white;
-      color: var(--text-main);
-      border-radius: 12px;
-      padding: 10px 14px;
-      cursor: pointer;
-      font-weight: 700;
-      transition: 0.2s;
-      height: 44px;
+      min-height: 46px; border-radius: 14px; padding: 10px 14px; border: 1px solid var(--line);
+      background: var(--panel-strong); color: var(--text); cursor: pointer; font-weight: 700; transition: .18s ease;
+      white-space: nowrap;
     }
-
-    .toolbar-btn:hover {
-      background: #f9fafb;
-    }
-
+    .toolbar-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 18px rgba(15,23,42,0.08); }
     .toolbar-btn.primary {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: white;
+      background: linear-gradient(135deg, var(--primary), #4f9cff); color: white; border-color: transparent;
+      box-shadow: 0 12px 22px rgba(79,70,229,0.22);
     }
+    .toolbar-btn.soft { background: var(--primary-soft); color: var(--primary-strong); border-color: rgba(109,94,252,0.18); }
+    .toolbar-btn.ghost { background: transparent; }
 
-    .toolbar-btn.primary:hover {
-      background: var(--primary-dark);
-      border-color: var(--primary-dark);
-    }
+    .stats-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
+    .stat-card { padding: 16px 18px; min-height: 46px; display: flex; flex-direction: column; gap: 6px; }
+    .stat-label { font-size: .8rem; color: var(--text-sub); font-weight: 700; }
+    .stat-value { font-size: 1.3rem; font-weight: 900; letter-spacing: -0.04em; }
 
-    .status-bar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 20px;
-    }
-
+    .status-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
     .status-pill {
-      background: rgba(99, 102, 241, 0.12);
-      color: var(--primary-dark);
-      border: 1px solid rgba(99, 102, 241, 0.18);
-      border-radius: 999px;
-      padding: 7px 12px;
-      font-size: 0.8rem;
-      font-weight: 700;
+      background: var(--panel-strong); border: 1px solid var(--line); border-radius: 999px;
+      padding: 8px 12px; font-size: .8rem; font-weight: 700; color: var(--text-sub);
     }
-
     .message-box {
-      display: none;
-      margin-bottom: 18px;
-      padding: 14px 16px;
-      border-radius: 12px;
-      font-size: 0.92rem;
-      line-height: 1.5;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+      display: none; margin-bottom: 14px; padding: 14px 16px; border-radius: 16px; font-size: .93rem;
+      line-height: 1.5; box-shadow: var(--shadow-md); border: 1px solid transparent;
     }
+    .message-box.show { display: block; }
+    .message-box.info { background: #eef2ff; color: #3730a3; border-color: #c7d2fe; }
+    .message-box.error { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
+    .message-box.success { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
 
-    .message-box.show {
-      display: block;
+    .board { padding: 18px; }
+    .board-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+    .board-title { font-size: 1rem; font-weight: 800; letter-spacing: -0.03em; }
+    .view-toggle {
+      display: inline-flex; padding: 4px; border-radius: 14px; background: var(--panel-strong);
+      border: 1px solid var(--line); gap: 4px;
     }
-
-    .message-box.info {
-      background: #eef2ff;
-      color: #3730a3;
-      border: 1px solid #c7d2fe;
+    .view-toggle button {
+      min-width: 74px; min-height: 38px; border-radius: 10px; background: transparent; color: var(--text-sub);
+      cursor: pointer; font-weight: 800; border: 0;
     }
-
-    .message-box.error {
-      background: #fef2f2;
-      color: #991b1b;
-      border: 1px solid #fecaca;
-    }
-
-    .message-box.success {
-      background: #f0fdf4;
-      color: #166534;
-      border: 1px solid #bbf7d0;
-    }
-
-    .loading,
-    .empty-state {
-      text-align: center;
-      margin-top: 48px;
-      color: var(--text-sub);
-      font-size: 0.98rem;
-    }
+    .view-toggle button.active { background: linear-gradient(135deg, var(--primary), #4f9cff); color: #fff; }
+    .loading, .empty-state { text-align: center; padding: 70px 20px; color: var(--text-sub); font-size: .98rem; }
 
     .bgm-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 24px;
-      padding-bottom: 40px;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; padding-bottom: 30px;
     }
-
+    .bgm-grid.compact { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
     .bgm-card {
-      background: var(--card-bg);
-      border-radius: 16px;
-      overflow: hidden;
-      position: relative;
-      border: 1px solid var(--line);
-      transition: 0.22s ease;
-      box-shadow: var(--shadow);
+      background: var(--panel-strong); border-radius: 22px; overflow: hidden; position: relative;
+      border: 1px solid rgba(255,255,255,0.7); box-shadow: var(--shadow-md); transition: .2s ease;
+      display: flex; flex-direction: column;
     }
-
-    .bgm-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 24px 46px rgba(0,0,0,0.10);
+    .bgm-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+    .card-topbar {
+      position: absolute; top: 12px; left: 12px; right: 12px; display: flex; justify-content: space-between; z-index: 3;
+      pointer-events: none;
     }
-
-    .card-side-bar {
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 6px;
-      z-index: 2;
+    .card-badge, .card-fav-btn { pointer-events: auto; }
+    .card-badge {
+      padding: 6px 10px; border-radius: 999px; background: rgba(255,255,255,0.86); border: 1px solid rgba(255,255,255,0.75);
+      font-size: .72rem; font-weight: 800; color: var(--text); backdrop-filter: blur(8px);
     }
-
-    .video-box {
-      position: relative;
-      padding-bottom: 56.25%;
-      height: 0;
-      background: #0f172a;
-      margin-left: 6px;
+    .card-fav-btn {
+      width: 36px; height: 36px; border-radius: 999px; background: rgba(255,255,255,0.86); border: 1px solid rgba(255,255,255,0.75);
+      cursor: pointer; font-size: 1rem; box-shadow: 0 10px 20px rgba(15,23,42,0.08);
     }
-
-    .video-box iframe,
+    .card-fav-btn.active { color: #e11d48; transform: scale(1.02); }
+    .card-side-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 6px; z-index: 2; }
+    .video-box { position: relative; padding-bottom: 56.25%; height: 0; background: #0f172a; margin-left: 6px; }
+    .video-box iframe, .video-fallback { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
     .video-fallback {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
+      display: flex; align-items: center; justify-content: center; color: #cbd5e1; font-size: .9rem; text-align: center; padding: 20px;
     }
-
-    .video-fallback {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #cbd5e1;
-      font-size: 0.9rem;
-      text-align: center;
-      padding: 20px;
-    }
-
-    .card-body {
-      padding: 18px 18px 16px 24px;
-    }
-
-    .card-folder {
-      font-size: 0.72rem;
-      font-weight: 800;
-      margin-bottom: 8px;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
+    .card-body { padding: 18px 18px 16px 24px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+    .card-folder { font-size: .72rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
     .card-title {
-      font-size: 1rem;
-      font-weight: 800;
-      line-height: 1.4;
-      margin: 0 0 10px;
-      word-break: break-word;
+      font-size: 1rem; font-weight: 900; line-height: 1.42; margin: 0; word-break: break-word;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
     }
-
-    .card-date {
-      font-size: 0.75rem;
-      color: var(--text-sub);
-      margin-bottom: 10px;
-      line-height: 1.5;
-      white-space: pre-line;
-    }
-
+    .card-date { font-size: .76rem; color: var(--text-sub); line-height: 1.55; white-space: pre-line; }
     .card-url {
-      display: inline-block;
-      font-size: 0.78rem;
-      color: var(--text-sub);
-      text-decoration: none;
-      margin-bottom: 12px;
-      word-break: break-all;
+      display: inline-flex; align-items: center; gap: 6px; font-size: .8rem; color: var(--text-sub);
+      text-decoration: none; word-break: break-all; width: fit-content;
     }
-
-    .card-url:hover {
-      color: var(--primary-dark);
-      text-decoration: underline;
-    }
-
-    .card-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      min-height: 26px;
-    }
-
+    .card-url:hover { color: var(--primary-strong); }
+    .card-tags { display: flex; flex-wrap: wrap; gap: 6px; min-height: 26px; }
     .card-tag {
-      font-size: 0.72rem;
-      padding: 4px 8px;
-      border-radius: 999px;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
+      font-size: .72rem; padding: 5px 9px; border-radius: 999px; font-weight: 800;
+      display: inline-flex; align-items: center; gap: 4px;
     }
-
     .card-actions {
-      margin-top: 14px;
-      display: flex;
-      gap: 8px;
-      border-top: 1px solid #f3f4f6;
-      padding-top: 12px;
+      margin-top: auto; display: flex; flex-wrap: wrap; gap: 8px; border-top: 1px solid rgba(15,23,42,0.06); padding-top: 12px;
     }
-
     .action-btn {
-      font-size: 0.78rem;
-      border: none;
-      background: #f3f4f6;
-      padding: 8px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      color: #4b5563;
-      font-weight: 800;
-      transition: 0.18s;
+      font-size: .78rem; border: 0; background: #f3f4f6; padding: 9px 12px; border-radius: 12px; cursor: pointer;
+      color: #4b5563; font-weight: 800; transition: .18s;
     }
-
-    .action-btn:hover {
-      background: #e5e7eb;
-      color: #111827;
-    }
-
-    .btn-delete:hover {
-      background: var(--danger);
-      color: white;
-    }
+    .action-btn:hover { background: #e5e7eb; color: #111827; }
+    .btn-copy:hover { background: #eff6ff; color: #1d4ed8; }
+    .btn-delete:hover { background: var(--danger); color: white; }
 
     #inputOverlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.58);
-      z-index: 100;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
+      display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.5); backdrop-filter: blur(8px);
+      z-index: 100; justify-content: center; align-items: center; padding: 20px;
     }
-
     .input-card {
-      background: white;
-      padding: 26px;
-      border-radius: 18px;
-      width: 100%;
-      max-width: 520px;
-      box-shadow: 0 28px 60px rgba(0,0,0,0.28);
+      background: rgba(255,255,255,0.94); border: 1px solid rgba(255,255,255,0.8); backdrop-filter: blur(14px);
+      padding: 26px; border-radius: 24px; width: 100%; max-width: 560px; box-shadow: var(--shadow-lg);
     }
-
-    .input-card h3 {
-      margin: 0 0 18px;
-      font-size: 1.2rem;
-      letter-spacing: -0.02em;
-    }
-
-    .input-field {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
+    .input-card h3 { margin: 0 0 18px; font-size: 1.22rem; letter-spacing: -0.03em; }
+    .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field-span-2 { grid-column: 1 / -1; }
+    .input-field { display: flex; flex-direction: column; gap: 8px; }
+    .input-label { font-size: .82rem; font-weight: 800; color: var(--text-sub); }
     .input-field input {
-      padding: 12px 14px;
-      border: 1px solid #d1d5db;
-      border-radius: 10px;
-      outline: none;
-      transition: 0.2s;
+      padding: 13px 14px; border: 1px solid rgba(15,23,42,0.1); border-radius: 14px; outline: none;
+      transition: .2s; background: rgba(255,255,255,0.96);
     }
+    .input-field input:focus { border-color: var(--primary); box-shadow: 0 0 0 5px rgba(109,94,252,0.12); }
+    .input-help { font-size: .8rem; color: var(--text-sub); line-height: 1.5; margin-top: 12px; }
+    .input-actions { display: flex; gap: 10px; margin-top: 18px; }
+    .input-actions button { flex: 1; min-height: 46px; }
+    .footer-note { margin-top: 12px; font-size: .78rem; color: var(--text-sub); line-height: 1.6; }
 
-    .input-field input:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 4px rgba(99,102,241,0.12);
+    .toast {
+      position: fixed; right: 18px; bottom: 18px; background: rgba(17,24,39,0.9); color: white; padding: 12px 14px;
+      border-radius: 14px; box-shadow: var(--shadow-lg); z-index: 120; opacity: 0; transform: translateY(8px);
+      pointer-events: none; transition: .2s ease; max-width: 300px; font-size: .85rem; line-height: 1.45;
     }
+    .toast.show { opacity: 1; transform: translateY(0); }
 
-    .input-help {
-      font-size: 0.8rem;
-      color: var(--text-sub);
-      line-height: 1.45;
-      margin-top: -2px;
+    @media (max-width: 1220px) {
+      .toolbar { grid-template-columns: 1fr 1fr; }
+      .stats-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
-
-    .input-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 4px;
-    }
-
-    .input-actions button {
-      flex: 1;
-      min-height: 44px;
-    }
-
-    .footer-note {
-      margin-top: 12px;
-      font-size: 0.76rem;
-      color: var(--text-sub);
-      line-height: 1.5;
-    }
-
     @media (max-width: 960px) {
-      body {
-        flex-direction: column;
-        overflow: auto;
-      }
-
-      .sidebar {
-        width: 100%;
-        max-height: none;
-      }
-
-      .main-content {
-        padding: 20px;
-      }
-
-      .search-box {
-        min-width: 0;
-        width: 100%;
-      }
-
-      .toolbar {
-        width: 100%;
-      }
-
-      .toolbar-btn {
-        flex: 1;
-      }
+      body { flex-direction: column; overflow: auto; }
+      .sidebar { width: 100%; max-height: none; }
+      body.sidebar-collapsed .sidebar { width: 100%; }
+      .main-content { padding: 18px; }
+      .toolbar { grid-template-columns: 1fr; }
+      .input-grid { grid-template-columns: 1fr; }
+      .field-span-2 { grid-column: auto; }
+    }
+    @media (max-width: 620px) {
+      .main-content { padding: 14px; }
+      .stats-row { grid-template-columns: 1fr; }
+      .bgm-grid, .bgm-grid.compact { grid-template-columns: 1fr; }
+      .input-actions { flex-direction: column; }
     }
   </style>
 </head>
 <body>
+  <div id="toast" class="toast"></div>
+
   <div id="inputOverlay" aria-hidden="true">
     <div class="input-card" role="dialog" aria-modal="true" aria-labelledby="formTitle">
       <h3 id="formTitle">➕ 새로운 BGM 추가</h3>
       <input type="hidden" id="editId" />
-      <div class="input-field">
-        <input type="text" id="inTitle" placeholder="곡 제목 / 장면 설명" maxlength="200" />
-        <input type="text" id="inUrl" placeholder="유튜브 URL 주소" />
-        <input type="text" id="inTag" placeholder="태그 (예: 긴장|슬픔|몽환)" maxlength="200" />
-        <input type="text" id="inFolder" placeholder="폴더명" maxlength="100" />
-        <div class="input-help">
-          태그는 <strong>|</strong> 로 구분하세요. 예: 긴장|전투|추격
+      <div class="input-grid">
+        <div class="input-field field-span-2">
+          <label class="input-label" for="inTitle">곡 제목 / 장면 설명</label>
+          <input type="text" id="inTitle" placeholder="예: 이별 후 새벽 산책" maxlength="200" />
         </div>
-        <div class="input-actions">
-          <button class="toolbar-btn primary" id="saveBtn" onclick="saveToSheet()">저장하기</button>
-          <button class="toolbar-btn" onclick="toggleInput(false)">취소</button>
+        <div class="input-field field-span-2">
+          <label class="input-label" for="inUrl">유튜브 URL</label>
+          <input type="text" id="inUrl" placeholder="https://www.youtube.com/watch?v=..." />
         </div>
-        <div class="footer-note">
-          수정/삭제는 고유 ID 기준으로 처리됩니다.
+        <div class="input-field">
+          <label class="input-label" for="inFolder">폴더</label>
+          <input type="text" id="inFolder" placeholder="예: 전투 / 일상 / 슬픔" maxlength="100" />
+        </div>
+        <div class="input-field">
+          <label class="input-label" for="inTag">태그</label>
+          <input type="text" id="inTag" placeholder="긴장|몽환|야간" maxlength="200" />
         </div>
       </div>
+      <div class="input-help">태그는 <strong>|</strong> 로 구분하세요. 같은 링크가 이미 있으면 중복 안내를 띄웁니다.</div>
+      <div class="input-actions">
+        <button class="toolbar-btn primary" id="saveBtn" onclick="saveToSheet()">저장하기</button>
+        <button class="toolbar-btn ghost" onclick="toggleInput(false)">취소</button>
+      </div>
+      <div class="footer-note">수정/삭제는 고유 ID 기준으로 처리됩니다. 즐겨찾기와 화면 밀도는 브라우저에 로컬 저장됩니다.</div>
     </div>
   </div>
 
   <aside class="sidebar">
-    <h2>🎵 BGM Library</h2>
+    <div class="brand">
+      <div class="brand-main">
+        <div class="brand-icon">🎵</div>
+        <div class="brand-text">
+          <div class="brand-title">BGM Workstation</div>
+          <div class="brand-sub">playlist organizer pro+</div>
+        </div>
+      </div>
+      <button class="collapse-btn" id="collapseBtn" title="사이드바 접기/펴기">☰</button>
+    </div>
 
     <div class="sidebar-section">
-      <h3>Menu</h3>
+      <div class="section-title"><span>Quick Access</span></div>
       <div class="menu-list">
-        <div class="menu-item active" id="menu-all" onclick="setFilter('전체', 'folder')">🌐 전체 보기</div>
-        <div class="menu-item add-btn-main" onclick="openAddForm()">➕ BGM 추가하기</div>
+        <div class="menu-item active" id="menu-all" onclick="setFilter('전체', 'folder')">
+          <span class="menu-icon">🌐</span>
+          <span class="menu-label">전체 보기</span>
+          <span class="menu-count" id="allCount">0</span>
+        </div>
+        <div class="menu-item" id="menu-favorites" onclick="setFilter('__favorites__', 'special')">
+          <span class="menu-icon">⭐</span>
+          <span class="menu-label">즐겨찾기</span>
+          <span class="menu-count" id="favoriteCount">0</span>
+        </div>
+        <div class="menu-item" id="menu-recent" onclick="setFilter('__recent__', 'special')">
+          <span class="menu-icon">🕒</span>
+          <span class="menu-label">최근 수정</span>
+        </div>
+        <div class="menu-item add-btn-main" onclick="openAddForm()">
+          <span class="menu-icon">＋</span>
+          <span class="menu-label">BGM 추가하기</span>
+        </div>
       </div>
     </div>
 
     <div class="sidebar-section">
-      <h3>Folders</h3>
+      <div class="section-title"><span>Folder Search</span></div>
+      <div class="sidebar-search">
+        <span>🔎</span>
+        <input type="text" id="sideFilterInput" placeholder="폴더/태그 찾기" oninput="renderMenus()" />
+      </div>
+    </div>
+
+    <div class="sidebar-section folderMenuWrap">
+      <div class="section-title"><span>Folders</span></div>
       <div class="menu-list" id="folderMenu"></div>
     </div>
 
     <div class="sidebar-section">
-      <h3>Tags</h3>
+      <div class="section-title"><span>Tags</span></div>
       <div class="tag-cloud" id="tagMenu"></div>
+    </div>
+
+    <div class="side-meta">
+      카드에서 <strong>⭐ 즐겨찾기</strong>, <strong>🔗 링크 복사</strong>, <strong>원본 열기</strong>를 바로 쓸 수 있습니다.<br>
+      정렬은 제목순, 폴더순, 최근 수정순, 최근 등록순으로 전환됩니다.
     </div>
   </aside>
 
   <main class="main-content">
-    <div class="header">
-      <div class="header-left">
+    <section class="topbar">
+      <div class="title-block">
         <h1 id="viewTitle">전체 목록</h1>
-        <p id="viewDesc">등록된 BGM을 한눈에 보고, 필터링하고, 수정할 수 있습니다.</p>
+        <p id="viewDesc">등록된 BGM을 정리하고, 빠르게 찾고, 장면용으로 바로 꺼내 쓸 수 있습니다.</p>
       </div>
+      <div class="top-actions">
+        <button class="toolbar-btn soft" onclick="openAddForm()">＋ 새 곡 추가</button>
+        <button class="toolbar-btn" onclick="loadData(true)">↻ 새로고침</button>
+      </div>
+    </section>
 
-      <div class="toolbar">
-        <div class="search-box">
-          <span>🔎</span>
-          <input
-            type="text"
-            id="searchInput"
-            placeholder="제목, 태그, 폴더 검색"
-            oninput="handleSearch(this.value)"
-          />
-        </div>
-        <button class="toolbar-btn" onclick="clearSearch()">검색 초기화</button>
-        <button class="toolbar-btn primary" onclick="loadData(true)">새로고침</button>
+    <section class="surface toolbar">
+      <div class="search-box">
+        <span>🔎</span>
+        <input type="text" id="searchInput" placeholder="제목, 태그, 폴더, 날짜 검색" oninput="handleSearch(this.value)" />
       </div>
-    </div>
+      <div class="select-box">
+        <span>↕️</span>
+        <select id="sortSelect" onchange="handleSortChange(this.value)">
+          <option value="updated_desc">최근 수정순</option>
+          <option value="created_desc">최근 등록순</option>
+          <option value="title_asc">제목 오름차순</option>
+          <option value="folder_asc">폴더 오름차순</option>
+        </select>
+      </div>
+      <div class="select-box">
+        <span>🎚️</span>
+        <select id="densitySelect" onchange="handleDensityChange(this.value)">
+          <option value="comfortable">보통 카드</option>
+          <option value="compact">촘촘한 카드</option>
+        </select>
+      </div>
+      <div class="button-group">
+        <button class="toolbar-btn" onclick="clearSearch()">검색 초기화</button>
+        <button class="toolbar-btn" onclick="copyCurrentViewSummary()">현재 목록 복사</button>
+      </div>
+      <div class="button-group">
+        <button class="toolbar-btn" id="favoritesOnlyBtn" onclick="toggleFavoritesOnly()">즐겨찾기만</button>
+      </div>
+    </section>
+
+    <section class="stats-row">
+      <div class="surface stat-card"><div class="stat-label">총 곡 수</div><div class="stat-value" id="statTotal">0</div></div>
+      <div class="surface stat-card"><div class="stat-label">현재 표시</div><div class="stat-value" id="statVisible">0</div></div>
+      <div class="surface stat-card"><div class="stat-label">폴더 수</div><div class="stat-value" id="statFolders">0</div></div>
+      <div class="surface stat-card"><div class="stat-label">즐겨찾기</div><div class="stat-value" id="statFavorites">0</div></div>
+    </section>
 
     <div class="status-bar" id="statusBar"></div>
     <div id="messageBox" class="message-box"></div>
-    <div id="loading" class="loading">데이터를 불러오는 중입니다...</div>
-    <div id="bgmGrid" class="bgm-grid" style="display:none;"></div>
-    <div id="emptyState" class="empty-state" style="display:none;">표시할 BGM이 없습니다.</div>
+
+    <section class="surface board">
+      <div class="board-header">
+        <div class="board-title">라이브러리</div>
+        <div class="view-toggle">
+          <button id="gridModeComfortable" class="active" onclick="setDensity('comfortable')">보통</button>
+          <button id="gridModeCompact" onclick="setDensity('compact')">촘촘</button>
+        </div>
+      </div>
+      <div id="loading" class="loading">데이터를 불러오는 중입니다...</div>
+      <div id="bgmGrid" class="bgm-grid" style="display:none;"></div>
+      <div id="emptyState" class="empty-state" style="display:none;">표시할 BGM이 없습니다.</div>
+    </section>
   </main>
 
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwARJt00LvRo2jFC9sqTtIDeUNaSBRyAqEFCU-ukcVyLpb3OAegyApQ9bfPF_FBId4/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwGC4yrJQ3OUpGM0Jb9ItIUv_FjKFCJFuGHkFupxMctYox4-jO5qXZI3LyeR1cQ6yA/exec';
 
     let allItems = [];
     let currentFilter = { type: 'folder', value: '전체' };
     let searchKeyword = '';
     let isSaving = false;
+    let sortMode = localStorage.getItem('bgm_sortMode') || 'updated_desc';
+    let densityMode = localStorage.getItem('bgm_densityMode') || 'comfortable';
+    let favoritesOnly = localStorage.getItem('bgm_favoritesOnly') === 'true';
+    let favoriteIds = new Set(JSON.parse(localStorage.getItem('bgm_favoriteIds') || '[]'));
+    let sidebarCollapsed = localStorage.getItem('bgm_sidebarCollapsed') === 'true';
 
     const els = {
       overlay: document.getElementById('inputOverlay'),
@@ -640,521 +503,360 @@
       messageBox: document.getElementById('messageBox'),
       searchInput: document.getElementById('searchInput'),
       emptyState: document.getElementById('emptyState'),
-      statusBar: document.getElementById('statusBar')
+      statusBar: document.getElementById('statusBar'),
+      sortSelect: document.getElementById('sortSelect'),
+      densitySelect: document.getElementById('densitySelect'),
+      toast: document.getElementById('toast'),
+      sideFilterInput: document.getElementById('sideFilterInput'),
+      allCount: document.getElementById('allCount'),
+      favoriteCount: document.getElementById('favoriteCount'),
+      favoritesOnlyBtn: document.getElementById('favoritesOnlyBtn'),
+      collapseBtn: document.getElementById('collapseBtn'),
+      statTotal: document.getElementById('statTotal'),
+      statVisible: document.getElementById('statVisible'),
+      statFolders: document.getElementById('statFolders'),
+      statFavorites: document.getElementById('statFavorites'),
+      gridModeComfortable: document.getElementById('gridModeComfortable'),
+      gridModeCompact: document.getElementById('gridModeCompact')
     };
+
+    els.sortSelect.value = sortMode;
+    els.densitySelect.value = densityMode;
+    applyDensity();
+    applySidebarState();
+    applyFavoritesToggleState();
+
+    function showToast(text) {
+      els.toast.textContent = text;
+      els.toast.classList.add('show');
+      clearTimeout(showToast._timer);
+      showToast._timer = setTimeout(() => els.toast.classList.remove('show'), 1800);
+    }
 
     function showMessage(text, type = 'info') {
       els.messageBox.textContent = text;
       els.messageBox.className = `message-box show ${type}`;
     }
-
     function hideMessage() {
       els.messageBox.className = 'message-box';
       els.messageBox.textContent = '';
     }
-
     function setLoading(isLoading, text = '데이터를 불러오는 중입니다...') {
       els.loading.style.display = isLoading ? 'block' : 'none';
       els.loading.textContent = text;
-
       if (isLoading) {
         els.bgmGrid.style.display = 'none';
         els.emptyState.style.display = 'none';
       }
     }
-
-    function normalizeText(value) {
-      return String(value ?? '').trim();
-    }
-
+    function normalizeText(value) { return String(value ?? '').trim(); }
     function normalizeTags(raw) {
-      return String(raw ?? '')
-        .split('|')
-        .map(tag => tag.trim())
-        .filter(Boolean)
-        .filter((tag, index, arr) => arr.indexOf(tag) === index);
+      return String(raw ?? '').split('|').map(tag => tag.trim()).filter(Boolean).filter((tag, i, arr) => arr.indexOf(tag) === i);
     }
-
     function stringToColor(str) {
-      let hash = 0;
-      const text = String(str || '기타');
-
-      for (let i = 0; i < text.length; i++) {
-        hash = text.charCodeAt(i) + ((hash << 5) - hash);
-      }
-
-      const h = Math.abs(hash % 360);
-      return `hsl(${h}, 70%, 45%)`;
+      let hash = 0; const text = String(str || '기타');
+      for (let i = 0; i < text.length; i++) hash = text.charCodeAt(i) + ((hash << 5) - hash);
+      const h = Math.abs(hash % 360); return `hsl(${h}, 72%, 45%)`;
     }
-
     function stringToLightColor(str) {
-      let hash = 0;
-      const text = String(str || '기타');
-
-      for (let i = 0; i < text.length; i++) {
-        hash = text.charCodeAt(i) + ((hash << 5) - hash);
-      }
-
-      const h = Math.abs(hash % 360);
-      return `hsl(${h}, 85%, 93%)`;
+      let hash = 0; const text = String(str || '기타');
+      for (let i = 0; i < text.length; i++) hash = text.charCodeAt(i) + ((hash << 5) - hash);
+      const h = Math.abs(hash % 360); return `hsl(${h}, 85%, 93%)`;
     }
-
     function getYoutubeId(url) {
       if (!url) return null;
       const value = url.trim();
-
-      const patterns = [
-        /(?:youtube\.com\/watch\?v=)([^&#]+)/,
-        /(?:youtu\.be\/)([^?&#]+)/,
-        /(?:youtube\.com\/embed\/)([^?&#]+)/,
-        /(?:youtube\.com\/shorts\/)([^?&#]+)/
-      ];
-
+      const patterns = [/(?:youtube\.com\/watch\?v=)([^&#]+)/, /(?:youtu\.be\/)([^?&#]+)/, /(?:youtube\.com\/embed\/)([^?&#]+)/, /(?:youtube\.com\/shorts\/)([^?&#]+)/];
       for (const pattern of patterns) {
         const match = value.match(pattern);
-        if (match && match[1] && match[1].length >= 11) {
-          return match[1].slice(0, 11);
-        }
+        if (match && match[1] && match[1].length >= 11) return match[1].slice(0, 11);
       }
-
       return null;
     }
-
-    function isValidYoutubeUrl(url) {
-      return !!getYoutubeId(url);
+    function isValidYoutubeUrl(url) { return !!getYoutubeId(url); }
+    function formatDateText(createdAt, updatedAt) { return `등록: ${createdAt || '-'}\n수정: ${updatedAt || '-'}`; }
+    function parseDateSafe(text) {
+      const value = new Date(text);
+      return Number.isNaN(value.getTime()) ? new Date(0) : value;
+    }
+    function requestJSON(url, options = {}) {
+      return fetch(url, options).then(response => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+      });
     }
 
-    function formatDateText(createdAt, updatedAt) {
-      return `등록: ${createdAt || '-'}\n수정: ${updatedAt || '-'}`;
+    function saveFavorites() { localStorage.setItem('bgm_favoriteIds', JSON.stringify([...favoriteIds])); }
+    function toggleFavorite(id) {
+      if (favoriteIds.has(id)) favoriteIds.delete(id); else favoriteIds.add(id);
+      saveFavorites(); renderMenus(); renderGrid(); updateStats(getFilteredItems());
+      showToast(favoriteIds.has(id) ? '즐겨찾기에 추가했습니다.' : '즐겨찾기에서 제거했습니다.');
     }
+    function toggleFavoritesOnly() {
+      favoritesOnly = !favoritesOnly;
+      localStorage.setItem('bgm_favoritesOnly', String(favoritesOnly));
+      applyFavoritesToggleState(); renderGrid(); renderStatusBar(); updateStats(getFilteredItems());
+    }
+    function applyFavoritesToggleState() {
+      els.favoritesOnlyBtn.textContent = favoritesOnly ? '즐겨찾기만 ON' : '즐겨찾기만';
+      els.favoritesOnlyBtn.classList.toggle('soft', favoritesOnly);
+    }
+    function setDensity(mode) {
+      densityMode = mode; localStorage.setItem('bgm_densityMode', densityMode); els.densitySelect.value = densityMode; applyDensity();
+    }
+    function handleDensityChange(mode) { setDensity(mode); }
+    function applyDensity() {
+      els.bgmGrid.classList.toggle('compact', densityMode === 'compact');
+      els.gridModeComfortable.classList.toggle('active', densityMode === 'comfortable');
+      els.gridModeCompact.classList.toggle('active', densityMode === 'compact');
+    }
+    function handleSortChange(value) { sortMode = value; localStorage.setItem('bgm_sortMode', sortMode); renderGrid(); renderStatusBar(); }
+    function toggleSidebar() {
+      sidebarCollapsed = !sidebarCollapsed; localStorage.setItem('bgm_sidebarCollapsed', String(sidebarCollapsed)); applySidebarState();
+    }
+    function applySidebarState() { document.body.classList.toggle('sidebar-collapsed', sidebarCollapsed); }
 
     function toggleInput(forceState) {
-      const shouldOpen = typeof forceState === 'boolean'
-        ? forceState
-        : els.overlay.style.display !== 'flex';
-
+      const shouldOpen = typeof forceState === 'boolean' ? forceState : els.overlay.style.display !== 'flex';
       els.overlay.style.display = shouldOpen ? 'flex' : 'none';
       els.overlay.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
     }
-
     function resetForm() {
       els.formTitle.textContent = '➕ 새로운 BGM 추가';
-      els.editId.value = '';
-      els.inTitle.value = '';
-      els.inUrl.value = '';
-      els.inTag.value = '';
-      els.inFolder.value = '';
-      els.saveBtn.disabled = false;
-      els.saveBtn.textContent = '저장하기';
+      els.editId.value = ''; els.inTitle.value = ''; els.inUrl.value = ''; els.inTag.value = ''; els.inFolder.value = '';
+      els.saveBtn.disabled = false; els.saveBtn.textContent = '저장하기';
     }
-
-    function openAddForm() {
-      resetForm();
-      toggleInput(true);
-      els.inTitle.focus();
-    }
-
+    function openAddForm() { resetForm(); toggleInput(true); els.inTitle.focus(); }
     function openEditFormById(id) {
       const item = allItems.find(v => String(v.id) === String(id));
-
-      if (!item) {
-        showMessage('수정할 항목을 찾지 못했습니다.', 'error');
-        return;
-      }
-
+      if (!item) return showMessage('수정할 항목을 찾지 못했습니다.', 'error');
       els.formTitle.textContent = '✏️ 곡 정보 수정';
-      els.editId.value = item.id;
-      els.inTitle.value = item.title;
-      els.inUrl.value = item.url;
-      els.inTag.value = (item.tags || []).join('|');
-      els.inFolder.value = item.folder;
-      toggleInput(true);
-      els.inTitle.focus();
+      els.editId.value = item.id; els.inTitle.value = item.title; els.inUrl.value = item.url; els.inTag.value = (item.tags || []).join('|'); els.inFolder.value = item.folder;
+      toggleInput(true); els.inTitle.focus();
     }
 
     function setFilter(value, type) {
       currentFilter = { value, type };
-      updateHeader();
-      renderMenus();
-      renderGrid();
+      updateHeader(); renderMenus(); renderGrid(); renderStatusBar(); updateStats(getFilteredItems());
     }
-
-    function handleSearch(value) {
-      searchKeyword = normalizeText(value).toLowerCase();
-      renderGrid();
-      renderStatusBar();
-    }
-
-    function clearSearch() {
-      searchKeyword = '';
-      els.searchInput.value = '';
-      renderGrid();
-      renderStatusBar();
-    }
+    function handleSearch(value) { searchKeyword = normalizeText(value).toLowerCase(); renderGrid(); renderStatusBar(); updateStats(getFilteredItems()); }
+    function clearSearch() { searchKeyword = ''; els.searchInput.value = ''; renderGrid(); renderStatusBar(); updateStats(getFilteredItems()); }
 
     function updateHeader() {
       let title = '전체 목록';
-      let desc = '등록된 BGM을 한눈에 보고, 필터링하고, 수정할 수 있습니다.';
-
-      if (currentFilter.value !== '전체') {
-        if (currentFilter.type === 'folder') {
-          title = `폴더: ${currentFilter.value}`;
-          desc = '선택한 폴더에 속한 BGM만 표시합니다.';
-        } else if (currentFilter.type === 'tag') {
-          title = `태그: #${currentFilter.value}`;
-          desc = '선택한 태그가 붙은 BGM만 표시합니다.';
-        }
+      let desc = '등록된 BGM을 정리하고, 빠르게 찾고, 장면용으로 바로 꺼내 쓸 수 있습니다.';
+      if (currentFilter.type === 'special' && currentFilter.value === '__favorites__') {
+        title = '즐겨찾기'; desc = '자주 쓰는 트랙만 따로 모아서 봅니다.';
+      } else if (currentFilter.type === 'special' && currentFilter.value === '__recent__') {
+        title = '최근 수정'; desc = '가장 최근에 손댄 곡들을 우선해서 봅니다.';
+      } else if (currentFilter.value !== '전체') {
+        if (currentFilter.type === 'folder') { title = `폴더: ${currentFilter.value}`; desc = '선택한 폴더에 속한 BGM만 표시합니다.'; }
+        else if (currentFilter.type === 'tag') { title = `태그: #${currentFilter.value}`; desc = '선택한 태그가 붙은 BGM만 표시합니다.'; }
       }
-
-      els.viewTitle.textContent = title;
-      els.viewDesc.textContent = desc;
+      els.viewTitle.textContent = title; els.viewDesc.textContent = desc;
     }
-
+    function sortModeLabel(mode) {
+      switch (mode) {
+        case 'created_desc': return '최근 등록순';
+        case 'title_asc': return '제목 오름차순';
+        case 'folder_asc': return '폴더 오름차순';
+        default: return '최근 수정순';
+      }
+    }
     function renderStatusBar() {
       els.statusBar.innerHTML = '';
-
-      const pills = [];
-      pills.push({ text: `전체 ${allItems.length}곡` });
-
-      if (currentFilter.value !== '전체') {
-        pills.push({
-          text: currentFilter.type === 'folder'
-            ? `폴더: ${currentFilter.value}`
-            : `태그: #${currentFilter.value}`
-        });
-      }
-
-      if (searchKeyword) {
-        pills.push({ text: `검색: "${searchKeyword}"` });
-      }
-
+      const pills = [{ text: `전체 ${allItems.length}곡` }];
+      if (currentFilter.type === 'special' && currentFilter.value === '__favorites__') pills.push({ text: '즐겨찾기 보기' });
+      if (currentFilter.type === 'special' && currentFilter.value === '__recent__') pills.push({ text: '최근 수정 보기' });
+      if (currentFilter.value !== '전체' && currentFilter.type === 'folder') pills.push({ text: `폴더: ${currentFilter.value}` });
+      if (currentFilter.value !== '전체' && currentFilter.type === 'tag') pills.push({ text: `태그: #${currentFilter.value}` });
+      if (favoritesOnly) pills.push({ text: '즐겨찾기만 ON' });
+      if (searchKeyword) pills.push({ text: `검색: "${searchKeyword}"` });
+      pills.push({ text: `정렬: ${sortModeLabel(sortMode)}` });
       pills.forEach(pill => {
-        const node = document.createElement('div');
-        node.className = 'status-pill';
-        node.textContent = pill.text;
-        els.statusBar.appendChild(node);
+        const node = document.createElement('div'); node.className = 'status-pill'; node.textContent = pill.text; els.statusBar.appendChild(node);
       });
     }
 
     function renderMenus() {
-      document.getElementById('menu-all').classList.toggle(
-        'active',
-        currentFilter.type === 'folder' && currentFilter.value === '전체'
-      );
+      const sideKeyword = normalizeText(els.sideFilterInput.value).toLowerCase();
+      document.getElementById('menu-all').classList.toggle('active', currentFilter.type === 'folder' && currentFilter.value === '전체');
+      document.getElementById('menu-favorites').classList.toggle('active', currentFilter.type === 'special' && currentFilter.value === '__favorites__');
+      document.getElementById('menu-recent').classList.toggle('active', currentFilter.type === 'special' && currentFilter.value === '__recent__');
+      els.folderMenu.innerHTML = ''; els.tagMenu.innerHTML = '';
 
-      els.folderMenu.innerHTML = '';
-      els.tagMenu.innerHTML = '';
+      const folders = [...new Set(allItems.map(item => item.folder))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'ko'));
+      const tags = [...new Set(allItems.flatMap(item => item.tags || []))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'ko'));
+      const folderCounts = Object.fromEntries(folders.map(folder => [folder, allItems.filter(item => item.folder === folder).length]));
+      const tagCounts = Object.fromEntries(tags.map(tag => [tag, allItems.filter(item => (item.tags || []).includes(tag)).length]));
 
-      const folders = [...new Set(allItems.map(item => item.folder))]
-        .filter(Boolean)
-        .sort((a, b) => a.localeCompare(b, 'ko'));
-
-      const tags = [...new Set(allItems.flatMap(item => item.tags || []))]
-        .filter(Boolean)
-        .sort((a, b) => a.localeCompare(b, 'ko'));
-
-      folders.forEach(folder => {
+      folders.filter(folder => !sideKeyword || folder.toLowerCase().includes(sideKeyword)).forEach(folder => {
         const item = document.createElement('div');
         item.className = `menu-item ${currentFilter.type === 'folder' && currentFilter.value === folder ? 'active' : ''}`;
         item.addEventListener('click', () => setFilter(folder, 'folder'));
-
-        const dot = document.createElement('div');
-        dot.className = 'color-dot';
-        dot.style.background = stringToColor(folder);
-
-        const text = document.createElement('span');
-        text.textContent = folder;
-
-        item.appendChild(dot);
-        item.appendChild(text);
-        els.folderMenu.appendChild(item);
+        const dot = document.createElement('div'); dot.className = 'color-dot'; dot.style.background = stringToColor(folder);
+        const text = document.createElement('span'); text.className = 'menu-label'; text.textContent = folder;
+        const count = document.createElement('span'); count.className = 'menu-count'; count.textContent = folderCounts[folder];
+        item.appendChild(dot); item.appendChild(text); item.appendChild(count); els.folderMenu.appendChild(item);
       });
 
-      tags.forEach(tag => {
-        const chip = document.createElement('button');
-        chip.type = 'button';
-        chip.className = 'tag-chip';
-        chip.textContent = `#${tag}`;
-        chip.style.background = stringToLightColor(tag);
-        chip.style.color = stringToColor(tag);
-        chip.addEventListener('click', () => setFilter(tag, 'tag'));
-        els.tagMenu.appendChild(chip);
+      tags.filter(tag => !sideKeyword || tag.toLowerCase().includes(sideKeyword)).forEach(tag => {
+        const chip = document.createElement('button'); chip.type = 'button'; chip.className = 'tag-chip'; chip.textContent = `#${tag} · ${tagCounts[tag]}`;
+        chip.style.background = stringToLightColor(tag); chip.style.color = stringToColor(tag); chip.addEventListener('click', () => setFilter(tag, 'tag')); els.tagMenu.appendChild(chip);
       });
 
-      renderStatusBar();
+      els.allCount.textContent = allItems.length; els.favoriteCount.textContent = favoriteIds.size;
     }
 
     function getFilteredItems() {
       let filtered = [...allItems];
-
-      if (currentFilter.value !== '전체') {
-        if (currentFilter.type === 'folder') {
-          filtered = filtered.filter(item => item.folder === currentFilter.value);
-        } else if (currentFilter.type === 'tag') {
-          filtered = filtered.filter(item => (item.tags || []).includes(currentFilter.value));
-        }
+      if (currentFilter.type === 'special' && currentFilter.value === '__favorites__') filtered = filtered.filter(item => favoriteIds.has(item.id));
+      else if (currentFilter.type === 'special' && currentFilter.value === '__recent__') filtered = filtered.sort((a, b) => parseDateSafe(b.updatedAt) - parseDateSafe(a.updatedAt)).slice(0, 24);
+      else if (currentFilter.value !== '전체') {
+        if (currentFilter.type === 'folder') filtered = filtered.filter(item => item.folder === currentFilter.value);
+        else if (currentFilter.type === 'tag') filtered = filtered.filter(item => (item.tags || []).includes(currentFilter.value));
       }
-
+      if (favoritesOnly) filtered = filtered.filter(item => favoriteIds.has(item.id));
       if (searchKeyword) {
-        filtered = filtered.filter(item => {
-          const haystack = [
-            item.title,
-            item.folder,
-            item.url,
-            item.createdAt,
-            item.updatedAt,
-            ...(item.tags || [])
-          ].join(' ').toLowerCase();
-
-          return haystack.includes(searchKeyword);
-        });
+        filtered = filtered.filter(item => [item.title, item.folder, item.url, item.createdAt, item.updatedAt, ...(item.tags || [])].join(' ').toLowerCase().includes(searchKeyword));
       }
-
+      filtered.sort((a, b) => {
+        switch (sortMode) {
+          case 'created_desc': return parseDateSafe(b.createdAt) - parseDateSafe(a.createdAt);
+          case 'title_asc': return a.title.localeCompare(b.title, 'ko');
+          case 'folder_asc': {
+            const folderCompare = a.folder.localeCompare(b.folder, 'ko');
+            return folderCompare !== 0 ? folderCompare : a.title.localeCompare(b.title, 'ko');
+          }
+          default: return parseDateSafe(b.updatedAt) - parseDateSafe(a.updatedAt);
+        }
+      });
       return filtered;
     }
 
+    function updateStats(filteredItems) {
+      els.statTotal.textContent = allItems.length;
+      els.statVisible.textContent = filteredItems.length;
+      els.statFolders.textContent = new Set(allItems.map(item => item.folder).filter(Boolean)).size;
+      els.statFavorites.textContent = favoriteIds.size;
+    }
+
     function createVideoNode(item) {
-      const videoBox = document.createElement('div');
-      videoBox.className = 'video-box';
-
+      const videoBox = document.createElement('div'); videoBox.className = 'video-box';
       const youtubeId = getYoutubeId(item.url);
-
       if (!youtubeId) {
-        const fallback = document.createElement('div');
-        fallback.className = 'video-fallback';
-        fallback.textContent = '유효한 유튜브 링크가 아니어서 미리보기를 표시할 수 없습니다.';
-        videoBox.appendChild(fallback);
-        return videoBox;
+        const fallback = document.createElement('div'); fallback.className = 'video-fallback'; fallback.textContent = '유효한 유튜브 링크가 아니어서 미리보기를 표시할 수 없습니다.'; videoBox.appendChild(fallback); return videoBox;
       }
-
       const iframe = document.createElement('iframe');
-      iframe.src = `https://www.youtube.com/embed/${youtubeId}`;
-      iframe.allowFullscreen = true;
-      iframe.loading = 'lazy';
-      iframe.referrerPolicy = 'strict-origin-when-cross-origin';
-      iframe.title = `${item.title} 미리보기`;
-      videoBox.appendChild(iframe);
-
-      return videoBox;
+      iframe.src = `https://www.youtube.com/embed/${youtubeId}`; iframe.allowFullscreen = true; iframe.loading = 'lazy'; iframe.referrerPolicy = 'strict-origin-when-cross-origin'; iframe.title = `${item.title} 미리보기`;
+      videoBox.appendChild(iframe); return videoBox;
     }
 
     function createCard(item) {
-      const card = document.createElement('div');
-      card.className = 'bgm-card';
+      const card = document.createElement('div'); card.className = 'bgm-card';
+      const topbar = document.createElement('div'); topbar.className = 'card-topbar';
+      const badge = document.createElement('div'); badge.className = 'card-badge'; badge.textContent = item.folder || '기타';
+      const fav = document.createElement('button'); fav.className = `card-fav-btn ${favoriteIds.has(item.id) ? 'active' : ''}`; fav.textContent = '★'; fav.title = '즐겨찾기'; fav.addEventListener('click', () => toggleFavorite(item.id));
+      topbar.appendChild(badge); topbar.appendChild(fav);
 
-      const sideBar = document.createElement('div');
-      sideBar.className = 'card-side-bar';
-      sideBar.style.background = stringToColor(item.folder);
-      card.appendChild(sideBar);
+      const sideBar = document.createElement('div'); sideBar.className = 'card-side-bar'; sideBar.style.background = stringToColor(item.folder);
+      card.appendChild(topbar); card.appendChild(sideBar); card.appendChild(createVideoNode(item));
 
-      card.appendChild(createVideoNode(item));
-
-      const body = document.createElement('div');
-      body.className = 'card-body';
-
-      const folder = document.createElement('div');
-      folder.className = 'card-folder';
-      folder.style.color = stringToColor(item.folder);
-      folder.textContent = item.folder;
-      body.appendChild(folder);
-
-      const title = document.createElement('h3');
-      title.className = 'card-title';
-      title.textContent = item.title;
-      body.appendChild(title);
-
-      const date = document.createElement('div');
-      date.className = 'card-date';
-      date.textContent = formatDateText(item.createdAt, item.updatedAt);
-      body.appendChild(date);
-
-      const link = document.createElement('a');
-      link.className = 'card-url';
-      link.href = item.url;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      link.textContent = '원본 링크 열기';
-      body.appendChild(link);
-
-      const tagsWrap = document.createElement('div');
-      tagsWrap.className = 'card-tags';
-
+      const body = document.createElement('div'); body.className = 'card-body';
+      const folder = document.createElement('div'); folder.className = 'card-folder'; folder.style.color = stringToColor(item.folder); folder.textContent = item.folder;
+      const title = document.createElement('h3'); title.className = 'card-title'; title.textContent = item.title;
+      const date = document.createElement('div'); date.className = 'card-date'; date.textContent = formatDateText(item.createdAt, item.updatedAt);
+      const link = document.createElement('a'); link.className = 'card-url'; link.href = item.url; link.target = '_blank'; link.rel = 'noopener noreferrer'; link.textContent = '↗ 원본 링크 열기';
+      const tagsWrap = document.createElement('div'); tagsWrap.className = 'card-tags';
       (item.tags || []).forEach(tag => {
-        const chip = document.createElement('span');
-        chip.className = 'card-tag';
-        chip.style.background = stringToLightColor(tag);
-        chip.style.color = stringToColor(tag);
-        chip.textContent = `#${tag}`;
-        tagsWrap.appendChild(chip);
+        const chip = document.createElement('span'); chip.className = 'card-tag'; chip.style.background = stringToLightColor(tag); chip.style.color = stringToColor(tag); chip.textContent = `#${tag}`; tagsWrap.appendChild(chip);
       });
-
-      body.appendChild(tagsWrap);
-
-      const actions = document.createElement('div');
-      actions.className = 'card-actions';
-
-      const editBtn = document.createElement('button');
-      editBtn.className = 'action-btn';
-      editBtn.textContent = '수정';
-      editBtn.addEventListener('click', () => openEditFormById(item.id));
-
-      const deleteBtn = document.createElement('button');
-      deleteBtn.className = 'action-btn btn-delete';
-      deleteBtn.textContent = '삭제';
-      deleteBtn.addEventListener('click', () => deleteItem(item.id));
-
-      actions.appendChild(editBtn);
-      actions.appendChild(deleteBtn);
-      body.appendChild(actions);
-
-      card.appendChild(body);
-      return card;
+      const actions = document.createElement('div'); actions.className = 'card-actions';
+      const copyBtn = document.createElement('button'); copyBtn.className = 'action-btn btn-copy'; copyBtn.textContent = '링크 복사'; copyBtn.addEventListener('click', () => copyText(item.url, '링크를 복사했습니다.'));
+      const editBtn = document.createElement('button'); editBtn.className = 'action-btn'; editBtn.textContent = '수정'; editBtn.addEventListener('click', () => openEditFormById(item.id));
+      const deleteBtn = document.createElement('button'); deleteBtn.className = 'action-btn btn-delete'; deleteBtn.textContent = '삭제'; deleteBtn.addEventListener('click', () => deleteItem(item.id));
+      actions.appendChild(copyBtn); actions.appendChild(editBtn); actions.appendChild(deleteBtn);
+      body.appendChild(folder); body.appendChild(title); body.appendChild(date); body.appendChild(link); body.appendChild(tagsWrap); body.appendChild(actions);
+      card.appendChild(body); return card;
     }
 
     function renderGrid() {
-      const filtered = getFilteredItems();
-      els.bgmGrid.innerHTML = '';
-
+      const filtered = getFilteredItems(); els.bgmGrid.innerHTML = '';
       if (allItems.length === 0) {
-        els.bgmGrid.style.display = 'none';
-        els.emptyState.style.display = 'block';
-        els.emptyState.textContent = '아직 등록된 BGM이 없습니다.';
-        return;
+        els.bgmGrid.style.display = 'none'; els.emptyState.style.display = 'block'; els.emptyState.textContent = '아직 등록된 BGM이 없습니다.'; updateStats(filtered); return;
       }
-
       if (filtered.length === 0) {
-        els.bgmGrid.style.display = 'none';
-        els.emptyState.style.display = 'block';
-        els.emptyState.textContent = '현재 조건에 맞는 BGM이 없습니다.';
-        return;
+        els.bgmGrid.style.display = 'none'; els.emptyState.style.display = 'block'; els.emptyState.textContent = '현재 조건에 맞는 BGM이 없습니다.'; updateStats(filtered); return;
       }
-
-      filtered.forEach(item => {
-        els.bgmGrid.appendChild(createCard(item));
-      });
-
-      els.emptyState.style.display = 'none';
-      els.bgmGrid.style.display = 'grid';
+      filtered.forEach(item => els.bgmGrid.appendChild(createCard(item)));
+      els.emptyState.style.display = 'none'; els.bgmGrid.style.display = 'grid'; updateStats(filtered);
     }
 
-    async function requestJSON(url, options = {}) {
-      const response = await fetch(url, options);
+    async function copyText(text, toastText = '복사했습니다.') {
+      try { await navigator.clipboard.writeText(text); showToast(toastText); }
+      catch (_) { showMessage('복사에 실패했습니다.', 'error'); }
+    }
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      return await response.json();
+    async function copyCurrentViewSummary() {
+      const filtered = getFilteredItems();
+      if (!filtered.length) return showMessage('복사할 목록이 없습니다.', 'error');
+      const text = filtered.map((item, idx) => `${idx + 1}. [${item.folder}] ${item.title}\n- ${item.url}\n- 태그: ${(item.tags || []).join(', ') || '-'}\n`).join('\n');
+      await copyText(text, '현재 목록을 복사했습니다.');
     }
 
     async function saveToSheet() {
       if (isSaving) return;
-    
       const id = normalizeText(els.editId.value);
       const title = normalizeText(els.inTitle.value);
       const url = normalizeText(els.inUrl.value);
       const tag = normalizeText(els.inTag.value);
       const folder = normalizeText(els.inFolder.value) || '기타';
-    
-      if (!title || !url) {
-        showMessage('곡 제목과 URL은 필수입니다.', 'error');
-        return;
-      }
-    
-      if (!isValidYoutubeUrl(url)) {
-        showMessage('유효한 유튜브 URL을 입력해주세요.', 'error');
-        return;
-      }
-    
-      isSaving = true;
-      els.saveBtn.disabled = true;
-      els.saveBtn.textContent = '저장 중...';
-    
+      if (!title || !url) return showMessage('곡 제목과 URL은 필수입니다.', 'error');
+      if (!isValidYoutubeUrl(url)) return showMessage('유효한 유튜브 URL을 입력해주세요.', 'error');
+
+      const duplicate = allItems.find(item => item.url === url && item.id !== id);
+      if (duplicate && !confirm(`이미 같은 링크가 있습니다.\n\n[${duplicate.folder}] ${duplicate.title}\n\n그래도 저장할까요?`)) return;
+
+      isSaving = true; els.saveBtn.disabled = true; els.saveBtn.textContent = '저장 중...';
       try {
         hideMessage();
-    
         const payload = new URLSearchParams();
         payload.append('action', id ? 'edit' : 'add');
         if (id) payload.append('id', id);
-        payload.append('title', title);
-        payload.append('url', url);
-        payload.append('tag', tag);
-        payload.append('folder', folder);
-    
-        const result = await requestJSON(API_URL, {
-          method: 'POST',
-          body: payload
-        });
-    
-        if (!result.ok) {
-          throw new Error(result.error || '저장 실패');
-        }
-    
+        payload.append('title', title); payload.append('url', url); payload.append('tag', tag); payload.append('folder', folder);
+        const result = await requestJSON(API_URL, { method: 'POST', body: payload });
+        if (!result.ok) throw new Error(result.error || '저장 실패');
         showMessage(id ? '수정이 완료되었습니다.' : '새 곡이 추가되었습니다.', 'success');
-        toggleInput(false);
-        resetForm();
-        await loadData(false);
+        toggleInput(false); resetForm(); await loadData(false);
       } catch (error) {
-        console.error(error);
-        showMessage(`저장에 실패했습니다. ${error.message || ''}`, 'error');
+        console.error(error); showMessage(`저장에 실패했습니다. ${error.message || ''}`, 'error');
       } finally {
-        isSaving = false;
-        els.saveBtn.disabled = false;
-        els.saveBtn.textContent = '저장하기';
+        isSaving = false; els.saveBtn.disabled = false; els.saveBtn.textContent = '저장하기';
       }
     }
 
     async function deleteItem(id) {
-      if (!id) {
-        showMessage('삭제할 id가 없습니다.', 'error');
-        return;
-      }
-    
-      const ok = confirm('정말 이 곡을 삭제하시겠습니까?');
-      if (!ok) return;
-    
+      if (!id) return showMessage('삭제할 id가 없습니다.', 'error');
+      if (!confirm('정말 이 곡을 삭제하시겠습니까?')) return;
       try {
         hideMessage();
-    
-        const payload = new URLSearchParams();
-        payload.append('action', 'delete');
-        payload.append('id', id);
-    
-        const result = await requestJSON(API_URL, {
-          method: 'POST',
-          body: payload
-        });
-    
-        if (!result.ok) {
-          throw new Error(result.error || '삭제 실패');
-        }
-    
+        const payload = new URLSearchParams(); payload.append('action', 'delete'); payload.append('id', id);
+        const result = await requestJSON(API_URL, { method: 'POST', body: payload });
+        if (!result.ok) throw new Error(result.error || '삭제 실패');
+        favoriteIds.delete(id); saveFavorites();
         showMessage('삭제가 완료되었습니다.', 'success');
         await loadData(false);
       } catch (error) {
-        console.error(error);
-        showMessage(`삭제에 실패했습니다. ${error.message || ''}`, 'error');
+        console.error(error); showMessage(`삭제에 실패했습니다. ${error.message || ''}`, 'error');
       }
     }
 
     async function loadData(showRefreshMessage = false) {
       setLoading(true, '데이터를 불러오는 중입니다...');
-
       try {
-        if (showRefreshMessage) {
-          showMessage('데이터를 새로고침하고 있습니다.', 'info');
-        }
-
-        const result = await requestJSON(`${API_URL}?action=list`, {
-          method: 'GET',
-          mode: 'cors',
-          cache: 'no-store'
-        });
-
-        if (!result.ok) {
-          throw new Error(result.error || '목록 불러오기 실패');
-        }
-
+        if (showRefreshMessage) showMessage('데이터를 새로고침하고 있습니다.', 'info');
+        const result = await requestJSON(`${API_URL}?action=list`, { method: 'GET', cache: 'no-store' });
+        if (!result.ok) throw new Error(result.error || '목록 불러오기 실패');
         allItems = (result.items || []).map(item => ({
           id: normalizeText(item.id),
           title: normalizeText(item.title),
@@ -1164,46 +866,18 @@
           createdAt: normalizeText(item.createdAt),
           updatedAt: normalizeText(item.updatedAt)
         }));
-
-        updateHeader();
-        renderMenus();
-        renderGrid();
-
-        if (!showRefreshMessage) {
-          hideMessage();
-        } else {
-          showMessage('새로고침이 완료되었습니다.', 'success');
-        }
+        updateHeader(); renderMenus(); renderGrid(); renderStatusBar(); updateStats(getFilteredItems());
+        if (!showRefreshMessage) hideMessage(); else showMessage('새로고침이 완료되었습니다.', 'success');
       } catch (error) {
-        console.error(error);
-        allItems = [];
-        renderMenus();
-        renderGrid();
+        console.error(error); allItems = []; renderMenus(); renderGrid(); renderStatusBar(); updateStats([]);
         showMessage(`데이터를 불러오지 못했습니다. ${error.message || ''}`, 'error');
-      } finally {
-        setLoading(false);
-      }
+      } finally { setLoading(false); }
     }
 
-    els.overlay.addEventListener('click', (event) => {
-      if (event.target === els.overlay) {
-        toggleInput(false);
-      }
-    });
-
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') {
-        toggleInput(false);
-      }
-    });
-
-    [els.inTitle, els.inUrl, els.inTag, els.inFolder].forEach(input => {
-      input.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter') {
-          saveToSheet();
-        }
-      });
-    });
+    els.overlay.addEventListener('click', event => { if (event.target === els.overlay) toggleInput(false); });
+    document.addEventListener('keydown', event => { if (event.key === 'Escape') toggleInput(false); });
+    [els.inTitle, els.inUrl, els.inTag, els.inFolder].forEach(input => input.addEventListener('keydown', event => { if (event.key === 'Enter') saveToSheet(); }));
+    els.collapseBtn.addEventListener('click', toggleSidebar);
 
     loadData(false);
   </script>
