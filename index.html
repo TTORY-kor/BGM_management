@@ -15,11 +15,15 @@
       --text-sub: #6b7280;
       --line: #d1d5db;
       --danger: #ef4444;
+      --danger-dark: #dc2626;
       --success: #16a34a;
+      --success-dark: #15803d;
       --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     html, body {
       margin: 0;
@@ -34,7 +38,9 @@
       overflow: hidden;
     }
 
-    button, input { font: inherit; }
+    button, input {
+      font: inherit;
+    }
 
     .sidebar {
       width: 280px;
@@ -58,7 +64,9 @@
       letter-spacing: -0.02em;
     }
 
-    .sidebar-section { margin-bottom: 28px; }
+    .sidebar-section {
+      margin-bottom: 28px;
+    }
 
     .sidebar-section h3 {
       font-size: 0.72rem;
@@ -212,7 +220,9 @@
       height: 44px;
     }
 
-    .toolbar-btn:hover { background: #f9fafb; }
+    .toolbar-btn:hover {
+      background: #f9fafb;
+    }
 
     .toolbar-btn.primary {
       background: var(--primary);
@@ -252,7 +262,9 @@
       box-shadow: 0 6px 18px rgba(0,0,0,0.05);
     }
 
-    .message-box.show { display: block; }
+    .message-box.show {
+      display: block;
+    }
 
     .message-box.info {
       background: #eef2ff;
@@ -363,6 +375,7 @@
       color: var(--text-sub);
       margin-bottom: 10px;
       line-height: 1.5;
+      white-space: pre-line;
     }
 
     .card-url {
@@ -643,6 +656,7 @@
     function setLoading(isLoading, text = '데이터를 불러오는 중입니다...') {
       els.loading.style.display = isLoading ? 'block' : 'none';
       els.loading.textContent = text;
+
       if (isLoading) {
         els.bgmGrid.style.display = 'none';
         els.emptyState.style.display = 'none';
@@ -664,9 +678,11 @@
     function stringToColor(str) {
       let hash = 0;
       const text = String(str || '기타');
+
       for (let i = 0; i < text.length; i++) {
         hash = text.charCodeAt(i) + ((hash << 5) - hash);
       }
+
       const h = Math.abs(hash % 360);
       return `hsl(${h}, 70%, 45%)`;
     }
@@ -674,9 +690,11 @@
     function stringToLightColor(str) {
       let hash = 0;
       const text = String(str || '기타');
+
       for (let i = 0; i < text.length; i++) {
         hash = text.charCodeAt(i) + ((hash << 5) - hash);
       }
+
       const h = Math.abs(hash % 360);
       return `hsl(${h}, 85%, 93%)`;
     }
@@ -698,11 +716,16 @@
           return match[1].slice(0, 11);
         }
       }
+
       return null;
     }
 
     function isValidYoutubeUrl(url) {
       return !!getYoutubeId(url);
+    }
+
+    function formatDateText(createdAt, updatedAt) {
+      return `등록: ${createdAt || '-'}\n수정: ${updatedAt || '-'}`;
     }
 
     function toggleInput(forceState) {
@@ -733,6 +756,7 @@
 
     function openEditFormById(id) {
       const item = allItems.find(v => String(v.id) === String(id));
+
       if (!item) {
         showMessage('수정할 항목을 찾지 못했습니다.', 'error');
         return;
@@ -821,8 +845,13 @@
       els.folderMenu.innerHTML = '';
       els.tagMenu.innerHTML = '';
 
-      const folders = [...new Set(allItems.map(item => item.folder))].sort((a, b) => a.localeCompare(b, 'ko'));
-      const tags = [...new Set(allItems.flatMap(item => item.tags || []))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'ko'));
+      const folders = [...new Set(allItems.map(item => item.folder))]
+        .filter(Boolean)
+        .sort((a, b) => a.localeCompare(b, 'ko'));
+
+      const tags = [...new Set(allItems.flatMap(item => item.tags || []))]
+        .filter(Boolean)
+        .sort((a, b) => a.localeCompare(b, 'ko'));
 
       folders.forEach(folder => {
         const item = document.createElement('div');
@@ -936,7 +965,7 @@
 
       const date = document.createElement('div');
       date.className = 'card-date';
-      date.innerHTML = `등록: ${item.createdAt || '-'}<br>수정: ${item.updatedAt || '-'}`;
+      date.textContent = formatDateText(item.createdAt, item.updatedAt);
       body.appendChild(date);
 
       const link = document.createElement('a');
@@ -1135,7 +1164,7 @@
         }
 
         allItems = (result.items || []).map(item => ({
-          id: item.id,
+          id: normalizeText(item.id),
           title: normalizeText(item.title),
           url: normalizeText(item.url),
           tags: normalizeTags(item.tag),
