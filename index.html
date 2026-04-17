@@ -1,1211 +1,835 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BGM 워크스테이션 PRO</title>
-  <style>
-    :root {
-      --primary: #6366f1;
-      --primary-dark: #4f46e5;
-      --sidebar-bg: #2d3436;
-      --main-bg: #e5e7eb;
-      --card-bg: #ffffff;
-      --text-main: #111827;
-      --text-sub: #6b7280;
-      --line: #d1d5db;
-      --danger: #ef4444;
-      --danger-dark: #dc2626;
-      --success: #16a34a;
-      --success-dark: #15803d;
-      --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html, body {
-      margin: 0;
-      height: 100%;
-      font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
-      background: var(--main-bg);
-      color: var(--text-main);
-    }
-
-    body {
-      display: flex;
-      overflow: hidden;
-    }
-
-    button, input {
-      font: inherit;
-    }
-
-    .sidebar {
-      width: 280px;
-      background: var(--sidebar-bg);
-      color: #dfe6e9;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      flex-shrink: 0;
-      overflow-y: auto;
-      border-right: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .sidebar h2 {
-      font-size: 1.15rem;
-      margin: 0 0 24px;
-      color: white;
-      border-bottom: 1px solid #636e72;
-      padding-bottom: 14px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-    }
-
-    .sidebar-section {
-      margin-bottom: 28px;
-    }
-
-    .sidebar-section h3 {
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      color: #b2bec3;
-      margin: 0 0 12px;
-      letter-spacing: 0.12em;
-      font-weight: 700;
-    }
-
-    .menu-list {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .menu-item {
-      padding: 10px 12px;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: 0.2s;
-      font-size: 0.87rem;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #c7d0d3;
-      min-height: 40px;
-      user-select: none;
-      word-break: break-word;
-    }
-
-    .menu-item:hover {
-      background: #4b5563;
-      color: white;
-    }
-
-    .menu-item.active {
-      background: var(--primary);
-      color: white;
-      font-weight: 700;
-    }
-
-    .menu-item.add-btn-main {
-      background: #4b5563;
-      color: #fff;
-      margin-top: 8px;
-      border: 1px dashed #7f8c8d;
-      justify-content: center;
-      font-weight: 700;
-    }
-
-    .menu-item.add-btn-main:hover {
-      background: #59626d;
-    }
-
-    .color-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 999px;
-      flex-shrink: 0;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18);
-    }
-
-    .tag-cloud {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .tag-chip {
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 6px 10px;
-      border-radius: 999px;
-      cursor: pointer;
-      border: none;
-      transition: 0.2s;
-    }
-
-    .tag-chip:hover {
-      transform: translateY(-1px);
-    }
-
-    .main-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-      padding: 32px;
-      background: var(--main-bg);
-    }
-
-    .header {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 14px;
-      margin-bottom: 20px;
-    }
-
-    .header-left h1 {
-      margin: 0;
-      font-size: 1.7rem;
-      letter-spacing: -0.03em;
-    }
-
-    .header-left p {
-      margin: 8px 0 0;
-      color: var(--text-sub);
-      font-size: 0.92rem;
-    }
-
-    .toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .search-box {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: white;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 0 12px;
-      min-width: 300px;
-      height: 44px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-    }
-
-    .search-box input {
-      border: none;
-      outline: none;
-      background: transparent;
-      width: 100%;
-      color: var(--text-main);
-    }
-
-    .toolbar-btn {
-      border: 1px solid var(--line);
-      background: white;
-      color: var(--text-main);
-      border-radius: 12px;
-      padding: 10px 14px;
-      cursor: pointer;
-      font-weight: 700;
-      transition: 0.2s;
-      height: 44px;
-    }
-
-    .toolbar-btn:hover {
-      background: #f9fafb;
-    }
-
-    .toolbar-btn.primary {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: white;
-    }
-
-    .toolbar-btn.primary:hover {
-      background: var(--primary-dark);
-      border-color: var(--primary-dark);
-    }
-
-    .status-bar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 20px;
-    }
-
-    .status-pill {
-      background: rgba(99, 102, 241, 0.12);
-      color: var(--primary-dark);
-      border: 1px solid rgba(99, 102, 241, 0.18);
-      border-radius: 999px;
-      padding: 7px 12px;
-      font-size: 0.8rem;
-      font-weight: 700;
-    }
-
-    .message-box {
-      display: none;
-      margin-bottom: 18px;
-      padding: 14px 16px;
-      border-radius: 12px;
-      font-size: 0.92rem;
-      line-height: 1.5;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.05);
-    }
-
-    .message-box.show {
-      display: block;
-    }
-
-    .message-box.info {
-      background: #eef2ff;
-      color: #3730a3;
-      border: 1px solid #c7d2fe;
-    }
-
-    .message-box.error {
-      background: #fef2f2;
-      color: #991b1b;
-      border: 1px solid #fecaca;
-    }
-
-    .message-box.success {
-      background: #f0fdf4;
-      color: #166534;
-      border: 1px solid #bbf7d0;
-    }
-
-    .loading,
-    .empty-state {
-      text-align: center;
-      margin-top: 48px;
-      color: var(--text-sub);
-      font-size: 0.98rem;
-    }
-
-    .bgm-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 24px;
-      padding-bottom: 40px;
-    }
-
-    .bgm-card {
-      background: var(--card-bg);
-      border-radius: 16px;
-      overflow: hidden;
-      position: relative;
-      border: 1px solid var(--line);
-      transition: 0.22s ease;
-      box-shadow: var(--shadow);
-    }
-
-    .bgm-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 24px 46px rgba(0,0,0,0.10);
-    }
-
-    .card-side-bar {
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 6px;
-      z-index: 2;
-    }
-
-    .video-box {
-      position: relative;
-      padding-bottom: 56.25%;
-      height: 0;
-      background: #0f172a;
-      margin-left: 6px;
-    }
-
-    .video-box iframe,
-    .video-fallback {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-
-    .video-fallback {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #cbd5e1;
-      font-size: 0.9rem;
-      text-align: center;
-      padding: 20px;
-    }
-
-    .card-body {
-      padding: 18px 18px 16px 24px;
-    }
-
-    .card-folder {
-      font-size: 0.72rem;
-      font-weight: 800;
-      margin-bottom: 8px;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .card-title {
-      font-size: 1rem;
-      font-weight: 800;
-      line-height: 1.4;
-      margin: 0 0 10px;
-      word-break: break-word;
-    }
-
-    .card-date {
-      font-size: 0.75rem;
-      color: var(--text-sub);
-      margin-bottom: 10px;
-      line-height: 1.5;
-      white-space: pre-line;
-    }
-
-    .card-url {
-      display: inline-block;
-      font-size: 0.78rem;
-      color: var(--text-sub);
-      text-decoration: none;
-      margin-bottom: 12px;
-      word-break: break-all;
-    }
-
-    .card-url:hover {
-      color: var(--primary-dark);
-      text-decoration: underline;
-    }
-
-    .card-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      min-height: 26px;
-    }
-
-    .card-tag {
-      font-size: 0.72rem;
-      padding: 4px 8px;
-      border-radius: 999px;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .card-actions {
-      margin-top: 14px;
-      display: flex;
-      gap: 8px;
-      border-top: 1px solid #f3f4f6;
-      padding-top: 12px;
-    }
-
-    .action-btn {
-      font-size: 0.78rem;
-      border: none;
-      background: #f3f4f6;
-      padding: 8px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      color: #4b5563;
-      font-weight: 800;
-      transition: 0.18s;
-    }
-
-    .action-btn:hover {
-      background: #e5e7eb;
-      color: #111827;
-    }
-
-    .btn-delete:hover {
-      background: var(--danger);
-      color: white;
-    }
-
-    #inputOverlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.58);
-      z-index: 100;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
-
-    .input-card {
-      background: white;
-      padding: 26px;
-      border-radius: 18px;
-      width: 100%;
-      max-width: 520px;
-      box-shadow: 0 28px 60px rgba(0,0,0,0.28);
-    }
-
-    .input-card h3 {
-      margin: 0 0 18px;
-      font-size: 1.2rem;
-      letter-spacing: -0.02em;
-    }
-
-    .input-field {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .input-field input {
-      padding: 12px 14px;
-      border: 1px solid #d1d5db;
-      border-radius: 10px;
-      outline: none;
-      transition: 0.2s;
-    }
-
-    .input-field input:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 4px rgba(99,102,241,0.12);
-    }
-
-    .input-help {
-      font-size: 0.8rem;
-      color: var(--text-sub);
-      line-height: 1.45;
-      margin-top: -2px;
-    }
-
-    .input-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 4px;
-    }
-
-    .input-actions button {
-      flex: 1;
-      min-height: 44px;
-    }
-
-    .footer-note {
-      margin-top: 12px;
-      font-size: 0.76rem;
-      color: var(--text-sub);
-      line-height: 1.5;
-    }
-
-    @media (max-width: 960px) {
-      body {
-        flex-direction: column;
-        overflow: auto;
-      }
-
-      .sidebar {
-        width: 100%;
-        max-height: none;
-      }
-
-      .main-content {
-        padding: 20px;
-      }
-
-      .search-box {
-        min-width: 0;
-        width: 100%;
-      }
-
-      .toolbar {
-        width: 100%;
-      }
-
-      .toolbar-btn {
-        flex: 1;
-      }
-    }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BGM Studio PRO</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:       #f5f4f0;
+  --surface:  #ffffff;
+  --surface2: #f0efe9;
+  --border:   #e4e1d8;
+  --border2:  #ccc9be;
+  --text:     #18170f;
+  --muted:    #78756a;
+  --faint:    #b0ad9e;
+
+  --ink:      #18170f;
+  --accent:   #e85d2f;
+  --accent2:  #c94a20;
+  --accent-bg:#fff2ee;
+
+  --green:    #1a7a4a;
+  --green-bg: #edfbf3;
+  --red:      #c92020;
+  --red-bg:   #fff0f0;
+  --blue:     #1b56b0;
+  --blue-bg:  #eef4ff;
+
+  --r-sm:   6px;
+  --r:      10px;
+  --r-lg:   14px;
+  --r-xl:   20px;
+  --sh-sm:  0 1px 4px rgba(0,0,0,.06);
+  --sh:     0 4px 16px rgba(0,0,0,.08);
+  --sh-lg:  0 20px 48px rgba(0,0,0,.14);
+  --font:   'Plus Jakarta Sans', sans-serif;
+  --tr:     .17s ease;
+  --sw:     268px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;font-size:14px;line-height:1.5}
+
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
+
+/* ─── SIDEBAR ─── */
+.sidebar{
+  width:var(--sw);flex-shrink:0;
+  background:var(--ink);color:#e8e5da;
+  display:flex;flex-direction:column;overflow:hidden;
+  border-right:1px solid rgba(255,255,255,.06);
+}
+.sb-head{
+  padding:22px 20px 18px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  flex-shrink:0;
+}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-mark{
+  width:34px;height:34px;border-radius:var(--r-sm);
+  background:var(--accent);display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
+}
+.logo-text{font-size:.95rem;font-weight:800;letter-spacing:-.025em;color:#fff}
+.logo-sub{font-size:.68rem;color:#6b6860;font-weight:500;margin-top:2px;padding-left:44px}
+
+.sb-body{flex:1;overflow-y:auto;padding:16px 12px}
+
+.add-btn{
+  width:100%;padding:10px 14px;
+  background:var(--accent);color:#fff;
+  border:none;border-radius:var(--r);
+  font-family:var(--font);font-size:.8rem;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;
+  transition:var(--tr);margin-bottom:22px;letter-spacing:-.01em;
+}
+.add-btn:hover{background:var(--accent2);transform:translateY(-1px);box-shadow:0 4px 14px rgba(232,93,47,.35)}
+.add-btn:active{transform:none}
+
+.nav-sec{margin-bottom:20px}
+.nav-label{
+  font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;
+  color:#52504a;padding:0 8px;margin-bottom:5px;display:block;
+}
+
+.nav-item{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 10px;border-radius:var(--r-sm);
+  cursor:pointer;font-size:.82rem;font-weight:500;
+  color:#9a9790;transition:var(--tr);
+  user-select:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.nav-item:hover{background:rgba(255,255,255,.07);color:#e8e5da}
+.nav-item.active{background:rgba(232,93,47,.18);color:#f4a07a;font-weight:700}
+
+.nav-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.nav-count{
+  margin-left:auto;font-size:.68rem;font-weight:700;
+  background:rgba(255,255,255,.08);color:#6b6860;
+  padding:1px 7px;border-radius:99px;flex-shrink:0;
+}
+.nav-item.active .nav-count{background:rgba(232,93,47,.2);color:#f4a07a}
+
+.tag-cloud{display:flex;flex-wrap:wrap;gap:5px;padding:2px 0}
+.sb-tag{
+  padding:3px 9px;border-radius:99px;
+  font-size:.7rem;font-weight:700;cursor:pointer;
+  border:1px solid transparent;transition:var(--tr);
+}
+.sb-tag.active{border-color:currentColor;box-shadow:0 0 0 2px rgba(255,255,255,.08)}
+
+/* ─── MAIN ─── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+.topbar{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:0 24px;height:58px;
+  display:flex;align-items:center;gap:12px;flex-shrink:0;
+}
+.topbar-title{font-size:.95rem;font-weight:800;letter-spacing:-.02em;flex-shrink:0}
+
+.search-wrap{flex:1;max-width:380px;position:relative}
+.search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--faint);pointer-events:none}
+.search-input{
+  width:100%;padding:8px 12px 8px 34px;
+  border:1px solid var(--border);border-radius:var(--r);
+  font-family:var(--font);font-size:.82rem;
+  background:var(--bg);color:var(--text);outline:none;transition:var(--tr);
+}
+.search-input:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(232,93,47,.1)}
+.search-input::placeholder{color:var(--faint)}
+.search-clear{
+  position:absolute;right:9px;top:50%;transform:translateY(-50%);
+  width:18px;height:18px;border:none;background:var(--border);
+  border-radius:50%;cursor:pointer;color:var(--muted);
+  font-size:.65rem;display:none;align-items:center;justify-content:center;
+  transition:var(--tr);line-height:1;
+}
+.search-clear.visible{display:flex}
+.search-clear:hover{background:var(--border2)}
+
+.sort-sel{
+  padding:7px 28px 7px 11px;border:1px solid var(--border);border-radius:var(--r);
+  font-family:var(--font);font-size:.78rem;background:var(--bg);color:var(--text);
+  cursor:pointer;outline:none;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23aaa' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 9px center;
+}
+
+.view-toggle{
+  display:flex;gap:2px;background:var(--bg);
+  border:1px solid var(--border);border-radius:var(--r-sm);padding:3px;margin-left:auto;
+}
+.vbtn{
+  width:30px;height:28px;border:none;background:transparent;
+  border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:var(--faint);transition:var(--tr);
+}
+.vbtn.active{background:var(--surface);color:var(--text);box-shadow:var(--sh-sm)}
+
+.refresh-btn{
+  padding:7px 13px;border:1px solid var(--border);border-radius:var(--r);
+  background:transparent;color:var(--muted);font-family:var(--font);
+  font-size:.78rem;font-weight:600;cursor:pointer;transition:var(--tr);
+  display:flex;align-items:center;gap:5px;
+}
+.refresh-btn:hover{background:var(--bg);color:var(--text);border-color:var(--border2)}
+.refresh-btn.spin svg{animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* stats bar */
+.stats{
+  padding:9px 24px;border-bottom:1px solid var(--border);
+  background:var(--surface);flex-shrink:0;
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:.75rem;color:var(--muted);
+}
+.stat-pill{
+  background:rgba(232,93,47,.08);color:var(--accent2);
+  border:1px solid rgba(232,93,47,.15);
+  border-radius:99px;padding:3px 10px;font-size:.72rem;font-weight:700;
+}
+.stat-x{
+  background:none;border:none;cursor:pointer;color:var(--faint);
+  font-size:.8rem;padding:0 2px;transition:var(--tr);line-height:1;
+}
+.stat-x:hover{color:var(--red)}
+
+/* ─── content ─── */
+.content{flex:1;overflow-y:auto;padding:22px 24px}
+
+.bgm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
+.bgm-grid.list{grid-template-columns:1fr;gap:10px}
+
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-lg);overflow:hidden;transition:var(--tr);position:relative;
+}
+.card:hover{box-shadow:var(--sh);transform:translateY(-2px);border-color:var(--border2)}
+
+.card-stripe{height:3px;width:100%}
+
+.vid{position:relative;padding-bottom:56.25%;background:#0d0d0a}
+.vid iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
+.vid-fallback{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:#5a5850;font-size:.8rem;text-align:center;padding:16px;
+}
+.bgm-grid.list .card{display:flex;align-items:center}
+.bgm-grid.list .card-stripe{width:4px;height:auto;align-self:stretch;border-radius:0;flex-shrink:0}
+.bgm-grid.list .vid{width:148px;flex-shrink:0;padding-bottom:0;height:83px}
+.bgm-grid.list .vid iframe{position:relative;inset:auto;width:100%;height:100%}
+.bgm-grid.list .card-body{flex:1;min-width:0}
+
+.card-body{padding:14px 16px}
+.card-folder{font-size:.67rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.card-title{font-size:.88rem;font-weight:700;line-height:1.4;margin-bottom:9px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.bgm-grid.list .card-title{-webkit-line-clamp:1}
+.card-meta{font-size:.7rem;color:var(--faint);margin-bottom:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.card-meta a{color:var(--blue);text-decoration:none;font-weight:600}
+.card-meta a:hover{text-decoration:underline}
+.card-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;min-height:20px}
+.card-tag{font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:99px;cursor:pointer;transition:var(--tr)}
+.card-tag:hover{filter:brightness(.92)}
+
+.card-actions{display:flex;gap:6px;border-top:1px solid var(--border);padding-top:10px;margin-top:2px}
+.act-btn{
+  font-family:var(--font);font-size:.72rem;font-weight:700;
+  padding:5px 11px;border-radius:var(--r-sm);
+  border:1px solid var(--border);background:transparent;color:var(--muted);
+  cursor:pointer;transition:var(--tr);
+}
+.act-btn:hover{background:var(--bg);color:var(--text);border-color:var(--border2)}
+.act-btn.del:hover{background:var(--red-bg);color:var(--red);border-color:#fca5a5}
+.act-btn.copy{margin-left:auto}
+.act-btn.copy:hover{background:var(--blue-bg);color:var(--blue);border-color:#93c5fd}
+
+/* empty / loading */
+.empty{
+  text-align:center;padding:64px 20px;color:var(--muted);
+  grid-column:1/-1;
+}
+.empty-icon{font-size:2.2rem;opacity:.3;margin-bottom:14px}
+.empty h3{font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:5px}
+.empty p{font-size:.8rem}
+
+#loading{padding:64px;text-align:center;color:var(--muted);font-size:.85rem}
+.spin-ring{
+  width:24px;height:24px;border:2px solid var(--border);border-top-color:var(--accent);
+  border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px;
+}
+
+/* ─── MODAL ─── */
+.overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(10,10,8,.6);backdrop-filter:blur(6px);
+  z-index:300;align-items:center;justify-content:center;padding:20px;
+}
+.overlay.open{display:flex}
+
+.modal{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-xl);padding:26px;width:100%;max-width:480px;
+  box-shadow:var(--sh-lg);animation:modal-in .2s ease;
+}
+@keyframes modal-in{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:none}}
+
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-title{font-size:.95rem;font-weight:800;letter-spacing:-.02em}
+.modal-x{
+  width:28px;height:28px;border:1px solid var(--border);border-radius:var(--r-sm);
+  background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:.9rem;color:var(--muted);transition:var(--tr);
+}
+.modal-x:hover{background:var(--bg);color:var(--text)}
+
+.fgrp{margin-bottom:13px}
+.flabel{display:block;font-size:.72rem;font-weight:700;color:var(--muted);margin-bottom:5px;letter-spacing:.01em}
+.finput{
+  width:100%;padding:9px 12px;
+  border:1px solid var(--border);border-radius:var(--r);
+  font-family:var(--font);font-size:.84rem;background:var(--bg);color:var(--text);
+  outline:none;transition:var(--tr);
+}
+.finput:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(232,93,47,.1)}
+.finput::placeholder{color:var(--faint)}
+
+/* URL 미리보기 */
+#url-prev{
+  margin-top:8px;border-radius:var(--r-sm);overflow:hidden;
+  background:var(--bg);display:none;
+}
+#url-prev iframe{width:100%;height:130px;border:none;display:block}
+
+/* 태그 입력 칩 */
+.tag-preview{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;min-height:4px}
+
+/* 모달 하단 */
+.modal-foot{display:flex;gap:8px;margin-top:20px}
+.btn-save{
+  flex:1;padding:10px;background:var(--ink);color:#fff;
+  border:none;border-radius:var(--r);font-family:var(--font);
+  font-size:.85rem;font-weight:700;cursor:pointer;transition:var(--tr);letter-spacing:-.01em;
+}
+.btn-save:hover{background:#2d2c22}
+.btn-save:disabled{background:var(--border2);cursor:not-allowed}
+.btn-cancel{
+  padding:10px 18px;background:transparent;color:var(--muted);
+  border:1px solid var(--border);border-radius:var(--r);
+  font-family:var(--font);font-size:.85rem;font-weight:600;cursor:pointer;transition:var(--tr);
+}
+.btn-cancel:hover{background:var(--bg);color:var(--text)}
+
+/* 메시지 배너 */
+.banner{
+  margin-bottom:14px;padding:11px 14px;border-radius:var(--r);
+  font-size:.82rem;font-weight:600;line-height:1.5;
+  display:none;border:1px solid transparent;
+}
+.banner.show{display:block}
+.banner.info{background:var(--blue-bg);color:var(--blue);border-color:#bfdbfe}
+.banner.success{background:var(--green-bg);color:var(--green);border-color:#86efac}
+.banner.error{background:var(--red-bg);color:var(--red);border-color:#fca5a5}
+
+/* 토스트 */
+.toast{
+  position:fixed;bottom:22px;right:22px;
+  background:var(--ink);color:#fff;
+  padding:10px 16px;border-radius:var(--r);font-size:.8rem;font-weight:600;
+  box-shadow:var(--sh-lg);z-index:999;opacity:0;transform:translateY(8px);
+  transition:.22s ease;pointer-events:none;
+}
+.toast.show{opacity:1;transform:none}
+.toast.ok{background:var(--green)}
+.toast.err{background:var(--red)}
+
+/* keyboard shortcut hint */
+.kbd{
+  display:inline-flex;align-items:center;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:4px;padding:1px 6px;font-size:.65rem;
+  font-weight:700;color:var(--muted);letter-spacing:.02em;
+}
+</style>
 </head>
 <body>
-  <div id="inputOverlay" aria-hidden="true">
-    <div class="input-card" role="dialog" aria-modal="true" aria-labelledby="formTitle">
-      <h3 id="formTitle">➕ 새로운 BGM 추가</h3>
-      <input type="hidden" id="editId" />
-      <div class="input-field">
-        <input type="text" id="inTitle" placeholder="곡 제목 / 장면 설명" maxlength="200" />
-        <input type="text" id="inUrl" placeholder="유튜브 URL 주소" />
-        <input type="text" id="inTag" placeholder="태그 (예: 긴장|슬픔|몽환)" maxlength="200" />
-        <input type="text" id="inFolder" placeholder="폴더명" maxlength="100" />
-        <div class="input-help">
-          태그는 <strong>|</strong> 로 구분하세요. 예: 긴장|전투|추격
-        </div>
-        <div class="input-actions">
-          <button class="toolbar-btn primary" id="saveBtn" onclick="saveToSheet()">저장하기</button>
-          <button class="toolbar-btn" onclick="toggleInput(false)">취소</button>
-        </div>
-        <div class="footer-note">
-          수정/삭제는 고유 ID 기준으로 처리됩니다.
-        </div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-title">BGM 추가</div>
+      <button class="modal-x" onclick="closeModal()" title="닫기 (Esc)">✕</button>
+    </div>
+    <input type="hidden" id="editId"/>
+
+    <div class="fgrp">
+      <label class="flabel" for="inTitle">제목 / 장면 설명 <span style="color:var(--accent)">*</span></label>
+      <input class="finput" id="inTitle" type="text" placeholder="예: 보스전 긴장감 BGM" maxlength="200"/>
+    </div>
+
+    <div class="fgrp">
+      <label class="flabel" for="inUrl">유튜브 URL <span style="color:var(--accent)">*</span></label>
+      <input class="finput" id="inUrl" type="text" placeholder="https://youtube.com/watch?v=..." oninput="onUrlInput()"/>
+      <div id="url-prev"><iframe id="prev-frame" allowfullscreen loading="lazy"></iframe></div>
+    </div>
+
+    <div class="fgrp">
+      <label class="flabel" for="inTag">태그 <span style="color:var(--faint);font-weight:500">( | 로 구분 )</span></label>
+      <input class="finput" id="inTag" type="text" placeholder="긴장|보스전|액션" maxlength="200"
+             oninput="onTagInput()" list="tag-list"/>
+      <datalist id="tag-list"></datalist>
+      <div class="tag-preview" id="tag-prev"></div>
+    </div>
+
+    <div class="fgrp">
+      <label class="flabel" for="inFolder">폴더</label>
+      <input class="finput" id="inFolder" type="text" placeholder="예: 전투씬" maxlength="100" list="folder-list"/>
+      <datalist id="folder-list"></datalist>
+    </div>
+
+    <div id="modal-banner" class="banner"></div>
+
+    <div class="modal-foot">
+      <button class="btn-save" id="save-btn" onclick="saveItem()">저장하기</button>
+      <button class="btn-cancel" onclick="closeModal()">취소</button>
+    </div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-head">
+    <div class="logo">
+      <div class="logo-mark">🎵</div>
+      <div>
+        <div class="logo-text">BGM Studio</div>
       </div>
+    </div>
+    <div class="logo-sub">YouTube BGM Library</div>
+  </div>
+
+  <div class="sb-body">
+    <button class="add-btn" onclick="openModal()">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+        <path d="M6.5 1v11M1 6.5h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      BGM 추가하기
+    </button>
+
+    <div class="nav-sec">
+      <span class="nav-label">탐색</span>
+      <div class="nav-item active" id="nav-all" onclick="setFilter('전체','folder')" data-f="전체" data-t="folder">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+          <rect x="1" y="1" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.3"/>
+          <rect x="7.5" y="1" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.3"/>
+          <rect x="1" y="7.5" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.3"/>
+          <rect x="7.5" y="7.5" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.3"/>
+        </svg>
+        전체 보기
+        <span class="nav-count" id="cnt-all">0</span>
+      </div>
+    </div>
+
+    <div class="nav-sec">
+      <span class="nav-label">폴더</span>
+      <div id="folder-menu"></div>
+    </div>
+
+    <div class="nav-sec">
+      <span class="nav-label">태그</span>
+      <div class="tag-cloud" id="tag-menu"></div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="view-title">전체 목록</div>
+
+    <div class="search-wrap">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M10 10l2.5 2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      <input class="search-input" id="search-input" type="text"
+             placeholder="제목, 태그, 폴더 검색…" oninput="onSearch(this.value)"/>
+      <button class="search-clear" id="search-clear" onclick="clearSearch()" title="검색 초기화">✕</button>
+    </div>
+
+    <select class="sort-sel" id="sort-sel" onchange="renderGrid()">
+      <option value="default">기본 순서</option>
+      <option value="title">제목 순</option>
+      <option value="folder">폴더 순</option>
+      <option value="newest">최신 등록순</option>
+    </select>
+
+    <button class="refresh-btn" id="refresh-btn" onclick="loadData(true)" title="새로고침">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+        <path d="M11.5 6.5A5 5 0 1 1 9 2.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        <path d="M9 1v2.5H6.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      새로고침
+    </button>
+
+    <div class="view-toggle">
+      <button class="vbtn active" id="grid-btn" onclick="setView('grid')" title="그리드">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <rect x="1" y="1" width="4" height="4" rx="1" stroke="currentColor" stroke-width="1.3"/>
+          <rect x="7" y="1" width="4" height="4" rx="1" stroke="currentColor" stroke-width="1.3"/>
+          <rect x="1" y="7" width="4" height="4" rx="1" stroke="currentColor" stroke-width="1.3"/>
+          <rect x="7" y="7" width="4" height="4" rx="1" stroke="currentColor" stroke-width="1.3"/>
+        </svg>
+      </button>
+      <button class="vbtn" id="list-btn" onclick="setView('list')" title="리스트">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M4 2.5h7M4 6h7M4 9.5h7M1.5 2.5h.3M1.5 6h.3M1.5 9.5h.3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+      </button>
     </div>
   </div>
 
-  <aside class="sidebar">
-    <h2>🎵 BGM Library</h2>
+  <!-- stats -->
+  <div class="stats" id="stats-bar"></div>
 
-    <div class="sidebar-section">
-      <h3>Menu</h3>
-      <div class="menu-list">
-        <div class="menu-item active" id="menu-all" onclick="setFilter('전체', 'folder')">🌐 전체 보기</div>
-        <div class="menu-item add-btn-main" onclick="openAddForm()">➕ BGM 추가하기</div>
-      </div>
-    </div>
+  <div class="content">
+    <div id="banner" class="banner"></div>
+    <div id="loading"><div class="spin-ring"></div>데이터를 불러오는 중…</div>
+    <div id="bgm-grid" class="bgm-grid" style="display:none"></div>
+  </div>
+</main>
 
-    <div class="sidebar-section">
-      <h3>Folders</h3>
-      <div class="menu-list" id="folderMenu"></div>
-    </div>
+<div class="toast" id="toast"></div>
 
-    <div class="sidebar-section">
-      <h3>Tags</h3>
-      <div class="tag-cloud" id="tagMenu"></div>
-    </div>
-  </aside>
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbwARJt00LvRo2jFC9sqTtIDeUNaSBRyAqEFCU-ukcVyLpb3OAegyApQ9bfPF_FBId4/exec';
 
-  <main class="main-content">
-    <div class="header">
-      <div class="header-left">
-        <h1 id="viewTitle">전체 목록</h1>
-        <p id="viewDesc">등록된 BGM을 한눈에 보고, 필터링하고, 수정할 수 있습니다.</p>
-      </div>
+let allItems = [];
+let filter = { type: 'folder', value: '전체' };
+let search = '';
+let view = 'grid';
+let saving = false;
 
-      <div class="toolbar">
-        <div class="search-box">
-          <span>🔎</span>
-          <input
-            type="text"
-            id="searchInput"
-            placeholder="제목, 태그, 폴더 검색"
-            oninput="handleSearch(this.value)"
-          />
+/* ── 색상 팔레트 ── */
+const PALETTES = [
+  {bg:'#eff6ff',tx:'#1d4ed8',dot:'#3b82f6'},{bg:'#f0fdf4',tx:'#15803d',dot:'#22c55e'},
+  {bg:'#fff7ed',tx:'#c2410c',dot:'#f97316'},{bg:'#fdf4ff',tx:'#7e22ce',dot:'#a855f7'},
+  {bg:'#fff1f2',tx:'#be123c',dot:'#f43f5e'},{bg:'#f0fdfa',tx:'#0f766e',dot:'#14b8a6'},
+  {bg:'#fefce8',tx:'#a16207',dot:'#eab308'},{bg:'#f8fafc',tx:'#334155',dot:'#64748b'},
+  {bg:'#fef3c7',tx:'#92400e',dot:'#f59e0b'},{bg:'#ecfdf5',tx:'#065f46',dot:'#10b981'},
+];
+function pal(s){let h=5381;for(let i=0;i<s.length;i++)h=(h*33)^s.charCodeAt(i);return PALETTES[Math.abs(h)%PALETTES.length]}
+
+/* ── YT ID ── */
+function ytId(url){
+  if(!url)return null;
+  const m=url.trim().match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
+  return m?m[1]:null;
+}
+
+/* ── 텍스트 정규화 ── */
+const norm = s => String(s??'').trim();
+const normTags = s => [...new Set(String(s??'').split('|').map(t=>t.trim()).filter(Boolean))];
+
+/* ── 토스트 ── */
+function toast(msg, type=''){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className='toast show '+(type==='ok'?'ok':type==='err'?'err':'');
+  clearTimeout(el._t);el._t=setTimeout(()=>el.className='toast',2800);
+}
+
+/* ── 배너 ── */
+function setBanner(el,msg,type=''){
+  if(!msg){el.className='banner';el.textContent='';return;}
+  el.className='banner show '+type;el.textContent=msg;
+}
+
+/* ── 모달 ── */
+function openModal(editId=null){
+  const o=document.getElementById('overlay');
+  document.getElementById('modal-title').textContent=editId?'곡 정보 수정':'BGM 추가';
+  document.getElementById('editId').value='';
+  document.getElementById('inTitle').value='';
+  document.getElementById('inUrl').value='';
+  document.getElementById('inTag').value='';
+  document.getElementById('inFolder').value='';
+  document.getElementById('url-prev').style.display='none';
+  document.getElementById('tag-prev').innerHTML='';
+  setBanner(document.getElementById('modal-banner'),'');
+
+  if(editId){
+    const item=allItems.find(i=>String(i.id)===String(editId));
+    if(!item){toast('항목을 찾을 수 없습니다.','err');return;}
+    document.getElementById('editId').value=item.id;
+    document.getElementById('inTitle').value=item.title;
+    document.getElementById('inUrl').value=item.url;
+    document.getElementById('inTag').value=(item.tags||[]).join('|');
+    document.getElementById('inFolder').value=item.folder;
+    onUrlInput();onTagInput();
+  }
+  o.classList.add('open');
+  setTimeout(()=>document.getElementById('inTitle').focus(),80);
+}
+function closeModal(){document.getElementById('overlay').classList.remove('open')}
+document.getElementById('overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal()});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')closeModal();
+  if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();document.getElementById('search-input').focus()}
+});
+
+/* ── URL 미리보기 ── */
+function onUrlInput(){
+  const id=ytId(document.getElementById('inUrl').value);
+  const prev=document.getElementById('url-prev');
+  if(id){
+    document.getElementById('prev-frame').src=`https://www.youtube.com/embed/${id}?rel=0`;
+    prev.style.display='block';
+  }else{
+    prev.style.display='none';
+  }
+}
+
+/* ── 태그 칩 미리보기 ── */
+function onTagInput(){
+  const tags=normTags(document.getElementById('inTag').value);
+  document.getElementById('tag-prev').innerHTML=tags.map(t=>{
+    const p=pal(t);
+    return `<span style="font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:99px;background:${p.bg};color:${p.tx}">#${t}</span>`;
+  }).join('');
+}
+
+/* ── 저장 ── */
+async function saveItem(){
+  if(saving)return;
+  const id=norm(document.getElementById('editId').value);
+  const title=norm(document.getElementById('inTitle').value);
+  const url=norm(document.getElementById('inUrl').value);
+  const tag=norm(document.getElementById('inTag').value);
+  const folder=norm(document.getElementById('inFolder').value)||'기타';
+  const banner=document.getElementById('modal-banner');
+  const btn=document.getElementById('save-btn');
+
+  if(!title){setBanner(banner,'제목을 입력해주세요.','error');return}
+  if(!url||!ytId(url)){setBanner(banner,'올바른 유튜브 URL을 입력해주세요.','error');return}
+
+  saving=true;btn.disabled=true;btn.textContent='저장 중…';
+  setBanner(banner,'');
+  try{
+    const p=new URLSearchParams();
+    p.append('action',id?'edit':'add');
+    if(id)p.append('id',id);
+    p.append('title',title);p.append('url',url);
+    p.append('tag',tag);p.append('folder',folder);
+    const r=await fetch(API_URL,{method:'POST',body:p});
+    const j=await r.json();
+    if(!j.ok)throw new Error(j.error||'저장 실패');
+    closeModal();
+    toast(id?'수정되었습니다.':'추가되었습니다.','ok');
+    await loadData(false);
+  }catch(e){
+    setBanner(banner,'저장에 실패했습니다: '+e.message,'error');
+  }finally{
+    saving=false;btn.disabled=false;btn.textContent='저장하기';
+  }
+}
+
+/* ── 삭제 ── */
+async function deleteItem(id,title){
+  if(!confirm(`"${title}"\n이 곡을 삭제할까요?`))return;
+  try{
+    const p=new URLSearchParams();p.append('action','delete');p.append('id',id);
+    const r=await fetch(API_URL,{method:'POST',body:p});
+    const j=await r.json();
+    if(!j.ok)throw new Error(j.error||'삭제 실패');
+    toast('삭제되었습니다.','ok');
+    await loadData(false);
+  }catch(e){
+    toast('삭제 실패: '+e.message,'err');
+  }
+}
+
+/* ── URL 복사 ── */
+function copyUrl(url,btn){
+  navigator.clipboard.writeText(url).then(()=>{
+    const orig=btn.textContent;btn.textContent='복사됨!';
+    setTimeout(()=>btn.textContent=orig,1500);
+  });
+}
+
+/* ── 필터 ── */
+function setFilter(val,type){
+  filter={value:val,type};
+  document.getElementById('view-title').textContent=
+    val==='전체'?'전체 목록':type==='folder'?val:`#${val}`;
+  renderSidebar();renderGrid();updateStats();
+}
+
+/* ── 검색 ── */
+function onSearch(v){
+  search=norm(v).toLowerCase();
+  document.getElementById('search-clear').classList.toggle('visible',search.length>0);
+  renderGrid();updateStats();
+}
+function clearSearch(){
+  search='';
+  document.getElementById('search-input').value='';
+  document.getElementById('search-clear').classList.remove('visible');
+  renderGrid();updateStats();
+}
+
+/* ── 뷰 전환 ── */
+function setView(v){
+  view=v;
+  document.getElementById('bgm-grid').className='bgm-grid'+(v==='list'?' list':'');
+  document.getElementById('grid-btn').classList.toggle('active',v==='grid');
+  document.getElementById('list-btn').classList.toggle('active',v==='list');
+}
+
+/* ── 통계 바 ── */
+function updateStats(){
+  const bar=document.getElementById('stats-bar');
+  const folders=[...new Set(allItems.map(i=>i.folder))];
+  const tags=[...new Set(allItems.flatMap(i=>i.tags||[]))];
+  const shown=getFiltered().length;
+
+  let html=`<strong>${shown}</strong>개 곡 표시 중 &nbsp;·&nbsp; 전체 ${allItems.length}개`;
+
+  if(filter.value!=='전체'){
+    html+=` <span class="stat-pill">${filter.type==='folder'?filter.value:'#'+filter.value} <button class="stat-x" onclick="setFilter('전체','folder')">✕</button></span>`;
+  }
+  if(search){
+    html+=` <span class="stat-pill">"${search}" 검색 중 <button class="stat-x" onclick="clearSearch()">✕</button></span>`;
+  }
+  html+=` &nbsp;·&nbsp; 폴더 ${folders.length}개 · 태그 ${tags.length}개`;
+  bar.innerHTML=html;
+}
+
+/* ── 사이드바 렌더 ── */
+function renderSidebar(){
+  document.getElementById('cnt-all').textContent=allItems.length;
+  document.getElementById('nav-all').classList.toggle('active',filter.value==='전체');
+
+  const folders=[...new Set(allItems.map(i=>i.folder))].filter(Boolean).sort((a,b)=>a.localeCompare(b,'ko'));
+  const tags=[...new Set(allItems.flatMap(i=>i.tags||[]))].filter(Boolean).sort((a,b)=>a.localeCompare(b,'ko'));
+
+  /* 폴더 */
+  document.getElementById('folder-menu').innerHTML=folders.map(f=>{
+    const p=pal(f);const cnt=allItems.filter(i=>i.folder===f).length;
+    const active=filter.type==='folder'&&filter.value===f;
+    return `<div class="nav-item${active?' active':''}" onclick="setFilter(${JSON.stringify(f)},'folder')">
+      <span class="nav-dot" style="background:${p.dot}"></span>
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis">${esc(f)}</span>
+      <span class="nav-count">${cnt}</span>
+    </div>`;
+  }).join('');
+
+  /* 태그 */
+  document.getElementById('tag-menu').innerHTML=tags.map(t=>{
+    const p=pal(t);const active=filter.type==='tag'&&filter.value===t;
+    return `<span class="sb-tag${active?' active':''}" style="background:${p.bg};color:${p.tx}" onclick="setFilter(${JSON.stringify(t)},'tag')">#${esc(t)}</span>`;
+  }).join('');
+
+  /* 자동완성 datalists */
+  document.getElementById('folder-list').innerHTML=folders.map(f=>`<option value="${esc(f)}">`).join('');
+  document.getElementById('tag-list').innerHTML=tags.map(t=>`<option value="${esc(t)}">`).join('');
+}
+
+/* ── 필터링 ── */
+function getFiltered(){
+  let items=[...allItems];
+  if(filter.value!=='전체'){
+    items=filter.type==='folder'
+      ?items.filter(i=>i.folder===filter.value)
+      :items.filter(i=>(i.tags||[]).includes(filter.value));
+  }
+  if(search){
+    items=items.filter(i=>[i.title,i.folder,...(i.tags||[]),i.url].join(' ').toLowerCase().includes(search));
+  }
+  const sort=document.getElementById('sort-sel').value;
+  if(sort==='title')items.sort((a,b)=>a.title.localeCompare(b.title,'ko'));
+  else if(sort==='folder')items.sort((a,b)=>a.folder.localeCompare(b.folder,'ko'));
+  else if(sort==='newest')items.sort((a,b)=>b.id-a.id);
+  return items;
+}
+
+/* ── 그리드 렌더 ── */
+function renderGrid(){
+  const grid=document.getElementById('bgm-grid');
+  const items=getFiltered();
+  if(!items.length){
+    grid.innerHTML=`<div class="empty">
+      <div class="empty-icon">🎵</div>
+      <h3>${search?'검색 결과 없음':'비어 있음'}</h3>
+      <p>${search?`"${search}"에 해당하는 곡이 없습니다.`:'BGM을 추가해보세요.'}</p>
+    </div>`;
+    grid.style.display='grid';return;
+  }
+
+  grid.innerHTML=items.map(item=>{
+    const p=pal(item.folder);const id=ytId(item.url);
+    const tagsHtml=(item.tags||[]).map(t=>{
+      const tp=pal(t);
+      return `<span class="card-tag" style="background:${tp.bg};color:${tp.tx}" onclick="setFilter(${JSON.stringify(t)},'tag')">#${esc(t)}</span>`;
+    }).join('');
+    const vidHtml=id
+      ?`<iframe src="https://www.youtube.com/embed/${id}?rel=0" allowfullscreen loading="lazy" title="${esc(item.title)} 미리보기"></iframe>`
+      :`<div class="vid-fallback">유효한 유튜브 링크가 아닙니다</div>`;
+    const dateMeta=item.createdAt?`<span>등록: ${item.createdAt}</span>`:'';
+
+    return `<div class="card">
+      <div class="card-stripe" style="background:${p.dot}"></div>
+      <div class="vid">${vidHtml}</div>
+      <div class="card-body">
+        <div class="card-folder" style="color:${p.tx}">${esc(item.folder)}</div>
+        <div class="card-title">${esc(item.title)}</div>
+        <div class="card-meta">
+          ${dateMeta}
+          <a href="${esc(item.url)}" target="_blank" rel="noopener">원본 링크</a>
         </div>
-        <button class="toolbar-btn" onclick="clearSearch()">검색 초기화</button>
-        <button class="toolbar-btn primary" onclick="loadData(true)">새로고침</button>
+        ${tagsHtml?`<div class="card-tags">${tagsHtml}</div>`:''}
+        <div class="card-actions">
+          <button class="act-btn" onclick="openModal('${item.id}')">수정</button>
+          <button class="act-btn del" onclick="deleteItem('${item.id}',${JSON.stringify(item.title)})">삭제</button>
+          <button class="act-btn copy" onclick="copyUrl('${esc(item.url)}',this)">URL 복사</button>
+        </div>
       </div>
-    </div>
-
-    <div class="status-bar" id="statusBar"></div>
-    <div id="messageBox" class="message-box"></div>
-    <div id="loading" class="loading">데이터를 불러오는 중입니다...</div>
-    <div id="bgmGrid" class="bgm-grid" style="display:none;"></div>
-    <div id="emptyState" class="empty-state" style="display:none;">표시할 BGM이 없습니다.</div>
-  </main>
-
-  <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwARJt00LvRo2jFC9sqTtIDeUNaSBRyAqEFCU-ukcVyLpb3OAegyApQ9bfPF_FBId4/exec';
-
-    let allItems = [];
-    let currentFilter = { type: 'folder', value: '전체' };
-    let searchKeyword = '';
-    let isSaving = false;
-
-    const els = {
-      overlay: document.getElementById('inputOverlay'),
-      formTitle: document.getElementById('formTitle'),
-      editId: document.getElementById('editId'),
-      inTitle: document.getElementById('inTitle'),
-      inUrl: document.getElementById('inUrl'),
-      inTag: document.getElementById('inTag'),
-      inFolder: document.getElementById('inFolder'),
-      saveBtn: document.getElementById('saveBtn'),
-      folderMenu: document.getElementById('folderMenu'),
-      tagMenu: document.getElementById('tagMenu'),
-      bgmGrid: document.getElementById('bgmGrid'),
-      loading: document.getElementById('loading'),
-      viewTitle: document.getElementById('viewTitle'),
-      viewDesc: document.getElementById('viewDesc'),
-      messageBox: document.getElementById('messageBox'),
-      searchInput: document.getElementById('searchInput'),
-      emptyState: document.getElementById('emptyState'),
-      statusBar: document.getElementById('statusBar')
-    };
-
-    function showMessage(text, type = 'info') {
-      els.messageBox.textContent = text;
-      els.messageBox.className = `message-box show ${type}`;
-    }
-
-    function hideMessage() {
-      els.messageBox.className = 'message-box';
-      els.messageBox.textContent = '';
-    }
-
-    function setLoading(isLoading, text = '데이터를 불러오는 중입니다...') {
-      els.loading.style.display = isLoading ? 'block' : 'none';
-      els.loading.textContent = text;
-
-      if (isLoading) {
-        els.bgmGrid.style.display = 'none';
-        els.emptyState.style.display = 'none';
-      }
-    }
-
-    function normalizeText(value) {
-      return String(value ?? '').trim();
-    }
-
-    function normalizeTags(raw) {
-      return String(raw ?? '')
-        .split('|')
-        .map(tag => tag.trim())
-        .filter(Boolean)
-        .filter((tag, index, arr) => arr.indexOf(tag) === index);
-    }
-
-    function stringToColor(str) {
-      let hash = 0;
-      const text = String(str || '기타');
-
-      for (let i = 0; i < text.length; i++) {
-        hash = text.charCodeAt(i) + ((hash << 5) - hash);
-      }
-
-      const h = Math.abs(hash % 360);
-      return `hsl(${h}, 70%, 45%)`;
-    }
-
-    function stringToLightColor(str) {
-      let hash = 0;
-      const text = String(str || '기타');
-
-      for (let i = 0; i < text.length; i++) {
-        hash = text.charCodeAt(i) + ((hash << 5) - hash);
-      }
-
-      const h = Math.abs(hash % 360);
-      return `hsl(${h}, 85%, 93%)`;
-    }
-
-    function getYoutubeId(url) {
-      if (!url) return null;
-      const value = url.trim();
-
-      const patterns = [
-        /(?:youtube\.com\/watch\?v=)([^&#]+)/,
-        /(?:youtu\.be\/)([^?&#]+)/,
-        /(?:youtube\.com\/embed\/)([^?&#]+)/,
-        /(?:youtube\.com\/shorts\/)([^?&#]+)/
-      ];
-
-      for (const pattern of patterns) {
-        const match = value.match(pattern);
-        if (match && match[1] && match[1].length >= 11) {
-          return match[1].slice(0, 11);
-        }
-      }
-
-      return null;
-    }
-
-    function isValidYoutubeUrl(url) {
-      return !!getYoutubeId(url);
-    }
-
-    function formatDateText(createdAt, updatedAt) {
-      return `등록: ${createdAt || '-'}\n수정: ${updatedAt || '-'}`;
-    }
-
-    function toggleInput(forceState) {
-      const shouldOpen = typeof forceState === 'boolean'
-        ? forceState
-        : els.overlay.style.display !== 'flex';
-
-      els.overlay.style.display = shouldOpen ? 'flex' : 'none';
-      els.overlay.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
-    }
-
-    function resetForm() {
-      els.formTitle.textContent = '➕ 새로운 BGM 추가';
-      els.editId.value = '';
-      els.inTitle.value = '';
-      els.inUrl.value = '';
-      els.inTag.value = '';
-      els.inFolder.value = '';
-      els.saveBtn.disabled = false;
-      els.saveBtn.textContent = '저장하기';
-    }
-
-    function openAddForm() {
-      resetForm();
-      toggleInput(true);
-      els.inTitle.focus();
-    }
-
-    function openEditFormById(id) {
-      const item = allItems.find(v => String(v.id) === String(id));
-
-      if (!item) {
-        showMessage('수정할 항목을 찾지 못했습니다.', 'error');
-        return;
-      }
-
-      els.formTitle.textContent = '✏️ 곡 정보 수정';
-      els.editId.value = item.id;
-      els.inTitle.value = item.title;
-      els.inUrl.value = item.url;
-      els.inTag.value = (item.tags || []).join('|');
-      els.inFolder.value = item.folder;
-      toggleInput(true);
-      els.inTitle.focus();
-    }
-
-    function setFilter(value, type) {
-      currentFilter = { value, type };
-      updateHeader();
-      renderMenus();
-      renderGrid();
-    }
-
-    function handleSearch(value) {
-      searchKeyword = normalizeText(value).toLowerCase();
-      renderGrid();
-      renderStatusBar();
-    }
-
-    function clearSearch() {
-      searchKeyword = '';
-      els.searchInput.value = '';
-      renderGrid();
-      renderStatusBar();
-    }
-
-    function updateHeader() {
-      let title = '전체 목록';
-      let desc = '등록된 BGM을 한눈에 보고, 필터링하고, 수정할 수 있습니다.';
-
-      if (currentFilter.value !== '전체') {
-        if (currentFilter.type === 'folder') {
-          title = `폴더: ${currentFilter.value}`;
-          desc = '선택한 폴더에 속한 BGM만 표시합니다.';
-        } else if (currentFilter.type === 'tag') {
-          title = `태그: #${currentFilter.value}`;
-          desc = '선택한 태그가 붙은 BGM만 표시합니다.';
-        }
-      }
-
-      els.viewTitle.textContent = title;
-      els.viewDesc.textContent = desc;
-    }
-
-    function renderStatusBar() {
-      els.statusBar.innerHTML = '';
-
-      const pills = [];
-      pills.push({ text: `전체 ${allItems.length}곡` });
-
-      if (currentFilter.value !== '전체') {
-        pills.push({
-          text: currentFilter.type === 'folder'
-            ? `폴더: ${currentFilter.value}`
-            : `태그: #${currentFilter.value}`
-        });
-      }
-
-      if (searchKeyword) {
-        pills.push({ text: `검색: "${searchKeyword}"` });
-      }
-
-      pills.forEach(pill => {
-        const node = document.createElement('div');
-        node.className = 'status-pill';
-        node.textContent = pill.text;
-        els.statusBar.appendChild(node);
-      });
-    }
-
-    function renderMenus() {
-      document.getElementById('menu-all').classList.toggle(
-        'active',
-        currentFilter.type === 'folder' && currentFilter.value === '전체'
-      );
-
-      els.folderMenu.innerHTML = '';
-      els.tagMenu.innerHTML = '';
-
-      const folders = [...new Set(allItems.map(item => item.folder))]
-        .filter(Boolean)
-        .sort((a, b) => a.localeCompare(b, 'ko'));
-
-      const tags = [...new Set(allItems.flatMap(item => item.tags || []))]
-        .filter(Boolean)
-        .sort((a, b) => a.localeCompare(b, 'ko'));
-
-      folders.forEach(folder => {
-        const item = document.createElement('div');
-        item.className = `menu-item ${currentFilter.type === 'folder' && currentFilter.value === folder ? 'active' : ''}`;
-        item.addEventListener('click', () => setFilter(folder, 'folder'));
-
-        const dot = document.createElement('div');
-        dot.className = 'color-dot';
-        dot.style.background = stringToColor(folder);
-
-        const text = document.createElement('span');
-        text.textContent = folder;
-
-        item.appendChild(dot);
-        item.appendChild(text);
-        els.folderMenu.appendChild(item);
-      });
-
-      tags.forEach(tag => {
-        const chip = document.createElement('button');
-        chip.type = 'button';
-        chip.className = 'tag-chip';
-        chip.textContent = `#${tag}`;
-        chip.style.background = stringToLightColor(tag);
-        chip.style.color = stringToColor(tag);
-        chip.addEventListener('click', () => setFilter(tag, 'tag'));
-        els.tagMenu.appendChild(chip);
-      });
-
-      renderStatusBar();
-    }
-
-    function getFilteredItems() {
-      let filtered = [...allItems];
-
-      if (currentFilter.value !== '전체') {
-        if (currentFilter.type === 'folder') {
-          filtered = filtered.filter(item => item.folder === currentFilter.value);
-        } else if (currentFilter.type === 'tag') {
-          filtered = filtered.filter(item => (item.tags || []).includes(currentFilter.value));
-        }
-      }
-
-      if (searchKeyword) {
-        filtered = filtered.filter(item => {
-          const haystack = [
-            item.title,
-            item.folder,
-            item.url,
-            item.createdAt,
-            item.updatedAt,
-            ...(item.tags || [])
-          ].join(' ').toLowerCase();
-
-          return haystack.includes(searchKeyword);
-        });
-      }
-
-      return filtered;
-    }
-
-    function createVideoNode(item) {
-      const videoBox = document.createElement('div');
-      videoBox.className = 'video-box';
-
-      const youtubeId = getYoutubeId(item.url);
-
-      if (!youtubeId) {
-        const fallback = document.createElement('div');
-        fallback.className = 'video-fallback';
-        fallback.textContent = '유효한 유튜브 링크가 아니어서 미리보기를 표시할 수 없습니다.';
-        videoBox.appendChild(fallback);
-        return videoBox;
-      }
-
-      const iframe = document.createElement('iframe');
-      iframe.src = `https://www.youtube.com/embed/${youtubeId}`;
-      iframe.allowFullscreen = true;
-      iframe.loading = 'lazy';
-      iframe.referrerPolicy = 'strict-origin-when-cross-origin';
-      iframe.title = `${item.title} 미리보기`;
-      videoBox.appendChild(iframe);
-
-      return videoBox;
-    }
-
-    function createCard(item) {
-      const card = document.createElement('div');
-      card.className = 'bgm-card';
-
-      const sideBar = document.createElement('div');
-      sideBar.className = 'card-side-bar';
-      sideBar.style.background = stringToColor(item.folder);
-      card.appendChild(sideBar);
-
-      card.appendChild(createVideoNode(item));
-
-      const body = document.createElement('div');
-      body.className = 'card-body';
-
-      const folder = document.createElement('div');
-      folder.className = 'card-folder';
-      folder.style.color = stringToColor(item.folder);
-      folder.textContent = item.folder;
-      body.appendChild(folder);
-
-      const title = document.createElement('h3');
-      title.className = 'card-title';
-      title.textContent = item.title;
-      body.appendChild(title);
-
-      const date = document.createElement('div');
-      date.className = 'card-date';
-      date.textContent = formatDateText(item.createdAt, item.updatedAt);
-      body.appendChild(date);
-
-      const link = document.createElement('a');
-      link.className = 'card-url';
-      link.href = item.url;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      link.textContent = '원본 링크 열기';
-      body.appendChild(link);
-
-      const tagsWrap = document.createElement('div');
-      tagsWrap.className = 'card-tags';
-
-      (item.tags || []).forEach(tag => {
-        const chip = document.createElement('span');
-        chip.className = 'card-tag';
-        chip.style.background = stringToLightColor(tag);
-        chip.style.color = stringToColor(tag);
-        chip.textContent = `#${tag}`;
-        tagsWrap.appendChild(chip);
-      });
-
-      body.appendChild(tagsWrap);
-
-      const actions = document.createElement('div');
-      actions.className = 'card-actions';
-
-      const editBtn = document.createElement('button');
-      editBtn.className = 'action-btn';
-      editBtn.textContent = '수정';
-      editBtn.addEventListener('click', () => openEditFormById(item.id));
-
-      const deleteBtn = document.createElement('button');
-      deleteBtn.className = 'action-btn btn-delete';
-      deleteBtn.textContent = '삭제';
-      deleteBtn.addEventListener('click', () => deleteItem(item.id));
-
-      actions.appendChild(editBtn);
-      actions.appendChild(deleteBtn);
-      body.appendChild(actions);
-
-      card.appendChild(body);
-      return card;
-    }
-
-    function renderGrid() {
-      const filtered = getFilteredItems();
-      els.bgmGrid.innerHTML = '';
-
-      if (allItems.length === 0) {
-        els.bgmGrid.style.display = 'none';
-        els.emptyState.style.display = 'block';
-        els.emptyState.textContent = '아직 등록된 BGM이 없습니다.';
-        return;
-      }
-
-      if (filtered.length === 0) {
-        els.bgmGrid.style.display = 'none';
-        els.emptyState.style.display = 'block';
-        els.emptyState.textContent = '현재 조건에 맞는 BGM이 없습니다.';
-        return;
-      }
-
-      filtered.forEach(item => {
-        els.bgmGrid.appendChild(createCard(item));
-      });
-
-      els.emptyState.style.display = 'none';
-      els.bgmGrid.style.display = 'grid';
-    }
-
-    async function requestJSON(url, options = {}) {
-      const response = await fetch(url, options);
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      return await response.json();
-    }
-
-    async function saveToSheet() {
-      if (isSaving) return;
-    
-      const id = normalizeText(els.editId.value);
-      const title = normalizeText(els.inTitle.value);
-      const url = normalizeText(els.inUrl.value);
-      const tag = normalizeText(els.inTag.value);
-      const folder = normalizeText(els.inFolder.value) || '기타';
-    
-      if (!title || !url) {
-        showMessage('곡 제목과 URL은 필수입니다.', 'error');
-        return;
-      }
-    
-      if (!isValidYoutubeUrl(url)) {
-        showMessage('유효한 유튜브 URL을 입력해주세요.', 'error');
-        return;
-      }
-    
-      isSaving = true;
-      els.saveBtn.disabled = true;
-      els.saveBtn.textContent = '저장 중...';
-    
-      try {
-        hideMessage();
-    
-        const payload = new URLSearchParams();
-        payload.append('action', id ? 'edit' : 'add');
-        if (id) payload.append('id', id);
-        payload.append('title', title);
-        payload.append('url', url);
-        payload.append('tag', tag);
-        payload.append('folder', folder);
-    
-        const result = await requestJSON(API_URL, {
-          method: 'POST',
-          body: payload
-        });
-    
-        if (!result.ok) {
-          throw new Error(result.error || '저장 실패');
-        }
-    
-        showMessage(id ? '수정이 완료되었습니다.' : '새 곡이 추가되었습니다.', 'success');
-        toggleInput(false);
-        resetForm();
-        await loadData(false);
-      } catch (error) {
-        console.error(error);
-        showMessage(`저장에 실패했습니다. ${error.message || ''}`, 'error');
-      } finally {
-        isSaving = false;
-        els.saveBtn.disabled = false;
-        els.saveBtn.textContent = '저장하기';
-      }
-    }
-
-    async function deleteItem(id) {
-      if (!id) {
-        showMessage('삭제할 id가 없습니다.', 'error');
-        return;
-      }
-    
-      const ok = confirm('정말 이 곡을 삭제하시겠습니까?');
-      if (!ok) return;
-    
-      try {
-        hideMessage();
-    
-        const payload = new URLSearchParams();
-        payload.append('action', 'delete');
-        payload.append('id', id);
-    
-        const result = await requestJSON(API_URL, {
-          method: 'POST',
-          body: payload
-        });
-    
-        if (!result.ok) {
-          throw new Error(result.error || '삭제 실패');
-        }
-    
-        showMessage('삭제가 완료되었습니다.', 'success');
-        await loadData(false);
-      } catch (error) {
-        console.error(error);
-        showMessage(`삭제에 실패했습니다. ${error.message || ''}`, 'error');
-      }
-    }
-
-    async function loadData(showRefreshMessage = false) {
-      setLoading(true, '데이터를 불러오는 중입니다...');
-
-      try {
-        if (showRefreshMessage) {
-          showMessage('데이터를 새로고침하고 있습니다.', 'info');
-        }
-
-        const result = await requestJSON(`${API_URL}?action=list`, {
-          method: 'GET',
-          mode: 'cors',
-          cache: 'no-store'
-        });
-
-        if (!result.ok) {
-          throw new Error(result.error || '목록 불러오기 실패');
-        }
-
-        allItems = (result.items || []).map(item => ({
-          id: normalizeText(item.id),
-          title: normalizeText(item.title),
-          url: normalizeText(item.url),
-          tags: normalizeTags(item.tag),
-          folder: normalizeText(item.folder) || '기타',
-          createdAt: normalizeText(item.createdAt),
-          updatedAt: normalizeText(item.updatedAt)
-        }));
-
-        updateHeader();
-        renderMenus();
-        renderGrid();
-
-        if (!showRefreshMessage) {
-          hideMessage();
-        } else {
-          showMessage('새로고침이 완료되었습니다.', 'success');
-        }
-      } catch (error) {
-        console.error(error);
-        allItems = [];
-        renderMenus();
-        renderGrid();
-        showMessage(`데이터를 불러오지 못했습니다. ${error.message || ''}`, 'error');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    els.overlay.addEventListener('click', (event) => {
-      if (event.target === els.overlay) {
-        toggleInput(false);
-      }
-    });
-
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') {
-        toggleInput(false);
-      }
-    });
-
-    [els.inTitle, els.inUrl, els.inTag, els.inFolder].forEach(input => {
-      input.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter') {
-          saveToSheet();
-        }
-      });
-    });
-
-    loadData(false);
-  </script>
+    </div>`;
+  }).join('');
+  grid.style.display='grid';
+}
+
+/* ── 데이터 로드 ── */
+async function loadData(showMsg=false){
+  const btn=document.getElementById('refresh-btn');
+  btn.classList.add('spin');
+  document.getElementById('loading').style.display='block';
+  document.getElementById('bgm-grid').style.display='none';
+
+  try{
+    if(showMsg)setBanner(document.getElementById('banner'),'새로고침 중…','info');
+    const r=await fetch(`${API_URL}?action=list`,{method:'GET',cache:'no-store'});
+    const j=await r.json();
+    if(!j.ok)throw new Error(j.error||'목록 불러오기 실패');
+    allItems=(j.items||[]).map(i=>({
+      id:norm(i.id),title:norm(i.title),url:norm(i.url),
+      tags:normTags(i.tag),folder:norm(i.folder)||'기타',
+      createdAt:norm(i.createdAt),updatedAt:norm(i.updatedAt)
+    }));
+    renderSidebar();renderGrid();updateStats();
+    setBanner(document.getElementById('banner'),'');
+    if(showMsg)toast('새로고침 완료','ok');
+  }catch(e){
+    setBanner(document.getElementById('banner'),'데이터를 불러오지 못했습니다: '+e.message,'error');
+  }finally{
+    document.getElementById('loading').style.display='none';
+    btn.classList.remove('spin');
+  }
+}
+
+/* ── 유틸 ── */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+/* ── 엔터키 저장 ── */
+['inTitle','inUrl','inTag','inFolder'].forEach(id=>{
+  document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')saveItem()});
+});
+
+loadData(false);
+</script>
 </body>
 </html>
