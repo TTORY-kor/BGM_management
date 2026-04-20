@@ -225,6 +225,34 @@ body.sb-col .sb-btn-label{display:none;}
 #bgmGrid.compact .card-tag{white-space:nowrap;}
 /* 수정일 */
 .list-date{font-size:.65rem;color:var(--faint);font-family:var(--mono);white-space:nowrap;flex-shrink:0;}
+
+/* 리스트 뷰 인라인 메모 */
+.list-memo{
+  flex:0 1 180px;min-width:60px;max-width:200px;
+  height:24px;padding:0 8px;
+  background:transparent;
+  border:1px solid transparent;
+  border-radius:var(--r-sm);
+  color:var(--muted);font-size:.72rem;
+  outline:none;transition:var(--tr);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.list-memo::placeholder{color:var(--faint);font-style:italic;}
+.list-memo:hover{border-color:var(--border2);background:var(--surface2);}
+.list-memo:focus{border-color:var(--amber);background:var(--amber-dim);color:var(--text);box-shadow:0 0 0 2px var(--amber-ring);}
+/* 메모 있을 때 살짝 표시 */
+.list-memo:not(:placeholder-shown){color:var(--text2);border-color:var(--border);}
+
+/* 상세 보기 메모 */
+.detail-memo-input{
+  flex:1;min-height:60px;padding:6px 8px;
+  background:var(--surface3);border:1px solid var(--border);
+  border-radius:var(--r-sm);color:var(--text);font-size:.76rem;
+  outline:none;resize:vertical;transition:var(--tr);
+  line-height:1.6;font-family:var(--font);
+}
+.detail-memo-input::placeholder{color:var(--faint);}
+.detail-memo-input:focus{border-color:var(--amber);background:var(--amber-dim);box-shadow:0 0 0 2px var(--amber-ring);}
 #bgmGrid.compact .card-actions{border-top:0;border-left:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;align-self:stretch;}
 #bgmGrid.compact .card-action-btn{width:42px;height:100%;display:flex;align-items:center;justify-content:center;font-size:.72rem;}
 .list-fav{
@@ -638,7 +666,7 @@ body.sb-col #player{left:56px;}
 </div>
 
 <script>
-const API_URL='https://script.google.com/macros/s/AKfycbwwV06DR2hHtA9txXCqvdAu13xX3EtVB9MZyLAIK8nuifrwA9NjNoIigUUdmTwlXCE/exec';
+const API_URL='https://script.google.com/macros/s/AKfycbwmmyI9JftuXVkm6UntkElQtg1FQFOoFTAo9lkmn5Sm-ePZciLzdiwmxb9c9rV12MY/exec';
 const COLOR_PRESETS=['#f5a623','#ef4444','#f97316','#eab308','#22c55e','#14b8a6','#3b82f6','#8b5cf6','#ec4899','#6b7280','#0ea5e9','#84cc16'];
 
 function apiCall(params){
@@ -725,7 +753,11 @@ function openDetail(item){
     <div class="detail-meta-row"><span class="detail-meta-label">폴더</span><span class="detail-meta-val">${foldersStr}</span></div>
     <div class="detail-meta-row"><span class="detail-meta-label">등록</span><span class="detail-meta-val">${fmtDate(item.createdAt)}</span></div>
     <div class="detail-meta-row"><span class="detail-meta-label">수정</span><span class="detail-meta-val">${fmtDate(item.updatedAt)}</span></div>
-    <div class="detail-meta-row"><span class="detail-meta-label">URL</span><a href="${item.url}" target="_blank" rel="noopener" style="color:var(--amber);font-size:.68rem;">↗ 원본 열기</a></div>`;
+    <div class="detail-meta-row"><span class="detail-meta-label">URL</span><a href="${item.url}" target="_blank" rel="noopener" style="color:var(--amber);font-size:.68rem;">↗ 원본 열기</a></div>
+    <div class="detail-meta-row" style="align-items:flex-start;">
+      <span class="detail-meta-label" style="padding-top:4px;">메모</span>
+      <textarea id="detailMemoInput" class="detail-memo-input" placeholder="메모를 입력하세요..." maxlength="300">${item.memo||''}</textarea>
+    </div>`;
   els.detailTags.innerHTML='';
   (item.tags||[]).forEach(tag=>{
     const color=getTagColor(tag);const c=document.createElement('span');
@@ -734,6 +766,18 @@ function openDetail(item){
     els.detailTags.appendChild(c);
   });
   els.detailOverlay.style.display='flex';
+  const dmi=$('detailMemoInput');
+  if(dmi){
+    dmi.addEventListener('input',e=>{
+      const it=allItems.find(x=>x.id===item.id);
+      if(it)it.memo=e.target.value;
+      // 리스트 뷰 메모도 실시간 동기화
+      const listMemo=document.querySelector(`.bgm-card[data-item-id="${item.id}"] .list-memo`);
+      if(listMemo)listMemo.value=e.target.value;
+      clearTimeout(dmi._t);
+      dmi._t=setTimeout(()=>saveMemo(item.id,e.target.value),800);
+    });
+  }
 }
 function closeDetail(){els.detailOverlay.style.display='none';isDetailOpen=false;detailItem=null;}
 function detailPlay(){if(detailItem){closeDetail();playFromItem(detailItem);}}
@@ -1047,13 +1091,28 @@ function createCard(item){
     });
   };
   if(isList){
-    // 폴더 배지들 (가로 나열)
     const lf=document.createElement('div');lf.style.cssText='display:flex;gap:4px;align-items:center;flex-shrink:0;max-width:110px;flex-wrap:nowrap;overflow:hidden;';
     makeFolderBadges(lf,true);
     const tt=document.createElement('div');tt.className='card-title';tt.textContent=item.title;
+    // 메모 인라인 입력
+    const memo=document.createElement('input');
+    memo.type='text';
+    memo.className='list-memo';
+    memo.placeholder='메모...';
+    memo.value=item.memo||'';
+    memo.maxLength=100;
+    memo.addEventListener('click',e=>e.stopPropagation());
+    memo.addEventListener('input',e=>{
+      // allItems의 memo도 즉시 업데이트 (UI 반응성)
+      const it=allItems.find(x=>x.id===item.id);
+      if(it)it.memo=e.target.value;
+      // 디바운스 후 서버 저장
+      clearTimeout(memo._t);
+      memo._t=setTimeout(()=>saveMemo(item.id,e.target.value),800);
+    });
     const tg=document.createElement('div');tg.className='card-tags';(item.tags||[]).forEach(t=>tg.appendChild(makeTagChip(t)));
     const dt=document.createElement('div');dt.className='list-date';dt.textContent=fmtDate(item.updatedAt);
-    inner.append(lf,tt,tg,dt);
+    inner.append(lf,tt,memo,tg,dt);
   }else{
     // 폴더 배지들 (가로 나열)
     const bdgWrap=document.createElement('div');bdgWrap.style.cssText='display:flex;gap:4px;flex-wrap:wrap;';
@@ -1222,6 +1281,15 @@ async function copyText(text,msg='복사됨'){try{await navigator.clipboard.writ
 async function copyCurrentViewSummary(){const f=getFiltered();if(!f.length)return showMessage('복사할 목록이 없습니다.','error');await copyText(f.map((i,n)=>`${n+1}. [${i.folder}] ${i.title}\n- ${i.url}\n- 태그: ${(i.tags||[]).join(', ')||'-'}\n`).join('\n'),'목록 복사됨');}
 async function fetchYtTitle(url){try{const r=await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`);const d=await r.json();return d.title;}catch{return'';}}
 
+// 메모 단독 저장 (디바운스 후 호출)
+async function saveMemo(id, memo){
+  try{
+    await apiCall({action:'memo', id, memo});
+  }catch(e){
+    console.error('[메모 저장 실패]',e);
+  }
+}
+
 async function saveToSheet(){
   if(isSaving)return;
   const id=norm(els.editId.value),title=norm(els.inTitle.value),url=norm(els.inUrl.value),tag=norm(els.inTag.value),folder=norm(els.inFolder.value)||'기타';
@@ -1231,7 +1299,7 @@ async function saveToSheet(){
   if(dup&&!confirm(`이미 같은 곡이 있습니다.\n\n[${dup.folder}] ${dup.title}\n\n그래도 저장할까요?`))return;
   isSaving=true;els.saveBtn.disabled=true;els.saveBtn.textContent='저장 중...';
   try{
-    const result=await apiCall({action:id?'edit':'add',id:id||null,title,url,tag,folder});
+    const result=await apiCall({action:id?'edit':'add',id:id||null,title,url,tag,folder,memo:norm(els.editId.value?allItems.find(i=>i.id===id)?.memo||'':'')});
     if(result.ok===true){showToast('저장 완료!');toggleInput(false);resetForm();await loadData(true);}
     else showMessage('저장 실패: '+(result.message||result.error||'오류'),'error');
   }catch(e){console.error(e);showMessage(`저장 오류: ${e.message}`,'error');}
@@ -1257,8 +1325,9 @@ async function loadData(showMsg=false){
     allItems=(result.items||[]).map(i=>({
       id:norm(i.id),title:norm(i.title),url:norm(i.url),
       tags:normTags(i.tag),
-      folders:normFolders(i.folder),   // 배열로 파싱
-      folder:norm(i.folder)||'기타',   // 원본 문자열 (저장/호환용)
+      folders:normFolders(i.folder),
+      folder:norm(i.folder)||'기타',
+      memo:norm(i.memo),              // 서버에서 메모 로드
       createdAt:norm(i.createdAt),updatedAt:norm(i.updatedAt)
     }));
     updateHeader();renderMenus();renderGrid();renderStatusBar();
