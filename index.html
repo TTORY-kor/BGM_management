@@ -590,7 +590,7 @@ const els={
   overlay:$('inputOverlay'),formTitle:$('formTitle'),editId:$('editId'),
   inTitle:$('inTitle'),inUrl:$('inUrl'),inTag:$('inTag'),inFolder:$('inFolder'),
   saveBtn:$('saveBtn'),folderMenu:$('folderMenu'),tagMenu:$('tagMenu'),
-  bgmGrid:$('bgmGrid'),loading:$('loading'),viewTitle:$('viewTitle'),viewDesc:$('viewDesc'),
+  bgmGrid:$('bgmGrid'),loading:$('loading'),viewDesc:$('viewDesc'),
   messageBox:$('messageBox'),searchInput:$('searchInput'),emptyState:$('emptyState'),
   statusBar:$('statusBar'),sortSelect:$('sortSelect'),
   toastEl:$('toast'),toastText:$('toastText'),sideFilterInput:$('sideFilterInput'),
@@ -829,11 +829,14 @@ function clearSearch(){searchKeyword='';els.searchInput.value='';$('searchClearB
 
 function updateHeader(){
   const MAP={__favorites__:['즐겨찾기','즐겨찾기'],__recent__:['최근 수정','최근 수정']};
-  if(currentFilter.type==='special'&&MAP[currentFilter.value]){els.viewTitle.textContent=MAP[currentFilter.value][0];els.viewDesc.textContent=MAP[currentFilter.value][1];}
-  else if(currentFilter.value!=='전체'){
-    if(currentFilter.type==='folder'){els.viewTitle.textContent=currentFilter.value;els.viewDesc.textContent=currentFilter.value;}
-    else{els.viewTitle.textContent=`#${currentFilter.value}`;els.viewDesc.textContent=`#${currentFilter.value}`;}
-  }else{els.viewTitle.textContent='전체 목록';els.viewDesc.textContent='전체';}
+  let desc='전체';
+  if(currentFilter.type==='special'&&MAP[currentFilter.value]){
+    desc=MAP[currentFilter.value][1];
+  } else if(currentFilter.value!=='전체'){
+    desc=currentFilter.type==='folder'?currentFilter.value:`#${currentFilter.value}`;
+  }
+  // viewDesc (보드 헤더)
+  if(els.viewDesc)els.viewDesc.textContent=desc;
 }
 const SORT_L={created_desc:'최근 등록순',title_asc:'제목 오름차순',folder_asc:'폴더 오름차순',updated_desc:'최근 수정순'};
 function renderStatusBar(){
