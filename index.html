@@ -4,1462 +4,178 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>BGM Studio PRO</title>
-<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
-/* ─────────────────────────────
-   ROOT — 화이트 블루 테마
-───────────────────────────── */
-:root {
-  --bg:         #eef4fd;
-  --surface:    #ffffff;
-  --surface2:   #f0f6ff;
-  --border:     #d0e2f7;
-  --border2:    #a8c8ef;
-  --text:       #0c1c3a;
-  --text2:      #2a4370;
-  --muted:      #5478a0;
-  --faint:      #93b2cf;
+:root{
+  --bg:#f4f7fc; --surface:#fff; --border:#dbe6f5;
+  --text:#1a2b4c; --muted:#6b86a8;
+  --accent:#2563eb; --accent-soft:#e8f0ff;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:sans-serif;background:var(--bg);color:var(--text)}
 
-  --accent:     #1358d0;
-  --accent2:    #0e46b0;
-  --accent-bg:  #ddeeff;
-  --accent-ring:rgba(19,88,208,.15);
+header{padding:16px 20px;background:#fff;border-bottom:1px solid var(--border);display:flex;justify-content:space-between}
+header h1{font-size:18px}
+button{cursor:pointer;border:0;border-radius:6px;padding:6px 10px;background:var(--accent);color:#fff}
 
-  --sb-bg:      #08152e;
-  --sb-surface: rgba(255,255,255,.05);
-  --sb-border:  rgba(255,255,255,.07);
-  --sb-text:    #c0d4ef;
-  --sb-muted:   #3a5a82;
-  --sb-hover:   rgba(255,255,255,.08);
-  --sb-active-bg: #1358d0;
+.container{padding:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
 
-  --green:  #0c6e42; --green-bg:#e5f9ef; --green-bd:#a7f0c7;
-  --red:    #b91c1c; --red-bg:  #fff1f1; --red-bd:  #fca5a5;
-  --amber:  #b45309; --amber-bg:#fffbeb; --amber-bd:#fcd34d;
+.card{
+  background:#fff;border:1px solid var(--border);
+  border-radius:10px;overflow:hidden;
+  height:200px;display:flex;flex-direction:column;
+  cursor:pointer;
+}
+.card:hover{box-shadow:0 6px 16px rgba(0,0,0,.1)}
 
-  --r-xs:2px; --r-sm:6px; --r:10px; --r-lg:14px; --r-xl:18px; --r-2xl:24px;
+.thumb{height:110px;background:#000}
+.thumb img{width:100%;height:100%;object-fit:cover}
 
-  --sh-xs: 0 1px 3px rgba(12,28,58,.06), 0 1px 2px rgba(12,28,58,.04);
-  --sh-sm: 0 2px 8px rgba(12,28,58,.08);
-  --sh:    0 4px 16px rgba(12,28,58,.10);
-  --sh-lg: 0 16px 48px rgba(12,28,58,.14);
+.card-body{padding:8px;display:flex;flex-direction:column;gap:4px;flex:1}
+.title{font-size:13px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.folder{font-size:11px;color:var(--accent)}
+.tags{display:flex;flex-wrap:wrap;gap:4px}
+.tag{font-size:10px;padding:2px 6px;border-radius:999px}
 
-  --font: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
-  --font-mono: 'Inter', monospace;
-  --tr: .15s ease;
-  --sw: 272px;
+.player{
+  position:fixed;bottom:0;left:0;right:0;
+  background:#fff;border-top:1px solid var(--border);
+  padding:10px;display:flex;align-items:center;gap:10px;
 }
+.player iframe{width:120px;height:70px}
+.controls button{background:var(--accent-soft);color:var(--accent)}
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; overflow: hidden; }
-body {
-  font-family: var(--font);
-  background: var(--bg);
-  color: var(--text);
-  display: flex;
-  font-size: 14px;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-}
-button, input, select, textarea { font: inherit; }
-a { color: inherit; text-decoration: none; }
-
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: var(--muted); }
-
-/* ─────────────────────────────
-   SIDEBAR
-───────────────────────────── */
-.sidebar {
-  width: var(--sw);
-  flex-shrink: 0;
-  background: var(--sb-bg);
-  color: var(--sb-text);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border-right: 1px solid var(--sb-border);
-  transition: width .22s ease;
-}
-body.sidebar-collapsed .sidebar { width: 64px; }
-
-/* 브랜드 */
-.brand {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 16px 14px;
-  border-bottom: 1px solid var(--sb-border);
-  flex-shrink: 0;
-  gap: 8px;
-}
-.brand-main { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
-.brand-icon {
-  width: 36px; height: 36px;
-  border-radius: var(--r);
-  background: var(--accent);
-  display: grid; place-items: center;
-  font-size: .95rem; flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(19,88,208,.4);
-}
-.brand-text { min-width: 0; }
-.brand-title {
-  font-size: .88rem; font-weight: 800;
-  letter-spacing: -.02em; color: #fff;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.brand-sub { font-size: .65rem; color: var(--sb-muted); margin-top: 1px; white-space: nowrap; }
-.collapse-btn {
-  width: 28px; height: 28px;
-  border-radius: var(--r-sm); border: 0;
-  background: var(--sb-surface); color: var(--sb-text);
-  cursor: pointer; display: grid; place-items: center;
-  font-size: .8rem; flex-shrink: 0; transition: var(--tr);
-}
-.collapse-btn:hover { background: var(--sb-hover); }
-
-/* collapsed */
-body.sidebar-collapsed .brand-text,
-body.sidebar-collapsed .section-title span,
-body.sidebar-collapsed .menu-label,
-body.sidebar-collapsed .menu-count,
-body.sidebar-collapsed .sidebar-search,
-body.sidebar-collapsed .tag-cloud,
-body.sidebar-collapsed .folderMenuWrap,
-body.sidebar-collapsed .side-meta { display: none !important; }
-body.sidebar-collapsed .menu-item { justify-content: center; padding: 8px; }
-body.sidebar-collapsed .menu-icon { width: auto; }
-body.sidebar-collapsed .sidebar-section { padding: 10px 8px 0; }
-
-/* 사이드바 바디 */
-.sb-body { flex: 1; overflow-y: auto; padding: 12px 10px 16px; }
-
-/* 섹션 */
-.sidebar-section { margin-bottom: 16px; }
-.section-title {
-  display: flex; align-items: center; justify-content: space-between;
-  font-size: .6rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .12em;
-  color: var(--sb-muted);
-  padding: 0 6px 5px;
-}
-
-/* 사이드바 검색 */
-.sidebar-search {
-  display: flex; align-items: center; gap: 7px;
-  padding: 8px 11px;
-  border-radius: var(--r);
-  background: var(--sb-surface);
-  border: 1px solid var(--sb-border);
-  margin-bottom: 6px;
-  transition: var(--tr);
-}
-.sidebar-search:focus-within { border-color: rgba(19,88,208,.5); background: rgba(19,88,208,.08); }
-.sidebar-search input {
-  width: 100%; background: transparent; border: 0; outline: none;
-  color: #fff; font-size: .8rem;
-}
-.sidebar-search input::placeholder { color: var(--sb-muted); }
-
-/* 메뉴 아이템 */
-.menu-list { display: flex; flex-direction: column; gap: 1px; }
-.menu-item {
-  display: flex; align-items: center; gap: 9px;
-  padding: 8px 10px; min-height: 36px;
-  border-radius: var(--r-sm);
-  cursor: pointer; transition: var(--tr);
-  color: var(--sb-text); font-size: .82rem; font-weight: 500;
-  user-select: none; overflow: hidden;
-}
-.menu-item:hover { background: var(--sb-hover); color: #fff; }
-.menu-item.active {
-  background: var(--sb-active-bg);
-  color: #fff; font-weight: 700;
-  box-shadow: 0 2px 10px rgba(19,88,208,.35);
-}
-.menu-item.add-btn-main {
-  border: 1px dashed rgba(255,255,255,.14);
-  background: rgba(255,255,255,.02);
-  justify-content: center; font-weight: 600;
-  color: rgba(192,212,239,.65);
-  margin-top: 6px;
-}
-.menu-item.add-btn-main:hover { color: #fff; border-color: rgba(255,255,255,.3); background: var(--sb-hover); }
-.menu-icon { width: 16px; text-align: center; flex-shrink: 0; font-size: .88rem; opacity: .9; }
-.menu-label { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.menu-count {
-  font-size: .65rem; font-weight: 700;
-  background: rgba(255,255,255,.08); color: var(--sb-muted);
-  padding: 1px 6px; border-radius: 99px; flex-shrink: 0;
-}
-.menu-item.active .menu-count { background: rgba(255,255,255,.2); color: rgba(255,255,255,.9); }
-.color-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-
-/* 태그 클라우드 */
-.tag-cloud { display: flex; flex-wrap: wrap; gap: 5px; padding: 2px 4px 4px; }
-.tag-chip {
-  font-size: .69rem; font-weight: 700;
-  padding: 3px 9px; border-radius: 99px;
-  cursor: pointer; border: 0;
-  transition: var(--tr); line-height: 1.5;
-}
-.tag-chip:hover { filter: brightness(.88); transform: translateY(-1px); }
-
-/* 하단 안내 */
-.side-meta {
-  margin: 8px 8px 0;
-  padding: 11px 12px;
-  border-radius: var(--r);
-  background: rgba(255,255,255,.04);
-  border: 1px solid var(--sb-border);
-  font-size: .71rem; color: var(--sb-muted); line-height: 1.7;
-}
-.side-meta strong { color: rgba(192,212,239,.7); }
-.side-meta .kbd {
-  display: inline-block;
-  background: rgba(255,255,255,.08); color: rgba(192,212,239,.8);
-  border: 1px solid rgba(255,255,255,.12);
-  border-radius: 3px; padding: 0 4px; font-size: .62rem; font-weight: 700;
-  margin: 0 1px; letter-spacing: .02em;
-}
-
-/* ─────────────────────────────
-   MAIN CONTENT
-───────────────────────────── */
-.main-content {
-  flex: 1; overflow-y: auto; overflow-x: hidden;
-  display: flex; flex-direction: column;
-  min-width: 0;
-}
-
-/* 상단 헤더 */
-.topbar {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 16px 24px;
-  display: flex; flex-wrap: wrap;
-  align-items: center; justify-content: space-between;
-  gap: 12px; flex-shrink: 0;
-}
-.title-block h1 {
-  font-size: 1.3rem; font-weight: 800;
-  letter-spacing: -.03em; line-height: 1.25;
-  color: var(--text);
-}
-.title-block p { margin: 4px 0 0; color: var(--muted); font-size: .82rem; }
-.top-actions { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
-
-/* 툴바 */
-.surface { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl); }
-
-.toolbar {
-  margin: 16px 20px 0;
-  padding: 14px 16px;
-  display: flex; flex-wrap: wrap;
-  gap: 8px; align-items: center;
-}
-.search-box {
-  display: flex; align-items: center; gap: 8px;
-  flex: 1; min-width: 200px;
-  height: 38px; padding: 0 12px;
-  background: var(--surface2);
-  border: 1.5px solid var(--border); border-radius: var(--r);
-  transition: var(--tr);
-}
-.search-box:focus-within {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-ring);
-  background: var(--surface);
-}
-.search-box svg { color: var(--faint); flex-shrink: 0; }
-.search-box input {
-  flex: 1; background: transparent; border: 0; outline: none;
-  color: var(--text); font-size: .84rem;
-}
-.search-box input::placeholder { color: var(--faint); }
-.search-clear {
-  width: 16px; height: 16px; border-radius: 50%;
-  border: 0; background: var(--border2); color: var(--muted);
-  cursor: pointer; font-size: .65rem;
-  display: none; place-items: center; flex-shrink: 0;
-  transition: var(--tr); line-height: 1;
-}
-.search-clear.vis { display: grid; }
-.search-clear:hover { background: var(--accent); color: #fff; }
-
-.select-box {
-  display: flex; align-items: center; gap: 7px;
-  height: 38px; padding: 0 10px;
-  background: var(--surface2);
-  border: 1.5px solid var(--border); border-radius: var(--r);
-  transition: var(--tr); cursor: pointer;
-}
-.select-box:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
-.select-box svg { color: var(--faint); flex-shrink: 0; }
-.select-box select {
-  background: transparent; border: 0; outline: none;
-  color: var(--text); font-size: .8rem; cursor: pointer;
-  padding-right: 4px;
-}
-
-.tb-sep { width: 1px; height: 24px; background: var(--border); flex-shrink: 0; }
-
-/* 버튼 */
-.toolbar-btn {
-  height: 38px; padding: 0 14px;
-  border-radius: var(--r); border: 1.5px solid var(--border);
-  background: var(--surface); color: var(--text2);
-  cursor: pointer; font-weight: 600; font-size: .8rem;
-  transition: var(--tr); white-space: nowrap;
-  display: inline-flex; align-items: center; gap: 5px;
-}
-.toolbar-btn:hover { background: var(--surface2); border-color: var(--border2); }
-.toolbar-btn:active { transform: scale(.97); }
-.toolbar-btn.primary {
-  background: var(--accent); color: #fff;
-  border-color: var(--accent);
-  box-shadow: 0 2px 10px rgba(19,88,208,.28);
-}
-.toolbar-btn.primary:hover { background: var(--accent2); border-color: var(--accent2); box-shadow: 0 4px 14px rgba(19,88,208,.35); }
-.toolbar-btn.soft {
-  background: var(--accent-bg); color: var(--accent);
-  border-color: rgba(19,88,208,.22);
-}
-.toolbar-btn.soft:hover { background: #cce4ff; }
-.toolbar-btn.ghost { background: transparent; border-color: transparent; color: var(--muted); }
-.toolbar-btn.ghost:hover { background: var(--surface2); border-color: var(--border); color: var(--text); }
-.toolbar-btn.active-filter { background: var(--accent-bg); color: var(--accent); border-color: var(--accent); font-weight: 700; }
-
-.button-group { display: flex; gap: 6px; }
-
-/* ─────────────────────────────
-   STATS ROW
-───────────────────────────── */
-.stats-row {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0,1fr));
-  gap: 10px;
-  margin: 12px 20px 0;
-}
-.stat-card {
-  padding: 14px 16px;
-  border-radius: var(--r-lg);
-  display: flex; align-items: center; gap: 12px;
-}
-.stat-icon {
-  width: 36px; height: 36px; border-radius: var(--r);
-  background: var(--accent-bg); color: var(--accent);
-  display: grid; place-items: center; font-size: 1rem; flex-shrink: 0;
-}
-.stat-info { min-width: 0; }
-.stat-label { font-size: .68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
-.stat-value { font-size: 1.4rem; font-weight: 800; letter-spacing: -.04em; color: var(--text); line-height: 1.1; margin-top: 1px; }
-
-/* ─────────────────────────────
-   STATUS / MESSAGE / BOARD
-───────────────────────────── */
-.status-bar {
-  display: flex; flex-wrap: wrap; gap: 5px;
-  padding: 10px 20px 0;
-}
-.status-pill {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 99px; padding: 4px 11px;
-  font-size: .72rem; font-weight: 600; color: var(--muted);
-}
-
-.message-box {
-  display: none; margin: 10px 20px 0;
-  padding: 11px 14px; border-radius: var(--r);
-  font-size: .82rem; line-height: 1.5; border: 1px solid transparent;
-}
-.message-box.show { display: flex; align-items: flex-start; gap: 8px; }
-.message-box.info    { background: var(--accent-bg); color: var(--accent);  border-color: rgba(19,88,208,.2); }
-.message-box.error   { background: var(--red-bg);    color: var(--red);     border-color: var(--red-bd); }
-.message-box.success { background: var(--green-bg);  color: var(--green);   border-color: var(--green-bd); }
-
-.board-wrap { margin: 12px 20px 20px; }
-.board-header {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 10px; padding: 14px 16px 12px;
-  border-bottom: 1px solid var(--border);
-}
-.board-title { font-size: .9rem; font-weight: 800; letter-spacing: -.02em; color: var(--text); }
-.board-count { font-size: .75rem; color: var(--muted); font-weight: 500; }
-
-.view-toggle {
-  display: inline-flex; padding: 3px;
-  background: var(--surface2); border: 1px solid var(--border);
-  border-radius: var(--r-sm); gap: 2px;
-}
-.view-toggle button {
-  min-width: 60px; height: 28px;
-  border-radius: 5px; border: 0;
-  background: transparent; color: var(--muted);
-  cursor: pointer; font-weight: 700; font-size: .76rem;
-  transition: var(--tr);
-}
-.view-toggle button:hover { background: var(--surface); color: var(--text); }
-.view-toggle button.active {
-  background: var(--accent); color: #fff;
-  box-shadow: 0 2px 6px rgba(19,88,208,.28);
-}
-
-.loading {
-  text-align: center; padding: 60px 20px;
-  color: var(--muted); font-size: .88rem;
-}
-.loading::before {
-  content: '';
-  display: block; width: 28px; height: 28px;
-  border: 2.5px solid var(--border); border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin .7s linear infinite;
-  margin: 0 auto 14px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.empty-state {
-  text-align: center; padding: 60px 20px; color: var(--muted); font-size: .88rem;
-}
-.empty-state strong { display: block; font-size: 1rem; color: var(--text2); margin-bottom: 4px; }
-
-/* ─────────────────────────────
-   BGM GRID
-───────────────────────────── */
-#bgmGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(296px,1fr));
-  gap: 14px;
-  padding: 14px 16px 16px;
-}
-
-/* ─────────────────────────────
-   CARD — 그리드 뷰
-───────────────────────────── */
-.bgm-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  overflow: hidden; position: relative;
-  display: flex; flex-direction: column;
-  box-shadow: var(--sh-xs);
-  transition: var(--tr);
-}
-.bgm-card:hover {
-  box-shadow: var(--sh);
-  border-color: var(--border2);
-  transform: translateY(-2px);
-}
-
-.card-side-bar {
-  position: absolute; left: 0; top: 0; bottom: 0;
-  width: 3px; z-index: 2;
-}
-
-.card-topbar {
-  position: absolute; top: 9px; left: 9px; right: 9px;
-  display: flex; justify-content: space-between;
-  z-index: 3; pointer-events: none;
-}
-.card-badge, .card-fav-btn { pointer-events: auto; }
-.card-badge {
-  padding: 3px 9px; border-radius: 99px;
-  background: rgba(255,255,255,.92);
-  border: 1px solid rgba(255,255,255,.7);
-  font-size: .65rem; font-weight: 800; color: var(--text);
-  backdrop-filter: blur(4px); box-shadow: var(--sh-xs);
-  max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.card-fav-btn {
-  width: 30px; height: 30px; border-radius: 50%;
-  background: rgba(255,255,255,.9); border: 1px solid rgba(255,255,255,.65);
-  cursor: pointer; font-size: .85rem;
-  display: grid; place-items: center;
-  box-shadow: var(--sh-xs); transition: var(--tr);
-}
-.card-fav-btn:hover { transform: scale(1.1); }
-.card-fav-btn.active { color: #dc2626; }
-
-.video-box {
-  position: relative; padding-bottom: 56.25%;
-  height: 0; background: #07111f; margin-left: 3px;
-}
-.video-box iframe, .video-fallback {
-  position: absolute; inset: 0; width: 100%; height: 100%; border: none;
-}
-.video-fallback {
-  display: flex; align-items: center; justify-content: center;
-  color: #4a5568; font-size: .78rem; text-align: center; padding: 16px;
-}
-
-.card-body {
-  padding: 12px 14px 12px 17px;
-  display: flex; flex-direction: column; gap: 6px; flex: 1;
-}
-.card-folder {
-  font-size: .63rem; font-weight: 800;
-  text-transform: uppercase; letter-spacing: .08em;
-}
-.card-title {
-  font-size: .88rem; font-weight: 700; line-height: 1.45; color: var(--text);
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-}
-.card-date {
-  font-size: .67rem; color: var(--faint); line-height: 1.4; white-space: nowrap;
-  letter-spacing: .01em;
-}
-.card-url {
-  display: inline-flex; align-items: center; gap: 4px;
-  font-size: .73rem; color: var(--muted);
-  transition: var(--tr); width: fit-content;
-}
-.card-url:hover { color: var(--accent); }
-.card-tags { display: flex; flex-wrap: wrap; gap: 4px; min-height: 20px; }
-.card-tag {
-  font-size: .65rem; font-weight: 700; padding: 2px 7px;
-  border-radius: 99px; cursor: pointer; transition: var(--tr);
-}
-.card-tag:hover { filter: brightness(.88); }
-.card-actions {
-  margin-top: auto;
-  display: flex; gap: 5px; flex-wrap: wrap;
-  border-top: 1px solid var(--border); padding-top: 9px;
-}
-.action-btn {
-  height: 28px; padding: 0 10px;
-  border-radius: var(--r-sm); border: 1px solid var(--border);
-  background: transparent; color: var(--muted);
-  cursor: pointer; font-weight: 600; font-size: .71rem;
-  transition: var(--tr); display: inline-flex; align-items: center;
-}
-.action-btn:hover { background: var(--surface2); color: var(--text); border-color: var(--border2); }
-.btn-copy:hover  { background: var(--accent-bg); color: var(--accent); border-color: rgba(19,88,208,.3); }
-.btn-delete:hover{ background: var(--red-bg); color: var(--red); border-color: var(--red-bd); }
-
-/* ─────────────────────────────
-   CARD — 리스트 뷰
-───────────────────────────── */
-#bgmGrid.compact {
-  grid-template-columns: 1fr;
-  gap: 4px;
-  padding: 10px 16px 16px;
-}
-#bgmGrid.compact .bgm-card {
-  flex-direction: row;
-  align-items: center;
-  border-radius: var(--r);
-  min-height: 52px;
-  overflow: visible;
-}
-#bgmGrid.compact .bgm-card:hover { transform: none; box-shadow: var(--sh-sm); }
-#bgmGrid.compact .card-side-bar  { position: relative; width: 4px; height: auto; align-self: stretch; flex-shrink: 0; border-radius: var(--r-xs) 0 0 var(--r-xs); }
-#bgmGrid.compact .video-box       { display: none; }
-#bgmGrid.compact .card-topbar     { display: none; }
-#bgmGrid.compact .card-body {
-  flex-direction: row; align-items: center;
-  flex: 1; min-width: 0;
-  padding: 8px 12px 8px 14px;
-  gap: 10px; flex-wrap: nowrap;
-}
-#bgmGrid.compact .card-folder   { display: none; }
-#bgmGrid.compact .card-date     { display: none; }
-#bgmGrid.compact .card-url      { display: none; }
-#bgmGrid.compact .card-title {
-  font-size: .82rem; flex: 1; min-width: 0;
-  -webkit-line-clamp: 1; white-space: nowrap;
-  overflow: hidden; text-overflow: ellipsis; display: block;
-}
-#bgmGrid.compact .card-tags {
-  flex-wrap: nowrap; overflow: hidden; flex-shrink: 0;
-  gap: 3px; max-width: 200px;
-}
-#bgmGrid.compact .card-tag { white-space: nowrap; }
-#bgmGrid.compact .card-actions {
-  border-top: 0; padding-top: 0; margin-top: 0;
-  flex-wrap: nowrap; flex-shrink: 0; gap: 4px;
-  align-items: center;
-}
-.list-folder-label {
-  font-size: .62rem; font-weight: 800;
-  text-transform: uppercase; letter-spacing: .06em;
-  white-space: nowrap; flex-shrink: 0; min-width: 56px;
-}
-.list-fav-btn {
-  width: 24px; height: 24px; border-radius: 50%;
-  border: 1px solid var(--border); background: transparent;
-  cursor: pointer; font-size: .75rem; flex-shrink: 0;
-  display: grid; place-items: center; transition: var(--tr); color: var(--faint);
-}
-.list-fav-btn.active { color: #dc2626; border-color: #fca5a5; }
-.list-fav-btn:hover  { background: var(--surface2); }
-
-/* ─────────────────────────────
-   MODAL
-───────────────────────────── */
-#inputOverlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(8,21,46,.52); backdrop-filter: blur(8px);
-  z-index: 200; justify-content: center; align-items: center; padding: 20px;
-}
-.input-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  padding: 24px; border-radius: var(--r-2xl);
-  width: 100%; max-width: 560px;
-  box-shadow: var(--sh-lg);
-  animation: modal-in .18s ease; max-height: 90vh; overflow-y: auto;
-}
-@keyframes modal-in { from { opacity:0; transform:scale(.96) translateY(8px); } to { opacity:1; transform:none; } }
-.modal-head {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 18px;
-}
-.input-card h3 {
-  font-size: 1rem; font-weight: 800; letter-spacing: -.02em; color: var(--text);
-}
-.modal-close {
-  width: 28px; height: 28px; border-radius: var(--r-sm);
-  border: 1px solid var(--border); background: transparent;
-  cursor: pointer; color: var(--muted); font-size: .9rem;
-  display: grid; place-items: center; transition: var(--tr);
-}
-.modal-close:hover { background: var(--surface2); color: var(--text); }
-.input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.field-span-2 { grid-column: 1 / -1; }
-.input-field { display: flex; flex-direction: column; gap: 5px; }
-.input-label {
-  font-size: .71rem; font-weight: 700; color: var(--muted); letter-spacing: .02em;
-}
-.input-field input {
-  height: 38px; padding: 0 11px;
-  border: 1.5px solid var(--border); border-radius: var(--r);
-  outline: none; transition: var(--tr);
-  background: var(--surface2); color: var(--text); font-size: .84rem;
-}
-.input-field input:focus {
-  border-color: var(--accent); background: var(--surface);
-  box-shadow: 0 0 0 3px var(--accent-ring);
-}
-.input-field input::placeholder { color: var(--faint); }
-#urlPreviewWrap {
-  display: none; margin-top: 7px;
-  border-radius: var(--r); overflow: hidden;
-  border: 1px solid var(--border);
-}
-#urlPreviewFrame { width: 100%; height: 140px; border: none; display: block; }
-#tagPreviewChips { display: flex; flex-wrap: wrap; gap: 4px; min-height: 0; margin-top: 5px; }
-.input-help { font-size: .73rem; color: var(--muted); line-height: 1.55; margin-top: 6px; }
-.input-actions { display: flex; gap: 8px; margin-top: 16px; }
-.input-actions button { flex: 1; height: 40px; font-size: .84rem; }
-.footer-note { margin-top: 10px; font-size: .7rem; color: var(--faint); line-height: 1.65; }
-
-/* ─────────────────────────────
-   TOAST
-───────────────────────────── */
-.toast {
-  position: fixed; right: 16px; bottom: 16px;
-  background: var(--sb-bg); color: #fff;
-  padding: 10px 16px; border-radius: var(--r-lg);
-  box-shadow: var(--sh-lg); z-index: 300;
-  opacity: 0; transform: translateY(6px);
-  pointer-events: none; transition: .2s ease;
-  font-size: .8rem; line-height: 1.45; max-width: 280px;
-  border: 1px solid rgba(255,255,255,.08);
-}
-.toast.show { opacity: 1; transform: translateY(0); }
-
-/* ─────────────────────────────
-   RESPONSIVE
-───────────────────────────── */
-@media (max-width: 1100px) {
-  .toolbar { flex-wrap: wrap; }
-  .stats-row { grid-template-columns: repeat(2,1fr); }
-}
-@media (max-width: 960px) {
-  body { flex-direction: column; overflow: auto; }
-  .sidebar { width: 100%; }
-  body.sidebar-collapsed .sidebar { width: 100%; }
-  .main-content { overflow: visible; }
-  .toolbar, .stats-row, .board-wrap, .status-bar, .message-box { margin-left: 12px; margin-right: 12px; }
-  .input-grid { grid-template-columns: 1fr; }
-  .field-span-2 { grid-column: auto; }
-}
-@media (max-width: 620px) {
-  .stats-row { grid-template-columns: repeat(2,1fr); }
-  #bgmGrid { grid-template-columns: 1fr; }
-  .input-actions { flex-direction: column; }
-  .topbar { padding: 12px 16px; }
-}
 </style>
 </head>
 <body>
 
-<div id="toast" class="toast"></div>
+<header>
+  <h1>BGM Studio</h1>
+  <button onclick="openForm()">+ 추가</button>
+</header>
 
-<!-- ── 추가/수정 모달 ── -->
-<div id="inputOverlay" aria-hidden="true">
-  <div class="input-card" role="dialog" aria-modal="true" aria-labelledby="formTitle">
-    <div class="modal-head">
-      <h3 id="formTitle">➕ 새로운 BGM 추가</h3>
-      <button class="modal-close" onclick="toggleInput(false)" title="닫기 (Esc)">✕</button>
-    </div>
-    <input type="hidden" id="editId"/>
-    <div class="input-grid">
-      <div class="input-field field-span-2">
-        <label class="input-label" for="inTitle">곡 제목 / 장면 설명 <span style="color:var(--red)">*</span></label>
-        <input type="text" id="inTitle" placeholder="예: 이별 후 새벽 산책" maxlength="200"/>
-      </div>
-      <div class="input-field field-span-2">
-        <label class="input-label" for="inUrl">유튜브 URL <span style="color:var(--red)">*</span></label>
-        <input type="text" id="inUrl" placeholder="https://www.youtube.com/watch?v=..." oninput="onUrlInputPreview()"/>
-        <div id="urlPreviewWrap"><iframe id="urlPreviewFrame" allowfullscreen loading="lazy"></iframe></div>
-      </div>
-      <div class="input-field">
-        <label class="input-label" for="inFolder">폴더</label>
-        <input type="text" id="inFolder" placeholder="전투 / 일상 / 슬픔" maxlength="100"/>
-      </div>
-      <div class="input-field">
-        <label class="input-label" for="inTag">태그 <span style="font-weight:400;color:var(--faint)">( / 구분 )</span></label>
-        <input type="text" id="inTag" placeholder="긴장/몽환/야간" maxlength="200" oninput="onTagInputPreview()"/>
-        <div id="tagPreviewChips"></div>
-      </div>
-    </div>
-    <div class="input-help">태그는 <strong>/</strong> 로 구분하세요. 같은 링크가 이미 있으면 중복 안내를 띄웁니다.</div>
-    <div class="input-actions">
-      <button class="toolbar-btn primary" id="saveBtn" onclick="Sheet()">저장하기</button>
-      <button class="toolbar-btn ghost" onclick="toggleInput(false)">취소</button>
-    </div>
-    <div class="footer-note">수정/삭제는 고유 ID 기준으로 처리됩니다. 즐겨찾기·정렬·뷰 설정은 브라우저에 저장됩니다.<br>단축키: <strong>N</strong> 새 곡 추가 · <strong>Ctrl+K</strong> 검색 · <strong>Esc</strong> 닫기</div>
+<div class="container">
+  <div class="grid" id="grid"></div>
+</div>
+
+<div class="player" id="playerBar" style="display:none">
+  <iframe id="playerFrame"></iframe>
+  <div class="controls">
+    <button onclick="prev()">◀</button>
+    <button onclick="next()">▶</button>
+    <button onclick="toggleLoop()">🔁</button>
   </div>
 </div>
 
-<!-- ── 사이드바 ── -->
-<aside class="sidebar">
-  <div class="brand">
-    <div class="brand-main">
-      <div class="brand-icon">🎵</div>
-      <div class="brand-text">
-        <div class="brand-title">BGM Workstation</div>
-        <div class="brand-sub">playlist organizer pro+</div>
-      </div>
-    </div>
-    <button class="collapse-btn" id="collapseBtn" title="사이드바 접기/펴기">☰</button>
-  </div>
-
-  <div class="sb-body">
-    <div class="sidebar-section">
-      <div class="section-title"><span>Quick Access</span></div>
-      <div class="menu-list">
-        <div class="menu-item active" id="menu-all" onclick="setFilter('전체','folder')">
-          <span class="menu-icon">⊞</span>
-          <span class="menu-label">전체 보기</span>
-          <span class="menu-count" id="allCount">0</span>
-        </div>
-        <div class="menu-item" id="menu-favorites" onclick="setFilter('__favorites__','special')">
-          <span class="menu-icon">★</span>
-          <span class="menu-label">즐겨찾기</span>
-          <span class="menu-count" id="favoriteCount">0</span>
-        </div>
-        <div class="menu-item" id="menu-recent" onclick="setFilter('__recent__','special')">
-          <span class="menu-icon">◷</span>
-          <span class="menu-label">최근 수정</span>
-        </div>
-        <div class="menu-item add-btn-main" onclick="openAddForm()">
-          <span class="menu-icon">＋</span>
-          <span class="menu-label">BGM 추가하기</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="sidebar-section">
-      <div class="section-title"><span>Folder Search</span></div>
-      <div class="sidebar-search">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="3.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 8l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-        <input type="text" id="sideFilterInput" placeholder="폴더/태그 찾기" oninput="renderMenus()"/>
-      </div>
-    </div>
-
-    <div class="sidebar-section folderMenuWrap">
-      <div class="section-title"><span>Folders</span></div>
-      <div class="menu-list" id="folderMenu"></div>
-    </div>
-
-    <div class="sidebar-section">
-      <div class="section-title"><span>Tags</span></div>
-      <div class="tag-cloud" id="tagMenu"></div>
-    </div>
-
-    <div class="side-meta">
-      카드 태그 클릭 → 필터 · <strong>★</strong> 즐겨찾기<br>
-      <span class="kbd">N</span> 추가 &nbsp;
-      <span class="kbd">Ctrl+K</span> 검색 &nbsp;
-      <span class="kbd">Esc</span> 닫기
-    </div>
-  </div>
-</aside>
-
-<!-- ── 메인 ── -->
-<main class="main-content">
-
-  <!-- 헤더 -->
-  <div class="topbar surface" style="border-radius:0;border-left:0;border-right:0;border-top:0">
-    <div class="title-block">
-      <h1 id="viewTitle">전체 목록</h1>
-      <p id="viewDesc">등록된 BGM을 정리하고, 빠르게 찾고, 장면용으로 바로 꺼내 쓸 수 있습니다.</p>
-    </div>
-    <div class="top-actions">
-      <button class="toolbar-btn soft" onclick="openAddForm()">＋ 새 곡 추가</button>
-      <button class="toolbar-btn ghost" onclick="loadData(true)">↻ 새로고침</button>
-    </div>
-  </div>
-
-  <!-- 툴바 -->
-  <div class="surface toolbar">
-    <div class="search-box">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.4"/><path d="M10 10l2.5 2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-      <input type="text" id="searchInput" placeholder="제목, 태그, 폴더 검색 (Ctrl+K)" oninput="handleSearch(this.value)" onfocus="this.select()"/>
-      <button class="search-clear" id="searchClearBtn" onclick="clearSearch()" title="검색 초기화">✕</button>
-    </div>
-
-    <div class="select-box">
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-      <select id="sortSelect" onchange="handleSortChange(this.value)">
-        <option value="updated_desc">최근 수정순</option>
-        <option value="created_desc">최근 등록순</option>
-        <option value="title_asc">제목 오름차순</option>
-        <option value="folder_asc">폴더 오름차순</option>
-      </select>
-    </div>
-
-    <div class="select-box">
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="1" width="4" height="4" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="7" y="1" width="4" height="4" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="7" width="4" height="4" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="7" y="7" width="4" height="4" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
-      <select id="densitySelect" onchange="handleDensityChange(this.value)">
-        <option value="comfortable">카드 뷰</option>
-        <option value="compact">리스트 뷰</option>
-      </select>
-    </div>
-
-    <div class="tb-sep"></div>
-
-    <div class="button-group">
-      <button class="toolbar-btn" onclick="clearSearch()">초기화</button>
-      <button class="toolbar-btn" onclick="copyCurrentViewSummary()">목록 복사</button>
-    </div>
-
-    <div class="button-group">
-      <button class="toolbar-btn" id="favoritesOnlyBtn" onclick="toggleFavoritesOnly()">★ 즐겨찾기만</button>
-    </div>
-  </div>
-
-  <!-- 통계 -->
-  <div class="stats-row">
-    <div class="surface stat-card">
-      <div class="stat-icon">♪</div>
-      <div class="stat-info"><div class="stat-label">총 곡 수</div><div class="stat-value" id="statTotal">0</div></div>
-    </div>
-    <div class="surface stat-card">
-      <div class="stat-icon">◉</div>
-      <div class="stat-info"><div class="stat-label">현재 표시</div><div class="stat-value" id="statVisible">0</div></div>
-    </div>
-    <div class="surface stat-card">
-      <div class="stat-icon">▤</div>
-      <div class="stat-info"><div class="stat-label">폴더 수</div><div class="stat-value" id="statFolders">0</div></div>
-    </div>
-    <div class="surface stat-card">
-      <div class="stat-icon">★</div>
-      <div class="stat-info"><div class="stat-label">즐겨찾기</div><div class="stat-value" id="statFavorites">0</div></div>
-    </div>
-  </div>
-
-  <!-- 상태바 -->
-  <div class="status-bar" id="statusBar"></div>
-
-  <!-- 메시지 -->
-  <div id="messageBox" class="message-box"></div>
-
-  <!-- 보드 -->
-  <div class="surface board-wrap">
-    <div class="board-header">
-      <div style="display:flex;align-items:center;gap:10px">
-        <div class="board-title">라이브러리</div>
-        <div class="board-count" id="boardCount"></div>
-      </div>
-      <div class="view-toggle">
-        <button id="gridModeComfortable" class="active" onclick="setDensity('comfortable')">카드</button>
-        <button id="gridModeCompact" onclick="setDensity('compact')">리스트</button>
-      </div>
-    </div>
-    <div id="loading" class="loading">데이터를 불러오는 중입니다...</div>
-    <div id="bgmGrid" style="display:none;"></div>
-    <div id="emptyState" class="empty-state" style="display:none;"><strong>표시할 BGM이 없습니다</strong>조건을 변경하거나 새 곡을 추가해보세요.</div>
-  </div>
-
-</main>
-
 <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbxTueg894w7U-jKmAfx8dnUjc8SsnY8f_clKzK7JkksvqmqluI96EdckREd9yuTd8A/exec';
+const API_URL = "YOUR_APPS_SCRIPT_URL";
 
-    let allItems = [];
-    let currentFilter = { type: 'folder', value: '전체' };
-    let searchKeyword = '';
-    let isSaving = false;
-    let sortMode = localStorage.getItem('bgm_sortMode') || 'updated_desc';
-    let densityMode = localStorage.getItem('bgm_densityMode') || 'comfortable';
-    let favoritesOnly = localStorage.getItem('bgm_favoritesOnly') === 'true';
-    let favoriteIds = new Set(JSON.parse(localStorage.getItem('bgm_favoriteIds') || '[]'));
-    let sidebarCollapsed = localStorage.getItem('bgm_sidebarCollapsed') === 'true';
+let list=[];
+let currentIndex=0;
+let loop=false;
 
-    const els = {
-      overlay: document.getElementById('inputOverlay'),
-      formTitle: document.getElementById('formTitle'),
-      editId: document.getElementById('editId'),
-      inTitle: document.getElementById('inTitle'),
-      inUrl: document.getElementById('inUrl'),
-      inTag: document.getElementById('inTag'),
-      inFolder: document.getElementById('inFolder'),
-      saveBtn: document.getElementById('saveBtn'),
-      folderMenu: document.getElementById('folderMenu'),
-      tagMenu: document.getElementById('tagMenu'),
-      bgmGrid: document.getElementById('bgmGrid'),
-      loading: document.getElementById('loading'),
-      viewTitle: document.getElementById('viewTitle'),
-      viewDesc: document.getElementById('viewDesc'),
-      messageBox: document.getElementById('messageBox'),
-      searchInput: document.getElementById('searchInput'),
-      emptyState: document.getElementById('emptyState'),
-      statusBar: document.getElementById('statusBar'),
-      sortSelect: document.getElementById('sortSelect'),
-      densitySelect: document.getElementById('densitySelect'),
-      toast: document.getElementById('toast'),
-      sideFilterInput: document.getElementById('sideFilterInput'),
-      allCount: document.getElementById('allCount'),
-      favoriteCount: document.getElementById('favoriteCount'),
-      favoritesOnlyBtn: document.getElementById('favoritesOnlyBtn'),
-      collapseBtn: document.getElementById('collapseBtn'),
-      statTotal: document.getElementById('statTotal'),
-      statVisible: document.getElementById('statVisible'),
-      statFolders: document.getElementById('statFolders'),
-      statFavorites: document.getElementById('statFavorites'),
-      gridModeComfortable: document.getElementById('gridModeComfortable'),
-      gridModeCompact: document.getElementById('gridModeCompact')
-    };
+const tagColors={
+  "긴장":"#ff6b6b",
+  "몽환":"#a78bfa"
+};
 
-    els.sortSelect.value = sortMode;
-    els.densitySelect.value = densityMode;
-    applyDensity();
-    applySidebarState();
-    applyFavoritesToggleState();
+function getYoutubeId(url){
+  const m=url.match(/(?:v=|\.be\/)([^&]+)/);
+  return m?m[1]:null;
+}
 
-    function showToast(text) {
-      els.toast.textContent = text;
-      els.toast.classList.add('show');
-      clearTimeout(showToast._timer);
-      showToast._timer = setTimeout(() => els.toast.classList.remove('show'), 1800);
-    }
+function thumb(id){
+  return `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
+}
 
-    function showMessage(text, type = 'info') {
-      els.messageBox.textContent = text;
-      els.messageBox.className = `message-box show ${type}`;
-    }
-    function hideMessage() {
-      els.messageBox.className = 'message-box';
-      els.messageBox.textContent = '';
-    }
-    function setLoading(isLoading, text = '데이터를 불러오는 중입니다...') {
-      els.loading.style.display = isLoading ? 'block' : 'none';
-      els.loading.textContent = text;
-      if (isLoading) {
-        els.bgmGrid.style.display = 'none';
-        els.emptyState.style.display = 'none';
-      }
-    }
-    function normalizeText(value) { return String(value ?? '').trim(); }
-    function normalizeTags(raw) {
-      return String(raw ?? '').split('/').map(tag => tag.trim()).filter(Boolean).filter((tag, i, arr) => arr.indexOf(tag) === i);
-    }
-    function stringToColor(str) {
-      let hash = 0; const text = String(str || '기타');
-      for (let i = 0; i < text.length; i++) hash = text.charCodeAt(i) + ((hash << 5) - hash);
-      const h = Math.abs(hash % 360); return `hsl(${h}, 72%, 45%)`;
-    }
-    function stringToLightColor(str) {
-      let hash = 0; const text = String(str || '기타');
-      for (let i = 0; i < text.length; i++) hash = text.charCodeAt(i) + ((hash << 5) - hash);
-      const h = Math.abs(hash % 360); return `hsl(${h}, 85%, 93%)`;
-    }
-    function getYoutubeId(url) {
-      if (!url) return null;
-      const value = url.trim();
-      const patterns = [/(?:youtube\.com\/watch\?v=)([^&#]+)/, /(?:youtu\.be\/)([^?&#]+)/, /(?:youtube\.com\/embed\/)([^?&#]+)/, /(?:youtube\.com\/shorts\/)([^?&#]+)/];
-      for (const pattern of patterns) {
-        const match = value.match(pattern);
-        if (match && match[1] && match[1].length >= 11) return match[1].slice(0, 11);
-      }
-      return null;
-    }
-    function isValidYoutubeUrl(url) { return !!getYoutubeId(url); }
-    function formatDateText(createdAt, updatedAt) {
-      function shorten(d) {
-        if (!d) return '-';
-        // "2024. 3. 15. 오후 2:30:00" 같은 형태 → "24.03.15"
-        const dt = new Date(d);
-        if (!isNaN(dt.getTime())) {
-          const yy = String(dt.getFullYear()).slice(2);
-          const mm = String(dt.getMonth()+1).padStart(2,'0');
-          const dd = String(dt.getDate()).padStart(2,'0');
-          return `${yy}.${mm}.${dd}`;
-        }
-        // 파싱 실패 시 앞 10자만
-        return String(d).slice(0, 10);
-      }
-      return `등록 ${shorten(createdAt)}  수정 ${shorten(updatedAt)}`;
-    }
-    function parseDateSafe(text) {
-      const value = new Date(text);
-      return Number.isNaN(value.getTime()) ? new Date(0) : value;
-    }
-    function requestJSON(url, options = {}) {
-      return fetch(url, options).then(response => {
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        return response.json();
-      });
-    }
+function play(index){
+  currentIndex=index;
+  const id=getYoutubeId(list[index].url);
+  document.getElementById("playerFrame").src=`https://www.youtube.com/embed/${id}?autoplay=1`;
+  document.getElementById("playerBar").style.display="flex";
+}
 
-    function saveFavorites() { localStorage.setItem('bgm_favoriteIds', JSON.stringify([...favoriteIds])); }
-    function toggleFavorite(id) {
-      if (favoriteIds.has(id)) favoriteIds.delete(id); else favoriteIds.add(id);
-      saveFavorites(); renderMenus(); renderGrid(); updateStats(getFilteredItems());
-      showToast(favoriteIds.has(id) ? '즐겨찾기에 추가했습니다.' : '즐겨찾기에서 제거했습니다.');
-    }
-    function toggleFavoritesOnly() {
-      favoritesOnly = !favoritesOnly;
-      localStorage.setItem('bgm_favoritesOnly', String(favoritesOnly));
-      applyFavoritesToggleState(); renderGrid(); renderStatusBar(); updateStats(getFilteredItems());
-    }
-    function applyFavoritesToggleState() {
-      els.favoritesOnlyBtn.textContent = favoritesOnly ? '즐겨찾기만 ON' : '즐겨찾기만';
-      els.favoritesOnlyBtn.classList.toggle('soft', favoritesOnly);
-    }
-    function setDensity(mode) {
-      densityMode = mode; localStorage.setItem('bgm_densityMode', densityMode); els.densitySelect.value = densityMode; applyDensity();
-    }
-    function handleDensityChange(mode) { setDensity(mode); }
-    function applyDensity() {
-      els.bgmGrid.classList.toggle('compact', densityMode === 'compact');
-      els.gridModeComfortable.classList.toggle('active', densityMode === 'comfortable');
-      els.gridModeCompact.classList.toggle('active', densityMode === 'compact');
-      // 리스트↔그리드 전환 시 카드 구조가 달라지므로 재렌더
-      if (allItems.length > 0) renderGrid();
-    }
-    function handleSortChange(value) { sortMode = value; localStorage.setItem('bgm_sortMode', sortMode); renderGrid(); renderStatusBar(); }
-    function toggleSidebar() {
-      sidebarCollapsed = !sidebarCollapsed; localStorage.setItem('bgm_sidebarCollapsed', String(sidebarCollapsed)); applySidebarState();
-    }
-    function applySidebarState() { document.body.classList.toggle('sidebar-collapsed', sidebarCollapsed); }
+function next(){
+  currentIndex++;
+  if(currentIndex>=list.length){
+    if(loop) currentIndex=0;
+    else return;
+  }
+  play(currentIndex);
+}
 
-    function toggleInput(forceState) {
-      const shouldOpen = typeof forceState === 'boolean' ? forceState : els.overlay.style.display !== 'flex';
-      els.overlay.style.display = shouldOpen ? 'flex' : 'none';
-      els.overlay.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
-    }
-    function resetForm() {
-      els.formTitle.textContent = '➕ 새로운 BGM 추가';
-      els.editId.value = ''; els.inTitle.value = ''; els.inUrl.value = ''; els.inTag.value = ''; els.inFolder.value = '';
-      els.saveBtn.disabled = false; els.saveBtn.textContent = '저장하기';
-    }
-    function openAddForm() { resetForm(); toggleInput(true); els.inTitle.focus(); }
-    function openEditFormById(id) {
-      const item = allItems.find(v => String(v.id) === String(id));
-      if (!item) return showMessage('수정할 항목을 찾지 못했습니다.', 'error');
-      els.formTitle.textContent = '✏️ 곡 정보 수정';
-      els.editId.value = item.id; els.inTitle.value = item.title; els.inUrl.value = item.url; els.inTag.value = (item.tags || []).join('/'); els.inFolder.value = item.folder;
-      toggleInput(true); els.inTitle.focus();
-    }
+function prev(){
+  currentIndex--;
+  if(currentIndex<0){
+    if(loop) currentIndex=list.length-1;
+    else return;
+  }
+  play(currentIndex);
+}
 
-    function setFilter(value, type) {
-      currentFilter = { value, type };
-      updateHeader(); renderMenus(); renderGrid(); renderStatusBar(); updateStats(getFilteredItems());
-    }
-    function handleSearch(value) { searchKeyword = normalizeText(value).toLowerCase(); const cb = document.getElementById('searchClearBtn'); if(cb) cb.classList.toggle('vis', searchKeyword.length > 0); renderGrid(); renderStatusBar(); updateStats(getFilteredItems()); }
-    function clearSearch() { searchKeyword = ''; els.searchInput.value = ''; const cb = document.getElementById('searchClearBtn'); if(cb) cb.classList.remove('vis'); renderGrid(); renderStatusBar(); updateStats(getFilteredItems()); }
+function toggleLoop(){
+  loop=!loop;
+}
 
-    function updateHeader() {
-      let title = '전체 목록';
-      let desc = '등록된 BGM을 정리하고, 빠르게 찾고, 장면용으로 바로 꺼내 쓸 수 있습니다.';
-      if (currentFilter.type === 'special' && currentFilter.value === '__favorites__') {
-        title = '즐겨찾기'; desc = '자주 쓰는 트랙만 따로 모아서 봅니다.';
-      } else if (currentFilter.type === 'special' && currentFilter.value === '__recent__') {
-        title = '최근 수정'; desc = '가장 최근에 손댄 곡들을 우선해서 봅니다.';
-      } else if (currentFilter.value !== '전체') {
-        if (currentFilter.type === 'folder') { title = `폴더: ${currentFilter.value}`; desc = '선택한 폴더에 속한 BGM만 표시합니다.'; }
-        else if (currentFilter.type === 'tag') { title = `태그: #${currentFilter.value}`; desc = '선택한 태그가 붙은 BGM만 표시합니다.'; }
-      }
-      els.viewTitle.textContent = title; els.viewDesc.textContent = desc;
-    }
-    function sortModeLabel(mode) {
-      switch (mode) {
-        case 'created_desc': return '최근 등록순';
-        case 'title_asc': return '제목 오름차순';
-        case 'folder_asc': return '폴더 오름차순';
-        default: return '최근 수정순';
-      }
-    }
-    function renderStatusBar() {
-      els.statusBar.innerHTML = '';
-      const pills = [{ text: `전체 ${allItems.length}곡` }];
-      if (currentFilter.type === 'special' && currentFilter.value === '__favorites__') pills.push({ text: '즐겨찾기 보기' });
-      if (currentFilter.type === 'special' && currentFilter.value === '__recent__') pills.push({ text: '최근 수정 보기' });
-      if (currentFilter.value !== '전체' && currentFilter.type === 'folder') pills.push({ text: `폴더: ${currentFilter.value}` });
-      if (currentFilter.value !== '전체' && currentFilter.type === 'tag') pills.push({ text: `태그: #${currentFilter.value}` });
-      if (favoritesOnly) pills.push({ text: '즐겨찾기만 ON' });
-      if (searchKeyword) pills.push({ text: `검색: "${searchKeyword}"` });
-      pills.push({ text: `정렬: ${sortModeLabel(sortMode)}` });
-      pills.forEach(pill => {
-        const node = document.createElement('div'); node.className = 'status-pill'; node.textContent = pill.text; els.statusBar.appendChild(node);
-      });
-    }
+function render(){
+  const grid=document.getElementById("grid");
+  grid.innerHTML="";
+  list.forEach((item,i)=>{
+    const id=getYoutubeId(item.url);
+    const div=document.createElement("div");
+    div.className="card";
+    div.onclick=()=>play(i);
 
-    function renderMenus() {
-      const sideKeyword = normalizeText(els.sideFilterInput.value).toLowerCase();
-      document.getElementById('menu-all').classList.toggle('active', currentFilter.type === 'folder' && currentFilter.value === '전체');
-      document.getElementById('menu-favorites').classList.toggle('active', currentFilter.type === 'special' && currentFilter.value === '__favorites__');
-      document.getElementById('menu-recent').classList.toggle('active', currentFilter.type === 'special' && currentFilter.value === '__recent__');
-      els.folderMenu.innerHTML = ''; els.tagMenu.innerHTML = '';
+    const tags=(item.tags||[]).map(t=>{
+      const c=tagColors[t]||"#ddd";
+      return `<span class="tag" style="background:${c}">${t}</span>`;
+    }).join("");
 
-      const folders = [...new Set(allItems.map(item => item.folder))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'ko'));
-      const tags = [...new Set(allItems.flatMap(item => item.tags || []))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'ko'));
-      const folderCounts = Object.fromEntries(folders.map(folder => [folder, allItems.filter(item => item.folder === folder).length]));
-      const tagCounts = Object.fromEntries(tags.map(tag => [tag, allItems.filter(item => (item.tags || []).includes(tag)).length]));
+    div.innerHTML=`
+      <div class="thumb"><img src="${thumb(id)}"/></div>
+      <div class="card-body">
+        <div class="title">${item.title}</div>
+        <div class="folder">${item.folder||""}</div>
+        <div class="tags">${tags}</div>
+      </div>
+    `;
+    grid.appendChild(div);
+  });
+}
 
-      folders.filter(folder => !sideKeyword || folder.toLowerCase().includes(sideKeyword)).forEach(folder => {
-        const item = document.createElement('div');
-        item.className = `menu-item ${currentFilter.type === 'folder' && currentFilter.value === folder ? 'active' : ''}`;
-        item.addEventListener('click', () => setFilter(folder, 'folder'));
-        const dot = document.createElement('div'); dot.className = 'color-dot'; dot.style.background = stringToColor(folder);
-        const text = document.createElement('span'); text.className = 'menu-label'; text.textContent = folder;
-        const count = document.createElement('span'); count.className = 'menu-count'; count.textContent = folderCounts[folder];
-        item.appendChild(dot); item.appendChild(text); item.appendChild(count); els.folderMenu.appendChild(item);
-      });
+async function load(){
+  const res=await fetch(API_URL);
+  list=await res.json();
+  render();
+}
 
-      tags.filter(tag => !sideKeyword || tag.toLowerCase().includes(sideKeyword)).forEach(tag => {
-        const chip = document.createElement('button'); chip.type = 'button'; chip.className = 'tag-chip'; chip.textContent = `#${tag} · ${tagCounts[tag]}`;
-        chip.style.background = stringToLightColor(tag); chip.style.color = stringToColor(tag); chip.addEventListener('click', () => setFilter(tag, 'tag')); els.tagMenu.appendChild(chip);
-      });
+async function fetchTitle(url){
+  const res=await fetch(`https://www.youtube.com/oembed?url=${url}&format=json`);
+  const data=await res.json();
+  return data.title;
+}
 
-      els.allCount.textContent = allItems.length; els.favoriteCount.textContent = favoriteIds.size;
-    }
+async function openForm(){
+  const url=prompt("유튜브 링크");
+  if(!url)return;
+  const title=await fetchTitle(url);
+  const folder=prompt("폴더","");
+  const tag=prompt("태그 (/)","");
 
-    function getFilteredItems() {
-      let filtered = [...allItems];
-      if (currentFilter.type === 'special' && currentFilter.value === '__favorites__') filtered = filtered.filter(item => favoriteIds.has(item.id));
-      else if (currentFilter.type === 'special' && currentFilter.value === '__recent__') filtered = filtered.sort((a, b) => parseDateSafe(b.updatedAt) - parseDateSafe(a.updatedAt)).slice(0, 24);
-      else if (currentFilter.value !== '전체') {
-        if (currentFilter.type === 'folder') filtered = filtered.filter(item => item.folder === currentFilter.value);
-        else if (currentFilter.type === 'tag') filtered = filtered.filter(item => (item.tags || []).includes(currentFilter.value));
-      }
-      if (favoritesOnly) filtered = filtered.filter(item => favoriteIds.has(item.id));
-      if (searchKeyword) {
-        filtered = filtered.filter(item => [item.title, item.folder, item.url, item.createdAt, item.updatedAt, ...(item.tags || [])].join(' ').toLowerCase().includes(searchKeyword));
-      }
-      filtered.sort((a, b) => {
-        switch (sortMode) {
-          case 'created_desc': return parseDateSafe(b.createdAt) - parseDateSafe(a.createdAt);
-          case 'title_asc': return a.title.localeCompare(b.title, 'ko');
-          case 'folder_asc': {
-            const folderCompare = a.folder.localeCompare(b.folder, 'ko');
-            return folderCompare !== 0 ? folderCompare : a.title.localeCompare(b.title, 'ko');
-          }
-          default: return parseDateSafe(b.updatedAt) - parseDateSafe(a.updatedAt);
-        }
-      });
-      return filtered;
-    }
+  await fetch(API_URL,{
+    method:"POST",
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      action:"add",
+      title,url,folder,tag
+    })
+  });
 
-    function updateStats(filteredItems) {
-      els.statTotal.textContent = allItems.length;
-      els.statVisible.textContent = filteredItems.length;
-      els.statFolders.textContent = new Set(allItems.map(item => item.folder).filter(Boolean)).size;
-      els.statFavorites.textContent = favoriteIds.size;
-    }
+  load();
+}
 
-    function createVideoNode(item) {
-      const videoBox = document.createElement('div'); videoBox.className = 'video-box';
-      const youtubeId = getYoutubeId(item.url);
-      if (!youtubeId) {
-        const fallback = document.createElement('div'); fallback.className = 'video-fallback'; fallback.textContent = '유효한 유튜브 링크가 아니어서 미리보기를 표시할 수 없습니다.'; videoBox.appendChild(fallback); return videoBox;
-      }
-      const iframe = document.createElement('iframe');
-      iframe.src = `https://www.youtube.com/embed/${youtubeId}`; iframe.allowFullscreen = true; iframe.loading = 'lazy'; iframe.referrerPolicy = 'strict-origin-when-cross-origin'; iframe.title = `${item.title} 미리보기`;
-      videoBox.appendChild(iframe); return videoBox;
-    }
+load();
+</script>
 
-    function createCard(item) {
-      const isListMode = densityMode === 'compact';
-      const card = document.createElement('div'); card.className = 'bgm-card';
-
-      // 사이드바 (컬러 바)
-      const sideBar = document.createElement('div'); sideBar.className = 'card-side-bar'; sideBar.style.background = stringToColor(item.folder);
-      card.appendChild(sideBar);
-
-      if (!isListMode) {
-        // 그리드 모드: topbar (배지 + 즐겨찾기)
-        const topbar = document.createElement('div'); topbar.className = 'card-topbar';
-        const badge = document.createElement('div'); badge.className = 'card-badge'; badge.textContent = item.folder || '기타';
-        const fav = document.createElement('button'); fav.className = `card-fav-btn ${favoriteIds.has(item.id) ? 'active' : ''}`; fav.textContent = '★'; fav.title = '즐겨찾기'; fav.addEventListener('click', () => toggleFavorite(item.id));
-        topbar.appendChild(badge); topbar.appendChild(fav);
-        card.appendChild(topbar);
-        card.appendChild(createVideoNode(item));
-      }
-
-      const body = document.createElement('div'); body.className = 'card-body';
-
-      if (isListMode) {
-        // 리스트 모드 전용: 폴더 레이블 + 즐겨찾기 버튼 인라인
-        const folderLabel = document.createElement('div');
-        folderLabel.className = 'list-folder-label';
-        folderLabel.style.color = stringToColor(item.folder);
-        folderLabel.textContent = item.folder || '기타';
-        body.appendChild(folderLabel);
-      }
-
-      const title = document.createElement('h3'); title.className = 'card-title'; title.textContent = item.title;
-      body.appendChild(title);
-
-      if (!isListMode) {
-        const folder = document.createElement('div'); folder.className = 'card-folder'; folder.style.color = stringToColor(item.folder); folder.textContent = item.folder;
-        const date = document.createElement('div'); date.className = 'card-date'; date.textContent = formatDateText(item.createdAt, item.updatedAt);
-        const link = document.createElement('a'); link.className = 'card-url'; link.href = item.url; link.target = '_blank'; link.rel = 'noopener noreferrer'; link.textContent = '↗ 원본 링크 열기';
-        body.appendChild(folder); body.appendChild(date); body.appendChild(link);
-      }
-
-      // 태그 (클릭 시 필터 적용)
-      const tagsWrap = document.createElement('div'); tagsWrap.className = 'card-tags';
-      (item.tags || []).forEach(tag => {
-        const chip = document.createElement('span'); chip.className = 'card-tag';
-        chip.style.background = stringToLightColor(tag); chip.style.color = stringToColor(tag);
-        chip.textContent = `#${tag}`;
-        chip.title = `"${tag}" 태그로 필터`;
-        chip.style.cursor = 'pointer';
-        chip.addEventListener('click', () => setFilter(tag, 'tag'));
-        tagsWrap.appendChild(chip);
-      });
-      body.appendChild(tagsWrap);
-
-      // 액션 버튼
-      const actions = document.createElement('div'); actions.className = 'card-actions';
-      if (isListMode) {
-        // 리스트: 즐겨찾기 버튼 인라인
-        const favBtn = document.createElement('button');
-        favBtn.className = `list-fav-btn ${favoriteIds.has(item.id) ? 'active' : ''}`;
-        favBtn.textContent = '★'; favBtn.title = '즐겨찾기';
-        favBtn.addEventListener('click', () => toggleFavorite(item.id));
-        actions.appendChild(favBtn);
-      }
-      const copyBtn = document.createElement('button'); copyBtn.className = 'action-btn btn-copy'; copyBtn.textContent = '복사'; copyBtn.addEventListener('click', () => copyText(item.url, '링크를 복사했습니다.'));
-      const editBtn = document.createElement('button'); editBtn.className = 'action-btn'; editBtn.textContent = '수정'; editBtn.addEventListener('click', () => openEditFormById(item.id));
-      const deleteBtn = document.createElement('button'); deleteBtn.className = 'action-btn btn-delete'; deleteBtn.textContent = '삭제'; deleteBtn.addEventListener('click', () => deleteItem(item.id));
-      actions.appendChild(copyBtn); actions.appendChild(editBtn); actions.appendChild(deleteBtn);
-      body.appendChild(actions);
-
-      card.appendChild(body); return card;
-    }
-
-    function renderGrid() {
-      const filtered = getFilteredItems(); els.bgmGrid.innerHTML = '';
-      if (allItems.length === 0) {
-        els.bgmGrid.style.display = 'none'; els.emptyState.style.display = 'block'; els.emptyState.textContent = '아직 등록된 BGM이 없습니다.'; updateStats(filtered); return;
-      }
-      if (filtered.length === 0) {
-        els.bgmGrid.style.display = 'none'; els.emptyState.style.display = 'block'; els.emptyState.textContent = '현재 조건에 맞는 BGM이 없습니다.'; updateStats(filtered); return;
-      }
-      filtered.forEach(item => els.bgmGrid.appendChild(createCard(item)));
-      els.emptyState.style.display = 'none'; els.bgmGrid.style.display = 'grid';
-      const bc = document.getElementById('boardCount'); if(bc) bc.textContent = filtered.length + '곡';
-      updateStats(filtered);
-    }
-
-    async function copyText(text, toastText = '복사했습니다.') {
-      try { await navigator.clipboard.writeText(text); showToast(toastText); }
-      catch (_) { showMessage('복사에 실패했습니다.', 'error'); }
-    }
-
-    async function copyCurrentViewSummary() {
-      const filtered = getFilteredItems();
-      if (!filtered.length) return showMessage('복사할 목록이 없습니다.', 'error');
-      const text = filtered.map((item, idx) => `${idx + 1}. [${item.folder}] ${item.title}\n- ${item.url}\n- 태그: ${(item.tags || []).join(', ') || '-'}\n`).join('\n');
-      await copyText(text, '현재 목록을 복사했습니다.');
-    }
-
-   async function saveToSheet() {
-     if (isSaving) return;
-   
-     const id = normalizeText(els.editId.value);
-     const title = normalizeText(els.inTitle.value);
-     const url = normalizeText(els.inUrl.value);
-     const tag = normalizeText(els.inTag.value);
-     const folder = normalizeText(els.inFolder.value) || '기타';
-   
-     if (!title || !url) {
-       return showMessage('곡 제목과 URL은 필수입니다.', 'error');
-     }
-   
-     if (!isValidYoutubeUrl(url)) {
-       return showMessage('유효한 유튜브 URL을 입력해주세요.', 'error');
-     }
-   
-     // 🔥 유튜브 ID 기준 중복 체크 (더 정확)
-     const newId = getYoutubeId(url);
-     const duplicate = allItems.find(item => getYoutubeId(item.url) === newId && item.id !== id);
-   
-     if (duplicate) {
-       if (!confirm(`이미 같은 곡이 있습니다.\n\n[${duplicate.folder}] ${duplicate.title}\n\n그래도 저장할까요?`)) {
-         return;
-       }
-     }
-   
-     isSaving = true;
-     els.saveBtn.disabled = true;
-     els.saveBtn.textContent = '저장 중...';
-   
-     try {
-       const response = await fetch(API_URL, {
-         method: 'POST',
-         headers: {
-           'Content-Type': 'application/json'
-         },
-         body: JSON.stringify({
-           action: id ? 'edit' : 'add',
-           id: id || null,
-           title,
-           url,
-           tag,
-           folder
-         })
-       });
-   
-       const result = await response.json();
-   
-       if (result.success !== false) {
-         showToast('저장 완료!');
-         toggleInput(false);
-         resetForm();
-         await loadData(true); // 🔥 저장 후 바로 갱신
-       } else {
-         showMessage('저장 실패: ' + (result.message || '알 수 없는 오류'), 'error');
-       }
-   
-     } catch (err) {
-       console.error(err);
-       showMessage('서버 연결 실패 또는 JSON 오류', 'error');
-     }
-   
-     isSaving = false;
-     els.saveBtn.disabled = false;
-     els.saveBtn.textContent = '저장하기';
-   }
-
-    async function deleteItem(id) {
-      if (!id) return showMessage('삭제할 id가 없습니다.', 'error');
-      if (!confirm('정말 이 곡을 삭제하시겠습니까?')) return;
-      try {
-        hideMessage();
-        const payload = new URLSearchParams(); payload.append('action', 'delete'); payload.append('id', id);
-        const result = await requestJSON(API_URL, { method: 'POST', body: payload });
-        if (!result.ok) throw new Error(result.error || '삭제 실패');
-        favoriteIds.delete(id); saveFavorites();
-        showMessage('삭제가 완료되었습니다.', 'success');
-        await loadData(false);
-      } catch (error) {
-        console.error(error); showMessage(`삭제에 실패했습니다. ${error.message || ''}`, 'error');
-      }
-    }
-
-    async function loadData(showRefreshMessage = false) {
-      setLoading(true, '데이터를 불러오는 중입니다...');
-      try {
-        if (showRefreshMessage) showMessage('데이터를 새로고침하고 있습니다.', 'info');
-        const result = await requestJSON(`${API_URL}?action=list`, { method: 'GET', cache: 'no-store' });
-        if (!result.ok) throw new Error(result.error || '목록 불러오기 실패');
-        allItems = (result.items || []).map(item => ({
-          id: normalizeText(item.id),
-          title: normalizeText(item.title),
-          url: normalizeText(item.url),
-          tags: normalizeTags(item.tag),
-          folder: normalizeText(item.folder) || '기타',
-          createdAt: normalizeText(item.createdAt),
-          updatedAt: normalizeText(item.updatedAt)
-        }));
-        updateHeader(); renderMenus(); renderGrid(); renderStatusBar(); updateStats(getFilteredItems());
-        if (!showRefreshMessage) hideMessage(); else showMessage('새로고침이 완료되었습니다.', 'success');
-      } catch (error) {
-        console.error(error); allItems = []; renderMenus(); renderGrid(); renderStatusBar(); updateStats([]);
-        showMessage(`데이터를 불러오지 못했습니다. ${error.message || ''}`, 'error');
-      } finally { setLoading(false); }
-    }
-
-    els.overlay.addEventListener('click', event => { if (event.target === els.overlay) toggleInput(false); });
-    document.addEventListener('keydown', event => {
-      if (event.key === 'Escape') toggleInput(false);
-      // 단축키: N = 새 곡 추가, Ctrl+K = 검색창 포커스
-      if (!els.overlay.style.display || els.overlay.style.display === 'none') {
-        if (event.key === 'n' || event.key === 'N') { if (!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) { event.preventDefault(); openAddForm(); } }
-        if ((event.ctrlKey || event.metaKey) && event.key === 'k') { event.preventDefault(); els.searchInput.focus(); els.searchInput.select(); }
-      }
-    });
-    [els.inTitle, els.inUrl, els.inTag, els.inFolder].forEach(input => input.addEventListener('keydown', event => { if (event.key === 'Enter') saveToSheet(); }));
-    els.collapseBtn.addEventListener('click', toggleSidebar);
-
-    // ── URL 미리보기 (모달)
-    function onUrlInputPreview() {
-      const url = normalizeText(els.inUrl.value);
-      const ytId = getYoutubeId(url);
-      const wrap = document.getElementById('urlPreviewWrap');
-      const frame = document.getElementById('urlPreviewFrame');
-      if (ytId) {
-        frame.src = `https://www.youtube.com/embed/${ytId}?rel=0`;
-        wrap.style.display = 'block';
-      } else {
-        wrap.style.display = 'none';
-        frame.src = '';
-      }
-    }
-
-    // ── 태그 실시간 칩 프리뷰 (모달)
-    function onTagInputPreview() {
-      const raw = normalizeText(els.inTag.value);
-      const tags = raw ? raw.split('/').map(t => t.trim()).filter(Boolean) : [];
-      const container = document.getElementById('tagPreviewChips');
-      container.innerHTML = '';
-      tags.forEach(tag => {
-        const chip = document.createElement('span');
-        chip.style.cssText = `display:inline-block;padding:3px 9px;border-radius:99px;font-size:.7rem;font-weight:700;background:${stringToLightColor(tag)};color:${stringToColor(tag)}`;
-        chip.textContent = '#' + tag;
-        container.appendChild(chip);
-      });
-    }
-
-    // ── 모달 열릴 때 미리보기 초기화
-    const _origOpenAddForm = openAddForm;
-    openAddForm = function() {
-      _origOpenAddForm();
-      document.getElementById('urlPreviewWrap').style.display = 'none';
-      document.getElementById('urlPreviewFrame').src = '';
-      document.getElementById('tagPreviewChips').innerHTML = '';
-    };
-    const _origOpenEditFormById = openEditFormById;
-    openEditFormById = function(id) {
-      _origOpenEditFormById(id);
-      setTimeout(() => {
-        onUrlInputPreview();
-        onTagInputPreview();
-      }, 50);
-    };
-
-    loadData(false);
-  </script>
 </body>
 </html>
