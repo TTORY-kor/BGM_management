@@ -361,6 +361,27 @@ body.sb-col .brand-main{justify-content:center;}
 .toast-icon{width:15px;height:15px;border-radius:50%;background:var(--amber-dim);color:var(--amber);font-size:.52rem;font-weight:700;display:grid;place-items:center;flex-shrink:0;}
 .toast.show{opacity:1;transform:translateY(0);}
 
+/* ══ 재생목록 가져오기 모달 ══ */
+#playlistOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(6px);z-index:600;justify-content:center;align-items:center;padding:20px;}
+.playlist-card{background:var(--surface);border:1px solid var(--border2);padding:22px;border-radius:var(--r-xl);width:100%;max-width:520px;box-shadow:var(--sh-lg);animation:modal-in .16s ease;max-height:90vh;overflow-y:auto;}
+.playlist-card h3{font-size:.92rem;font-weight:700;color:var(--text);margin-bottom:4px;}
+.playlist-card p{font-size:.75rem;color:var(--muted);margin-bottom:16px;line-height:1.6;}
+.pl-step{display:flex;flex-direction:column;gap:10px;}
+.pl-step.hidden{display:none;}
+.pl-preview-list{max-height:260px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface2);}
+.pl-preview-item{display:flex;align-items:center;gap:10px;padding:8px 11px;border-bottom:1px solid var(--border);font-size:.78rem;}
+.pl-preview-item:last-child{border-bottom:0;}
+.pl-preview-thumb{width:48px;height:27px;border-radius:3px;object-fit:cover;flex-shrink:0;background:var(--surface3);}
+.pl-preview-title{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text2);}
+.pl-preview-skip{font-size:.65rem;color:var(--rose);flex-shrink:0;}
+.pl-progress-wrap{margin-top:6px;}
+.pl-progress-bar-bg{width:100%;height:6px;background:var(--border);border-radius:99px;overflow:hidden;}
+.pl-progress-bar-fill{height:100%;background:var(--amber);border-radius:99px;width:0%;transition:width .3s ease;}
+.pl-progress-text{font-size:.7rem;color:var(--muted);margin-top:5px;font-family:var(--mono);}
+.pl-result{font-size:.8rem;color:var(--text2);line-height:1.7;padding:10px 12px;background:var(--surface2);border-radius:var(--r-sm);border:1px solid var(--border);}
+.pl-result strong{color:var(--green);}
+.pl-result .pl-skipped{color:var(--amber);}
+
 @keyframes fade-up{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
 .topbar,.filterbar,.board-wrap{animation:fade-up .25s ease both;}
 .filterbar{animation-delay:.04s;}.board-wrap{animation-delay:.08s;}
@@ -405,6 +426,72 @@ body.sb-col .brand-main{justify-content:center;}
       <button class="btn primary" id="detailPlayBtn" onclick="detailPlay()">▶ 재생</button>
       <button class="btn" id="detailEditBtn" onclick="detailEdit()">수정</button>
       <button class="btn ghost" onclick="closeDetail()">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 재생목록 가져오기 모달 -->
+<div id="playlistOverlay">
+  <div class="playlist-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+      <h3 id="plModalTitle">재생목록 가져오기</h3>
+      <button class="modal-close" onclick="closePlModal()">✕</button>
+    </div>
+    <p id="plModalDesc">재생목록의 모든 영상을 지정한 폴더에 한 번에 추가합니다.</p>
+
+    <!-- Step 1: URL 입력 + 폴더/태그 설정 -->
+    <div class="pl-step" id="plStep1">
+      <div class="field">
+        <label class="field-label">재생목록 URL</label>
+        <input type="text" id="plUrl" placeholder="https://www.youtube.com/playlist?list=..." style="height:36px;padding:0 10px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface2);color:var(--text);font-size:.82rem;outline:none;transition:var(--tr);" onfocus="this.style.borderColor='var(--amber)'" onblur="this.style.borderColor='var(--border)'"/>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;">
+        <div class="field">
+          <label class="field-label">저장할 폴더<span class="req">*</span></label>
+          <input type="text" id="plFolder" placeholder="예: 전투 / 슬픔" maxlength="100" style="height:33px;padding:0 9px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface2);color:var(--text);font-size:.79rem;outline:none;" onfocus="this.style.borderColor='var(--amber)'" onblur="this.style.borderColor='var(--border)'"/>
+        </div>
+        <div class="field">
+          <label class="field-label">태그 <span style="font-weight:400;color:var(--faint);text-transform:none;letter-spacing:0">(/ 구분)</span></label>
+          <input type="text" id="plTag" placeholder="긴장/야간" maxlength="200" style="height:33px;padding:0 9px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface2);color:var(--text);font-size:.79rem;outline:none;" onfocus="this.style.borderColor='var(--amber)'" onblur="this.style.borderColor='var(--border)'"/>
+        </div>
+      </div>
+      <div style="font-size:.69rem;color:var(--muted);line-height:1.7;padding:9px 11px;background:var(--surface2);border-radius:var(--r-sm);border:1px solid var(--border);">
+        💡 YouTube oEmbed API로 영상 정보를 가져옵니다. 재생목록이 공개 상태여야 하며, 최대 <strong style="color:var(--text2);">200개</strong>까지 처리합니다.
+      </div>
+      <div id="plStep1Msg" style="display:none;font-size:.77rem;padding:8px 11px;border-radius:var(--r-sm);"></div>
+      <div style="display:flex;gap:7px;margin-top:4px;">
+        <button class="btn primary" onclick="plFetchList()" id="plFetchBtn" style="height:36px;">목록 가져오기</button>
+        <button class="btn ghost" onclick="closePlModal()" style="height:36px;">취소</button>
+      </div>
+    </div>
+
+    <!-- Step 2: 미리보기 + 저장 -->
+    <div class="pl-step hidden" id="plStep2">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <span style="font-size:.78rem;font-weight:600;color:var(--text2);" id="plPreviewCount"></span>
+        <button class="btn ghost" onclick="plBack()" style="height:26px;font-size:.72rem;">← 뒤로</button>
+      </div>
+      <div class="pl-preview-list" id="plPreviewList"></div>
+      <div style="display:flex;gap:7px;margin-top:10px;">
+        <button class="btn primary" onclick="plStartSave()" id="plSaveBtn" style="height:36px;">전체 저장 시작</button>
+        <button class="btn ghost" onclick="closePlModal()" style="height:36px;">취소</button>
+      </div>
+    </div>
+
+    <!-- Step 3: 저장 진행 중 -->
+    <div class="pl-step hidden" id="plStep3">
+      <div class="pl-progress-wrap">
+        <div class="pl-progress-bar-bg"><div class="pl-progress-bar-fill" id="plProgressFill"></div></div>
+        <div class="pl-progress-text" id="plProgressText">준비 중...</div>
+      </div>
+    </div>
+
+    <!-- Step 4: 완료 -->
+    <div class="pl-step hidden" id="plStep4">
+      <div class="pl-result" id="plResultText"></div>
+      <div style="display:flex;gap:7px;margin-top:12px;">
+        <button class="btn primary" onclick="closePlModal();loadData(false);" style="height:36px;">확인</button>
+      </div>
     </div>
   </div>
 </div>
@@ -481,6 +568,7 @@ body.sb-col .brand-main{justify-content:center;}
         <input type="text" id="quickUrlInput" placeholder="YouTube URL 붙여넣기 (예: https://www.youtube.com/watch?v=...)" onkeydown="if(event.key==='Enter')quickAddFromUrl()"/>
       </div>
       <button class="btn primary" onclick="quickAddFromUrl()" style="height:38px;padding:0 16px;font-size:.82rem;">＋ 곡 추가</button>
+      <button class="btn" onclick="openPlModal()" title="재생목록 일괄 추가" style="height:38px;padding:0 12px;font-size:.82rem;flex-shrink:0;">≡ 재생목록</button>
     </div>
   </div>
 
@@ -635,10 +723,165 @@ function detailEdit(){if(detailItem){closeDetail();openEditFormById(detailItem.i
 /* ══ 빠른 URL 추가 ══ */
 async function quickAddFromUrl(){
   const url=norm(els.quickUrlInput.value);if(!url)return;
+  // 재생목록 URL이면 재생목록 모달로 연결
+  if(getPlId(url)){els.quickUrlInput.value='';openPlModal(url);return;}
   if(!isYt(url)){showMessage('유효한 유튜브 URL을 입력해주세요.','error');return;}
   const dup=allItems.find(i=>getYtId(i.url)===getYtId(url));
   if(dup){showMessage(`이미 등록된 곡입니다: [${dup.folder}] ${dup.title}`,'error');return;}
   openAddForm();els.inUrl.value=url;els.quickUrlInput.value='';await onUrlInputPreview();
+}
+
+/* ══ 재생목록 가져오기 ══ */
+let plVideos=[]; // [{videoId, title}]
+let plIsRunning=false;
+
+function getPlId(url){
+  if(!url)return null;
+  const m=url.match(/[?&]list=([^&#]+)/);
+  return(m&&m[1]&&!m[1].startsWith('WL')&&!m[1].startsWith('LL'))?m[1]:null;
+}
+
+function openPlModal(prefillUrl=''){
+  $('plStep1').classList.remove('hidden');
+  $('plStep2').classList.add('hidden');
+  $('plStep3').classList.add('hidden');
+  $('plStep4').classList.add('hidden');
+  $('plModalTitle').textContent='재생목록 가져오기';
+  $('plModalDesc').textContent='재생목록의 모든 영상을 지정한 폴더에 한 번에 추가합니다.';
+  $('plUrl').value=prefillUrl||'';
+  $('plFolder').value='';$('plTag').value='';
+  $('plFetchBtn').disabled=false;$('plFetchBtn').textContent='목록 가져오기';
+  plStep1Msg('','');
+  plVideos=[];
+  $('playlistOverlay').style.display='flex';
+  setTimeout(()=>$('plFolder').focus(),80);
+}
+function closePlModal(){
+  $('playlistOverlay').style.display='none';
+  plIsRunning=false;plVideos=[];
+}
+function plBack(){
+  $('plStep2').classList.add('hidden');$('plStep1').classList.remove('hidden');
+}
+function plStep1Msg(text,type){
+  const el=$('plStep1Msg');
+  if(!text){el.style.display='none';return;}
+  el.style.display='block';el.textContent=text;
+  el.style.cssText=`display:block;font-size:.77rem;padding:8px 11px;border-radius:var(--r-sm);${
+    type==='error'?'background:var(--rose-dim);color:var(--rose);border:1px solid rgba(220,38,38,.2);':
+    type==='info' ?'background:var(--amber-dim);color:var(--amber);border:1px solid var(--amber-ring);':
+                   'background:var(--green-dim);color:var(--green);border:1px solid rgba(22,163,74,.2);'
+  }`;
+}
+
+// Step 1 → 재생목록 영상 목록 가져오기
+async function plFetchList(){
+  const url=norm($('plUrl').value);
+  const folder=norm($('plFolder').value);
+  if(!url){plStep1Msg('재생목록 URL을 입력해주세요.','error');return;}
+  if(!folder){plStep1Msg('저장할 폴더 이름을 입력해주세요.','error');return;}
+  const plId=getPlId(url);
+  if(!plId){plStep1Msg('유효한 YouTube 재생목록 URL이 아닙니다.\n(playlist?list=... 형식이어야 합니다)','error');return;}
+
+  $('plFetchBtn').disabled=true;$('plFetchBtn').textContent='가져오는 중...';
+  plStep1Msg('재생목록 정보를 가져오고 있습니다...','info');
+
+  try{
+    // YouTube의 RSS feed를 CORS proxy 없이 oEmbed로 개별 조회하는 방식은 한계가 있으므로
+    // Noembed API(공개 oEmbed 프록시)를 이용해 재생목록 첫 200개 videoId 추출
+    // 방법: playlist feed URL → CORS 없이 접근 불가 → 대신 사용자에게 영상 ID 목록을 
+    // YouTube Data API 없이 가져오는 현실적 방법:
+    // youtube.com/playlist?list=XXX 페이지 자체를 fetch하면 CORS 차단됨
+    // → 현실적 해결: invidious.io 공개 인스턴스 API 사용 (CORS 허용, 무료, 공개)
+    const INVIDIOUS = 'https://inv.nadeko.net'; // 공개 Invidious 인스턴스
+    const apiUrl = `${INVIDIOUS}/api/v1/playlists/${plId}?fields=title,videos&page=1`;
+    
+    let resp;
+    try{
+      resp = await fetch(apiUrl,{cache:'no-store'});
+    }catch(fetchErr){
+      // 첫 번째 인스턴스 실패 시 대체 인스턴스
+      const FALLBACK='https://invidious.nerdvpn.de';
+      resp = await fetch(`${FALLBACK}/api/v1/playlists/${plId}?fields=title,videos&page=1`,{cache:'no-store'});
+    }
+    if(!resp.ok) throw new Error(`API 오류 (${resp.status})`);
+    const data = await resp.json();
+    if(!data.videos||!data.videos.length) throw new Error('재생목록이 비어 있거나 비공개입니다.');
+
+    // 최대 200개
+    const raw = data.videos.slice(0,200);
+    // 이미 등록된 영상 제외
+    const existingIds = new Set(allItems.map(i=>getYtId(i.url)).filter(Boolean));
+    plVideos = raw.map(v=>({
+      videoId: v.videoId,
+      title: v.title||`영상 ${v.videoId}`,
+      skipped: existingIds.has(v.videoId)
+    }));
+
+    // Step 2: 미리보기
+    $('plPreviewCount').textContent=`총 ${plVideos.length}개 영상 (이미 등록: ${plVideos.filter(v=>v.skipped).length}개 건너뜀)`;
+    const list=$('plPreviewList');list.innerHTML='';
+    plVideos.forEach(v=>{
+      const row=document.createElement('div');row.className='pl-preview-item';
+      const img=document.createElement('img');img.className='pl-preview-thumb';
+      img.src=`https://img.youtube.com/vi/${v.videoId}/default.jpg`;img.alt='';
+      const title=document.createElement('div');title.className='pl-preview-title';title.textContent=v.title;
+      row.append(img,title);
+      if(v.skipped){const skip=document.createElement('span');skip.className='pl-preview-skip';skip.textContent='중복';row.appendChild(skip);}
+      list.appendChild(row);
+    });
+
+    $('plStep1').classList.add('hidden');$('plStep2').classList.remove('hidden');
+    $('plSaveBtn').disabled=false;$('plSaveBtn').textContent='전체 저장 시작';
+
+  }catch(e){
+    console.error(e);
+    plStep1Msg(`가져오기 실패: ${e.message}\n\n재생목록이 공개 상태인지 확인해주세요.`,'error');
+    $('plFetchBtn').disabled=false;$('plFetchBtn').textContent='목록 가져오기';
+  }
+}
+
+// Step 3: 순차 저장
+async function plStartSave(){
+  const folder=norm($('plFolder').value)||'기타';
+  const tag=norm($('plTag').value);
+  const toSave=plVideos.filter(v=>!v.skipped);
+  if(!toSave.length){
+    $('plStep2').classList.add('hidden');$('plStep4').classList.remove('hidden');
+    $('plResultText').innerHTML=`<strong>모든 영상이 이미 등록되어 있습니다.</strong>`;
+    return;
+  }
+  $('plSaveBtn').disabled=true;plIsRunning=true;
+  $('plStep2').classList.add('hidden');$('plStep3').classList.remove('hidden');
+
+  let saved=0,failed=0;
+  const fill=$('plProgressFill'),txt=$('plProgressText');
+
+  for(let i=0;i<toSave.length;i++){
+    if(!plIsRunning)break;
+    const v=toSave[i];
+    const pct=Math.round(((i)/toSave.length)*100);
+    fill.style.width=pct+'%';
+    txt.textContent=`${i+1} / ${toSave.length} — ${v.title.slice(0,40)}`;
+
+    try{
+      const url=`https://www.youtube.com/watch?v=${v.videoId}`;
+      const result=await apiCall({action:'add',title:v.title,url,tag,folder});
+      if(result.ok===true)saved++;
+      else failed++;
+    }catch(e){failed++;}
+
+    // API 과부하 방지: 요청 간 300ms 대기
+    await new Promise(r=>setTimeout(r,300));
+  }
+
+  fill.style.width='100%';
+  $('plStep3').classList.add('hidden');$('plStep4').classList.remove('hidden');
+  const skipped=plVideos.filter(v=>v.skipped).length;
+  $('plResultText').innerHTML=
+    `<strong>${saved}개 영상</strong>을 "<strong>${folder}</strong>" 폴더에 저장했습니다.`+
+    (skipped?`<br><span class="pl-skipped">중복 ${skipped}개 건너뜀</span>`:'')+
+    (failed?`<br>실패 ${failed}개`:'');
 }
 
 /* ══ 컬러 피커 ══ */
@@ -947,6 +1190,7 @@ els.detailOverlay.addEventListener('click',e=>{if(e.target===els.detailOverlay)c
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
     if(els.cpOverlay.style.display==='flex'){closeColorPicker();return;}
+    if($('playlistOverlay').style.display==='flex'){closePlModal();return;}
     if(isDetailOpen){closeDetail();return;}
     if(isModalOpen){toggleInput(false);return;}
     if(!els.player.classList.contains('hidden')){closePlayer();}
