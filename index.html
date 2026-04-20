@@ -638,12 +638,25 @@ body.sb-col .brand-main{justify-content:center;}
 
 <script>
 /* ══ API ══ */
-const API_URL='https://script.google.com/macros/s/AKfycbw3T4U6TXuvNFjHwXlC0RcQ2jazWqS5S7BSdjsey6xOeP1iQ_IdgTJ2XBqko1d_R9Q/exec';
+const API_URL='https://script.google.com/macros/s/AKfycbwwV06DR2hHtA9txXCqvdAu13xX3EtVB9MZyLAIK8nuifrwA9NjNoIigUUdmTwlXCE/exec';
 const COLOR_PRESETS=['#f5a623','#ef4444','#f97316','#eab308','#22c55e','#14b8a6','#3b82f6','#8b5cf6','#ec4899','#6b7280','#0ea5e9','#84cc16'];
 
+// GET 요청 — 단순 조회용 (list, delete)
 function apiCall(params){
   const qs=Object.entries(params).filter(([,v])=>v!=null&&v!=='').map(([k,v])=>`${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&');
-  return fetch(`${API_URL}?${qs}`,{method:'GET',cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.json();});
+  return fetch(`${API_URL}?${qs}`,{method:'GET',cache:'no-store'})
+    .then(r=>{if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.json();});
+}
+
+// POST 요청 — add/edit 등 제목에 특수문자가 있는 경우 안전
+// Content-Type: text/plain → 프리플라이트 없이 전송됨
+// Apps Script doPost에서 e.postData.contents 로 JSON 파싱
+function apiCallPost(body){
+  return fetch(API_URL,{
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify(body),
+  }).then(r=>{if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.json();});
 }
 
 /* ══ 상태 ══ */
@@ -858,7 +871,7 @@ async function plFetchList(){
   }
 }
 
-// Step 3: 순차 저장
+// Step 3: 순차 저장 — GET 방식 (단건 저장과 동일한 방식)
 async function plStartSave(){
   const folder=norm($('plFolder').value)||'기타';
   const tag=norm($('plTag').value);
@@ -877,19 +890,29 @@ async function plStartSave(){
   for(let i=0;i<toSave.length;i++){
     if(!plIsRunning)break;
     const v=toSave[i];
-    const pct=Math.round(((i)/toSave.length)*100);
-    fill.style.width=pct+'%';
-    txt.textContent=`${i+1} / ${toSave.length} — ${v.title.slice(0,40)}`;
+    fill.style.width=Math.round((i/toSave.length)*100)+'%';
+    txt.textContent=`저장 중 ${i+1} / ${toSave.length} — ${v.title.slice(0,38)}`;
 
+    let ok=false;
+    // 시도 1: GET 방식 (기존 apiCall)
     try{
       const url=`https://www.youtube.com/watch?v=${v.videoId}`;
       const result=await apiCall({action:'add',title:v.title,url,tag,folder});
-      if(result.ok===true)saved++;
-      else failed++;
-    }catch(e){failed++;}
+      ok=(result.ok===true);
+    }catch(e1){
+      // 시도 2: POST 방식 (폴백)
+      try{
+        const url=`https://www.youtube.com/watch?v=${v.videoId}`;
+        const result=await apiCallPost({action:'add',title:v.title,url,tag,folder});
+        ok=(result.ok===true);
+      }catch(e2){
+        console.error(`[재생목록 저장 실패] ${v.title}`,e2);
+      }
+    }
+    if(ok)saved++;else failed++;
 
-    // API 과부하 방지: 요청 간 300ms 대기
-    await new Promise(r=>setTimeout(r,300));
+    // 요청 간 500ms 대기 (Apps Script 할당량 보호)
+    await new Promise(r=>setTimeout(r,500));
   }
 
   fill.style.width='100%';
@@ -898,6 +921,8 @@ async function plStartSave(){
   $('plResultText').innerHTML=
     `<strong>${saved}개 영상</strong>을 "<strong>${folder}</strong>" 폴더에 저장했습니다.`+
     (skipped?`<br><span class="pl-skipped">중복 ${skipped}개 건너뜀</span>`:'')+
+    (failed?`<br><span style="color:var(--rose);">실패 ${failed}개 (잠시 후 재시도 권장)</span>`:'');
+}
     (failed?`<br>실패 ${failed}개`:'');
 }
 
