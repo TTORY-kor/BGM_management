@@ -252,8 +252,7 @@ body.sb-col .sb-btn-label{display:none;}
 #player.hidden{transform:translateY(100%);}
 .player-thumb{width:42px;height:42px;border-radius:var(--r-sm);overflow:hidden;flex-shrink:0;background:var(--surface2);}
 .player-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
-/* 곡명 영역 — 너무 넓어지지 않도록 max-width 제한 */
-.player-info{display:flex;flex-direction:column;justify-content:center;gap:2px;min-width:0;width:160px;max-width:160px;flex-shrink:0;}
+.player-info{display:flex;flex-direction:column;justify-content:center;gap:2px;min-width:0;width:150px;flex-shrink:0;}
 .player-title{font-size:.8rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .player-sub{font-size:.62rem;color:rgba(255,255,255,.38);font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .player-controls{display:flex;align-items:center;gap:2px;flex-shrink:0;}
@@ -262,17 +261,35 @@ body.sb-col .sb-btn-label{display:none;}
 .p-btn.play{width:36px;height:36px;background:var(--amber);color:#0e0f11;font-size:.95rem;}
 .p-btn.play:hover{background:var(--amber3);transform:scale(1.05);}
 .p-btn.p-active{color:var(--amber);}
-/* 진행바 — flex:1 로 남은 공간 전부 차지 */
-.player-progress-wrap{flex:1;display:flex;flex-direction:column;justify-content:center;gap:4px;min-width:80px;}
-.player-progress{width:100%;height:4px;background:rgba(255,255,255,.12);border-radius:99px;cursor:pointer;transition:height .12s;position:relative;}
+
+/* 진행바 영역 — 진행바(위) + 시간(아래) 2줄 구조 */
+.player-progress-wrap{
+  flex:1;min-width:0;
+  display:flex;flex-direction:column;justify-content:center;gap:5px;
+}
+.player-progress{
+  width:100%;height:4px;
+  background:rgba(255,255,255,.12);border-radius:99px;
+  cursor:pointer;transition:height .12s;position:relative;
+}
 .player-progress:hover{height:6px;}
 .player-progress-bar{height:100%;background:var(--amber);border-radius:99px;width:0%;pointer-events:none;}
-.player-time{display:flex;justify-content:space-between;font-size:.62rem;color:rgba(255,255,255,.35);font-family:var(--mono);line-height:1;}
-/* 볼륨 — 고정 너비, flex-shrink:0 */
-.player-vol{display:flex;align-items:center;gap:5px;flex-shrink:0;width:100px;}
-.vol-icon{font-size:.82rem;color:rgba(255,255,255,.45);cursor:pointer;flex-shrink:0;line-height:1;width:16px;text-align:center;}
+/* 시간 — 진행바 바로 아래 한 줄 */
+.player-time{
+  display:flex;justify-content:space-between;
+  font-size:.6rem;color:rgba(255,255,255,.32);
+  font-family:var(--mono);line-height:1;
+}
+
+/* 볼륨 — 진행바와 완전히 분리, 우측에 독립 배치 */
+.player-vol{
+  display:flex;align-items:center;gap:5px;
+  flex-shrink:0;width:90px;
+}
+.vol-icon{font-size:.8rem;color:rgba(255,255,255,.4);cursor:pointer;flex-shrink:0;line-height:1;width:16px;text-align:center;}
 .vol-slider{-webkit-appearance:none;appearance:none;height:3px;border-radius:99px;background:rgba(255,255,255,.15);outline:none;cursor:pointer;flex:1;}
 .vol-slider::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;border-radius:50%;background:var(--amber);cursor:pointer;}
+
 .player-right{display:flex;align-items:center;gap:5px;flex-shrink:0;}
 .p-queue{font-size:.62rem;color:rgba(255,255,255,.3);font-family:var(--mono);white-space:nowrap;}
 .p-close{width:24px;height:24px;border-radius:var(--r-sm);border:1px solid rgba(255,255,255,.1);background:transparent;color:rgba(255,255,255,.38);cursor:pointer;font-size:.7rem;display:grid;place-items:center;transition:var(--tr);}
@@ -490,10 +507,10 @@ body.sb-col .sb-btn-label{display:none;}
         <input type="text" id="inUrl" placeholder="https://www.youtube.com/watch?v=..." oninput="onUrlInputPreview()"/>
         <div id="urlPreviewWrap"><iframe id="urlPreviewFrame" allowfullscreen loading="lazy"></iframe></div>
       </div>
-      <div class="field"><label class="field-label" for="inFolder">폴더</label><input type="text" id="inFolder" placeholder="전투 / 일상 / 슬픔" maxlength="100"/></div>
-      <div class="field"><label class="field-label" for="inTag">태그 <span style="font-weight:400;color:var(--faint);text-transform:none;letter-spacing:0">(/ 구분)</span></label><input type="text" id="inTag" placeholder="긴장/몽환/야간" maxlength="200" oninput="onTagInputPreview()"/><div id="tagPreviewChips"></div></div>
+      <div class="field"><label class="field-label" for="inFolder">폴더 <span style="font-weight:400;color:var(--faint);text-transform:none;letter-spacing:0">(/ 구분, 주제·분위기)</span></label><input type="text" id="inFolder" placeholder="전투/긴장감" maxlength="100"/></div>
+      <div class="field"><label class="field-label" for="inTag">태그 <span style="font-weight:400;color:var(--faint);text-transform:none;letter-spacing:0">(/ 구분, 시나리오)</span></label><input type="text" id="inTag" placeholder="추격씬/야간" maxlength="200" oninput="onTagInputPreview()"/><div id="tagPreviewChips"></div></div>
     </div>
-    <div class="form-hint">태그는 <strong style="color:var(--amber)">/</strong> 로 구분합니다.</div>
+    <div class="form-hint">폴더(주제·분위기)와 태그(시나리오) 모두 <strong style="color:var(--amber)">/</strong> 로 구분해 여러 개 입력 가능합니다.</div>
     <div class="form-actions"><button class="btn primary" id="saveBtn" onclick="saveToSheet()">저장</button><button class="btn ghost" onclick="toggleInput(false)">취소</button></div>
     <div class="form-footer"><span class="kbd">N</span> 추가 · <span class="kbd">Ctrl+K</span> 검색 · <span class="kbd">Esc</span> 닫기</div>
   </div>
@@ -572,7 +589,10 @@ body.sb-col .sb-btn-label{display:none;}
 
 <div id="player" class="hidden">
   <div class="player-thumb"><img id="playerThumb" src="" alt=""/></div>
-  <div class="player-info"><div class="player-title" id="playerTitle">—</div><div class="player-sub" id="playerSub"></div></div>
+  <div class="player-info">
+    <div class="player-title" id="playerTitle">—</div>
+    <div class="player-sub" id="playerSub"></div>
+  </div>
   <div class="player-controls">
     <button class="p-btn" id="btnShuffle" onclick="toggleShuffle()" title="셔플">⇄</button>
     <button class="p-btn" onclick="playPrev()" title="이전">⏮</button>
@@ -580,12 +600,25 @@ body.sb-col .sb-btn-label{display:none;}
     <button class="p-btn" onclick="playNext()" title="다음">⏭</button>
     <button class="p-btn" id="btnRepeat" onclick="toggleRepeat()" title="반복">↺</button>
   </div>
+  <!-- 진행바 + 시간 (2줄) -->
   <div class="player-progress-wrap">
-    <div class="player-progress" id="progressBar" onclick="seekTo(event)"><div class="player-progress-bar" id="progressFill"></div></div>
-    <div class="player-time"><span id="timeCurrent">0:00</span><span id="timeDuration">0:00</span></div>
+    <div class="player-progress" id="progressBar" onclick="seekTo(event)">
+      <div class="player-progress-bar" id="progressFill"></div>
+    </div>
+    <div class="player-time">
+      <span id="timeCurrent">0:00</span>
+      <span id="timeDuration">0:00</span>
+    </div>
   </div>
-  <div class="player-vol"><span class="vol-icon" id="volIcon" onclick="toggleMute()">🔊</span><input type="range" class="vol-slider" id="volSlider" min="0" max="100" value="80" oninput="setVolume(this.value)"/></div>
-  <div class="player-right"><span class="p-queue" id="queueInfo"></span><button class="p-close" onclick="closePlayer()">✕</button></div>
+  <!-- 볼륨 (진행바와 완전 분리) -->
+  <div class="player-vol">
+    <span class="vol-icon" id="volIcon" onclick="toggleMute()">🔊</span>
+    <input type="range" class="vol-slider" id="volSlider" min="0" max="100" value="80" oninput="setVolume(this.value)"/>
+  </div>
+  <div class="player-right">
+    <span class="p-queue" id="queueInfo"></span>
+    <button class="p-close" onclick="closePlayer()">✕</button>
+  </div>
 </div>
 
 <script>
@@ -650,6 +683,8 @@ function hideMessage(){els.messageBox.className='message-box';els.messageBox.tex
 function setLoading(v){els.loading.style.display=v?'block':'none';if(v){els.bgmGrid.style.display='none';els.emptyState.style.display='none';}}
 function norm(v){return String(v??'').trim();}
 function normTags(raw){return String(raw??'').split('/').map(t=>t.trim()).filter(Boolean).filter((t,i,a)=>a.indexOf(t)===i);}
+// 폴더도 / 구분 배열로 처리 (태그와 동일한 방식)
+function normFolders(raw){return String(raw??'').split('/').map(t=>t.trim()).filter(Boolean).filter((t,i,a)=>a.indexOf(t)===i);}
 function getYtId(url){
   if(!url)return null;
   const ps=[/(?:youtube\.com\/watch\?v=)([^&#]+)/,/(?:youtu\.be\/)([^?&#]+)/,/(?:youtube\.com\/embed\/)([^?&#]+)/,/(?:youtube\.com\/shorts\/)([^?&#]+)/];
@@ -669,8 +704,9 @@ function openDetail(item){
   detailItem=item;isDetailOpen=true;
   els.detailTitle.textContent=item.title;
   els.detailThumb.src=thumb(item.url);
+  const foldersStr=(item.folders&&item.folders.length?item.folders:[item.folder||'기타']).join(' · ');
   els.detailMeta.innerHTML=`
-    <div class="detail-meta-row"><span class="detail-meta-label">폴더</span><span class="detail-meta-val">${item.folder||'기타'}</span></div>
+    <div class="detail-meta-row"><span class="detail-meta-label">폴더</span><span class="detail-meta-val">${foldersStr}</span></div>
     <div class="detail-meta-row"><span class="detail-meta-label">등록</span><span class="detail-meta-val">${fmtDate(item.createdAt)}</span></div>
     <div class="detail-meta-row"><span class="detail-meta-label">수정</span><span class="detail-meta-val">${fmtDate(item.updatedAt)}</span></div>
     <div class="detail-meta-row"><span class="detail-meta-label">URL</span><a href="${item.url}" target="_blank" rel="noopener" style="color:var(--amber);font-size:.68rem;">↗ 원본 열기</a></div>`;
@@ -887,9 +923,10 @@ function renderMenus(){
   $('menu-favorites').classList.toggle('active',currentFilter.type==='special'&&currentFilter.value==='__favorites__');
   $('menu-recent').classList.toggle('active',currentFilter.type==='special'&&currentFilter.value==='__recent__');
   els.folderMenu.innerHTML='';els.tagMenu.innerHTML='';
-  const folders=[...new Set(allItems.map(i=>i.folder))].filter(Boolean).sort((a,b)=>a.localeCompare(b,'ko'));
+  // 다중 폴더 — folders 배열에서 유니크 추출
+  const folders=[...new Set(allItems.flatMap(i=>i.folders||[i.folder]))].filter(Boolean).sort((a,b)=>a.localeCompare(b,'ko'));
   const tags=[...new Set(allItems.flatMap(i=>i.tags||[]))].filter(Boolean).sort((a,b)=>a.localeCompare(b,'ko'));
-  const fCnt=Object.fromEntries(folders.map(f=>[f,allItems.filter(i=>i.folder===f).length]));
+  const fCnt=Object.fromEntries(folders.map(f=>[f,allItems.filter(i=>(i.folders||[i.folder]).includes(f)).length]));
   const tCnt=Object.fromEntries(tags.map(t=>[t,allItems.filter(i=>(i.tags||[]).includes(t)).length]));
   folders.filter(f=>!kw||f.toLowerCase().includes(kw)).forEach(f=>{
     const color=getFolderColor(f);const row=document.createElement('div');row.className='folder-row';
@@ -921,11 +958,11 @@ function getFiltered(){
   if(currentFilter.type==='special'&&currentFilter.value==='__favorites__')f=f.filter(i=>favoriteIds.has(i.id));
   else if(currentFilter.type==='special'&&currentFilter.value==='__recent__')f=f.sort((a,b)=>safeDate(b.updatedAt)-safeDate(a.updatedAt)).slice(0,24);
   else if(currentFilter.value!=='전체'){
-    if(currentFilter.type==='folder')f=f.filter(i=>i.folder===currentFilter.value);
+    if(currentFilter.type==='folder')f=f.filter(i=>(i.folders||[i.folder]).includes(currentFilter.value));
     else f=f.filter(i=>(i.tags||[]).includes(currentFilter.value));
   }
   if(favoritesOnly)f=f.filter(i=>favoriteIds.has(i.id));
-  if(searchKeyword)f=f.filter(i=>[i.title,i.folder,...(i.tags||[])].join(' ').toLowerCase().includes(searchKeyword));
+  if(searchKeyword)f=f.filter(i=>[i.title,...(i.folders||[i.folder]),...(i.tags||[])].join(' ').toLowerCase().includes(searchKeyword));
   f.sort((a,b)=>{
     switch(sortMode){
       case'created_desc':return safeDate(b.createdAt)-safeDate(a.createdAt);
@@ -951,7 +988,10 @@ function makeTagChip(tag){
   return c;
 }
 function createCard(item){
-  const isList=densityMode==='compact';const fc=getFolderColor(item.folder);
+  const isList=densityMode==='compact';
+  // 첫 번째 폴더 색상을 스트라이프에 사용
+  const firstFolder=(item.folders&&item.folders.length)?item.folders[0]:(item.folder||'기타');
+  const fc=getFolderColor(firstFolder);
   const card=document.createElement('div');card.className='bgm-card';
   card.dataset.itemId=item.id;
   card.addEventListener('click',e=>{
@@ -970,21 +1010,38 @@ function createCard(item){
   }
   card.appendChild(tdiv);
   const inner=document.createElement('div');inner.className='card-inner';
+  // 폴더 배지 생성 헬퍼 (다중 지원)
+  const makeFolderBadges=(wrap,inline=false)=>{
+    const flds=item.folders&&item.folders.length?item.folders:[item.folder||'기타'];
+    flds.forEach(f=>{
+      const color=getFolderColor(f);
+      const b=document.createElement('div');
+      if(inline){
+        b.style.cssText=`font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:${color};white-space:nowrap;flex-shrink:0;`;
+      }else{
+        b.className='card-folder-badge';b.style.background=dimC(color);b.style.color=color;
+      }
+      b.textContent=f;
+      b.addEventListener('click',e=>{e.stopPropagation();setFilter(f,'folder');});
+      b.style.cursor='pointer';
+      wrap.appendChild(b);
+    });
+  };
   if(isList){
-    // 폴더 뱃지
-    const lf=document.createElement('div');lf.style.cssText=`font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:${fc};white-space:nowrap;flex-shrink:0;min-width:52px;`;lf.textContent=item.folder||'기타';
-    // 제목
+    // 폴더 배지들 (가로 나열)
+    const lf=document.createElement('div');lf.style.cssText='display:flex;gap:4px;align-items:center;flex-shrink:0;max-width:110px;flex-wrap:nowrap;overflow:hidden;';
+    makeFolderBadges(lf,true);
     const tt=document.createElement('div');tt.className='card-title';tt.textContent=item.title;
-    // 태그
     const tg=document.createElement('div');tg.className='card-tags';(item.tags||[]).forEach(t=>tg.appendChild(makeTagChip(t)));
-    // 수정일
     const dt=document.createElement('div');dt.className='list-date';dt.textContent=fmtDate(item.updatedAt);
     inner.append(lf,tt,tg,dt);
   }else{
-    const bdg=document.createElement('div');bdg.className='card-folder-badge';bdg.textContent=item.folder||'기타';bdg.style.background=dimC(fc);bdg.style.color=fc;
+    // 폴더 배지들 (가로 나열)
+    const bdgWrap=document.createElement('div');bdgWrap.style.cssText='display:flex;gap:4px;flex-wrap:wrap;';
+    makeFolderBadges(bdgWrap,false);
     const tt=document.createElement('div');tt.className='card-title';tt.textContent=item.title;
     const tg=document.createElement('div');tg.className='card-tags';(item.tags||[]).forEach(t=>tg.appendChild(makeTagChip(t)));
-    inner.append(bdg,tt,tg);
+    inner.append(bdgWrap,tt,tg);
   }
   card.appendChild(inner);
   const actions=document.createElement('div');actions.className='card-actions';
@@ -1155,7 +1212,13 @@ async function loadData(showMsg=false){
     if(showMsg)showMessage('새로고침 중...','info');
     const result=await apiCall({action:'list'});
     if(!result.ok)throw new Error(result.error||'목록 불러오기 실패');
-    allItems=(result.items||[]).map(i=>({id:norm(i.id),title:norm(i.title),url:norm(i.url),tags:normTags(i.tag),folder:norm(i.folder)||'기타',createdAt:norm(i.createdAt),updatedAt:norm(i.updatedAt)}));
+    allItems=(result.items||[]).map(i=>({
+      id:norm(i.id),title:norm(i.title),url:norm(i.url),
+      tags:normTags(i.tag),
+      folders:normFolders(i.folder),   // 배열로 파싱
+      folder:norm(i.folder)||'기타',   // 원본 문자열 (저장/호환용)
+      createdAt:norm(i.createdAt),updatedAt:norm(i.updatedAt)
+    }));
     updateHeader();renderMenus();renderGrid();renderStatusBar();
     if(!showMsg)hideMessage();else showMessage('새로고침 완료','success');
   }catch(e){console.error(e);allItems=[];renderMenus();renderGrid();renderStatusBar();showMessage(`데이터를 불러오지 못했습니다. ${e.message||''}`, 'error');}
