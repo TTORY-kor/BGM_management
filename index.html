@@ -730,7 +730,7 @@ body.sidebar-collapsed .sidebar-section { padding: 10px 8px 0; }
     </div>
     <div class="input-help">태그는 <strong>/</strong> 로 구분하세요. 같은 링크가 이미 있으면 중복 안내를 띄웁니다.</div>
     <div class="input-actions">
-      <button class="toolbar-btn primary" id="saveBtn" onclick="saveToSheet()">저장하기</button>
+      <button class="toolbar-btn primary" id="saveBtn" onclick="Sheet()">저장하기</button>
       <button class="toolbar-btn ghost" onclick="toggleInput(false)">취소</button>
     </div>
     <div class="footer-note">수정/삭제는 고유 ID 기준으로 처리됩니다. 즐겨찾기·정렬·뷰 설정은 브라우저에 저장됩니다.<br>단축키: <strong>N</strong> 새 곡 추가 · <strong>Ctrl+K</strong> 검색 · <strong>Esc</strong> 닫기</div>
@@ -901,7 +901,7 @@ body.sidebar-collapsed .sidebar-section { padding: 10px 8px 0; }
 </main>
 
 <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbxd5HU1bpBtSGzIB-bruT3BDiTe2605961sjj7szhPNKM4Zt0bb-oSQweQKYLJg2F8/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxTueg894w7U-jKmAfx8dnUjc8SsnY8f_clKzK7JkksvqmqluI96EdckREd9yuTd8A/exec';
 
     let allItems = [];
     let currentFilter = { type: 'folder', value: '전체' };
@@ -1294,36 +1294,73 @@ body.sidebar-collapsed .sidebar-section { padding: 10px 8px 0; }
       await copyText(text, '현재 목록을 복사했습니다.');
     }
 
-    async function saveToSheet() {
-      if (isSaving) return;
-      const id = normalizeText(els.editId.value);
-      const title = normalizeText(els.inTitle.value);
-      const url = normalizeText(els.inUrl.value);
-      const tag = normalizeText(els.inTag.value);
-      const folder = normalizeText(els.inFolder.value) || '기타';
-      if (!title || !url) return showMessage('곡 제목과 URL은 필수입니다.', 'error');
-      if (!isValidYoutubeUrl(url)) return showMessage('유효한 유튜브 URL을 입력해주세요.', 'error');
-
-      const duplicate = allItems.find(item => item.url === url && item.id !== id);
-      if (duplicate && !confirm(`이미 같은 링크가 있습니다.\n\n[${duplicate.folder}] ${duplicate.title}\n\n그래도 저장할까요?`)) return;
-
-      isSaving = true; els.saveBtn.disabled = true; els.saveBtn.textContent = '저장 중...';
-      try {
-        hideMessage();
-        const payload = new URLSearchParams();
-        payload.append('action', id ? 'edit' : 'add');
-        if (id) payload.append('id', id);
-        payload.append('title', title); payload.append('url', url); payload.append('tag', tag); payload.append('folder', folder);
-        const result = await requestJSON(API_URL, { method: 'POST', body: payload });
-        if (!result.ok) throw new Error(result.error || '저장 실패');
-        showMessage(id ? '수정이 완료되었습니다.' : '새 곡이 추가되었습니다.', 'success');
-        toggleInput(false); resetForm(); await loadData(false);
-      } catch (error) {
-        console.error(error); showMessage(`저장에 실패했습니다. ${error.message || ''}`, 'error');
-      } finally {
-        isSaving = false; els.saveBtn.disabled = false; els.saveBtn.textContent = '저장하기';
-      }
-    }
+   async function saveToSheet() {
+     if (isSaving) return;
+   
+     const id = normalizeText(els.editId.value);
+     const title = normalizeText(els.inTitle.value);
+     const url = normalizeText(els.inUrl.value);
+     const tag = normalizeText(els.inTag.value);
+     const folder = normalizeText(els.inFolder.value) || '기타';
+   
+     if (!title || !url) {
+       return showMessage('곡 제목과 URL은 필수입니다.', 'error');
+     }
+   
+     if (!isValidYoutubeUrl(url)) {
+       return showMessage('유효한 유튜브 URL을 입력해주세요.', 'error');
+     }
+   
+     // 🔥 유튜브 ID 기준 중복 체크 (더 정확)
+     const newId = getYoutubeId(url);
+     const duplicate = allItems.find(item => getYoutubeId(item.url) === newId && item.id !== id);
+   
+     if (duplicate) {
+       if (!confirm(`이미 같은 곡이 있습니다.\n\n[${duplicate.folder}] ${duplicate.title}\n\n그래도 저장할까요?`)) {
+         return;
+       }
+     }
+   
+     isSaving = true;
+     els.saveBtn.disabled = true;
+     els.saveBtn.textContent = '저장 중...';
+   
+     try {
+       const response = await fetch(API_URL, {
+         method: 'POST',
+         headers: {
+           'Content-Type': 'application/json'
+         },
+         body: JSON.stringify({
+           action: id ? 'edit' : 'add',
+           id: id || null,
+           title,
+           url,
+           tag,
+           folder
+         })
+       });
+   
+       const result = await response.json();
+   
+       if (result.success !== false) {
+         showToast('저장 완료!');
+         toggleInput(false);
+         resetForm();
+         await loadData(true); // 🔥 저장 후 바로 갱신
+       } else {
+         showMessage('저장 실패: ' + (result.message || '알 수 없는 오류'), 'error');
+       }
+   
+     } catch (err) {
+       console.error(err);
+       showMessage('서버 연결 실패 또는 JSON 오류', 'error');
+     }
+   
+     isSaving = false;
+     els.saveBtn.disabled = false;
+     els.saveBtn.textContent = '저장하기';
+   }
 
     async function deleteItem(id) {
       if (!id) return showMessage('삭제할 id가 없습니다.', 'error');
