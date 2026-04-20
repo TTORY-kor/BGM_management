@@ -294,7 +294,20 @@ body.sb-col .brand-main{justify-content:center;}
 .toast-icon{width:15px;height:15px;border-radius:50%;background:var(--amber-dim);color:var(--amber);font-size:.52rem;font-weight:700;display:grid;place-items:center;flex-shrink:0;}
 .toast.show{opacity:1;transform:translateY(0);}
 
-/* ══ 재생목록 모달 ══ */
+/* ══ 재생 중 카드 하이라이트 ══ */
+.bgm-card.playing{background:var(--amber-dim)!important;}
+.bgm-card.playing .card-stripe{background:var(--amber)!important;}
+.bgm-card.playing .card-title{color:var(--amber);}
+/* 재생 아이콘 배지 (그리드) */
+.bgm-card.playing .card-fav-btn::after{
+  content:'▶';position:absolute;inset:0;display:grid;place-items:center;
+  background:rgba(245,166,35,.9);border-radius:50%;font-size:.6rem;color:#0e0f11;
+}
+/* 리스트 뷰 — 왼쪽에 재생 중 표시 */
+#bgmGrid.compact .bgm-card.playing{background:var(--amber-dim)!important;border-left:2px solid var(--amber);}
+#bgmGrid.compact .bgm-card.playing .card-title{color:var(--amber);}
+/* 재생 중 폴더 색상도 앰버로 */
+#bgmGrid.compact .bgm-card.playing .card-inner > div:first-child{color:var(--amber)!important;}
 #playlistOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(6px);z-index:600;justify-content:center;align-items:center;padding:20px;}
 .playlist-card{background:var(--surface);border:1px solid var(--border2);padding:22px;border-radius:var(--r-xl);width:100%;max-width:520px;box-shadow:var(--sh-lg);animation:modal-in .16s ease;max-height:90vh;overflow-y:auto;}
 .playlist-card h3{font-size:.92rem;font-weight:700;color:var(--text);margin-bottom:4px;}
@@ -548,6 +561,7 @@ let folderColors=JSON.parse(localStorage.getItem('bgm_folderColors')||'{}');
 let tagColors=JSON.parse(localStorage.getItem('bgm_tagColors')||'{}');
 let queue=[],queueIndex=-1,isPlaying=false,isShuffle=false,isRepeat=false;
 let progressTimer=null,elapsedSec=0,durationSec=300,isMuted=false,lastVol=80;
+let playingId=null; // 현재 재생 중인 아이템 ID
 let cpTarget=null,cpTemp='';
 let detailItem=null;
 let plVideos=[],plIsRunning=false;
@@ -883,6 +897,7 @@ function makeTagChip(tag){
 function createCard(item){
   const isList=densityMode==='compact';const fc=getFolderColor(item.folder);
   const card=document.createElement('div');card.className='bgm-card';
+  card.dataset.itemId=item.id;
   card.addEventListener('click',e=>{
     if(e.target.closest('.card-action-btn,.card-fav-btn,.list-fav,.card-tag'))return;
     if(!isList)openDetail(item);else playFromItem(item);
@@ -925,6 +940,18 @@ function createCard(item){
   return card;
 }
 
+// 재생 중 카드 하이라이트 — 그리드 전체 재렌더 없이 DOM만 업데이트
+function updatePlayingHighlight(){
+  document.querySelectorAll('.bgm-card').forEach(card=>{
+    const id=card.dataset.itemId;
+    if(id&&id===playingId){
+      card.classList.add('playing');
+    } else {
+      card.classList.remove('playing');
+    }
+  });
+}
+
 function renderGrid(){
   const filtered=getFiltered();els.bgmGrid.innerHTML='';
   if(allItems.length===0){els.bgmGrid.style.display='none';els.emptyState.style.display='block';els.emptyState.innerHTML='<strong>아직 등록된 BGM이 없습니다</strong>새 곡을 추가해보세요.';return;}
@@ -932,6 +959,8 @@ function renderGrid(){
   filtered.forEach(item=>els.bgmGrid.appendChild(createCard(item)));
   els.emptyState.style.display='none';els.bgmGrid.style.display='grid';
   const bc=$('boardCount');if(bc)bc.textContent=`${filtered.length}곡`;
+  // 렌더 후 재생 중 항목 하이라이트
+  updatePlayingHighlight();
 }
 
 function playFromItem(item){
@@ -945,7 +974,9 @@ function loadTrack(idx){
   els.playerThumb.src=thumb(item.url);els.playerTitle.textContent=item.title;
   els.playerSub.textContent=item.folder||'';els.queueInfo.textContent=`${idx+1} / ${queue.length}`;
   els.player.classList.remove('hidden');
-  // YouTube IFrame API로 실제 시간 사용
+  // 재생 중 아이템 하이라이트
+  playingId=item.id;
+  updatePlayingHighlight();
   clearInterval(progressTimer);
   els.progressFill.style.width='0%';els.timeCurrent.textContent='0:00';els.timeDuration.textContent='--:--';
   isPlaying=true;els.btnPlay.textContent='⏸';
@@ -1013,6 +1044,7 @@ function closePlayer(){
   clearInterval(progressTimer);
   if(window.ytPlayer&&window.ytPlayer.stopVideo){try{window.ytPlayer.stopVideo();}catch(e){}}
   els.player.classList.add('hidden');isPlaying=false;queue=[];queueIndex=-1;
+  playingId=null;updatePlayingHighlight();
 }
 function seekTo(e){
   const rect=$('progressBar').getBoundingClientRect();
