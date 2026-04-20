@@ -265,34 +265,45 @@ body.sb-col #player{left:56px;}
 .p-btn.play:hover{background:var(--amber3);transform:scale(1.05);}
 .p-btn.p-active{color:var(--amber);}
 
-/* 진행바 영역 — 진행바(위) + 시간·볼륨(아래) 2줄 구조 */
-.player-progress-wrap{
-  flex:1;min-width:0;
-  display:flex;flex-direction:column;justify-content:center;gap:5px;
-}
-.player-progress{
-  width:100%;height:4px;
-  background:rgba(255,255,255,.12);border-radius:99px;
-  cursor:pointer;transition:height .12s;position:relative;
-}
+/* 진행바 + 시간 */
+.player-progress-wrap{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:4px;}
+.player-progress{width:100%;height:4px;background:rgba(255,255,255,.12);border-radius:99px;cursor:pointer;transition:height .12s;}
 .player-progress:hover{height:6px;}
 .player-progress-bar{height:100%;background:var(--amber);border-radius:99px;width:0%;pointer-events:none;}
-/* 아래 행: 시간(좌) — 볼륨(중앙) — 시간(우) */
-.player-bottom-row{
-  display:flex;align-items:center;gap:6px;
+.player-time{display:flex;justify-content:space-between;font-size:.6rem;color:rgba(255,255,255,.32);font-family:var(--mono);line-height:1;}
+
+/* 볼륨 아이콘 + 팝업 슬라이더 */
+.vol-wrap{position:relative;flex-shrink:0;}
+.vol-btn{font-size:.9rem!important;} /* p-btn 상속 */
+.vol-popup{
+  display:none;
+  position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);
+  background:var(--surface2);border:1px solid var(--border2);
+  border-radius:var(--r-lg);padding:12px 8px;
+  box-shadow:var(--sh-lg);z-index:600;
+  flex-direction:column;align-items:center;gap:6px;width:36px;
 }
-.player-time-txt{
-  font-size:.6rem;color:rgba(255,255,255,.32);
-  font-family:var(--mono);line-height:1;white-space:nowrap;flex-shrink:0;
+.vol-popup.open{display:flex;}
+/* 세로 슬라이더 */
+.vol-slider-v{
+  -webkit-appearance:slider-vertical;appearance:slider-vertical;
+  writing-mode:vertical-lr;direction:rtl;
+  width:4px;height:80px;
+  background:rgba(255,255,255,.15);
+  outline:none;cursor:pointer;border-radius:99px;
+  accent-color:var(--amber);
 }
-/* 볼륨 — bottom-row 안에서 flex:1 로 가운데 채움 */
-.player-vol{
-  display:flex;align-items:center;gap:4px;
-  flex:1;min-width:0;
+/* 크롬용 세로 슬라이더 fallback */
+@supports not (appearance: slider-vertical){
+  .vol-slider-v{
+    -webkit-appearance:none;appearance:none;
+    writing-mode:vertical-lr;direction:rtl;
+    width:4px;height:80px;
+  }
+  .vol-slider-v::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--amber);cursor:pointer;}
+  .vol-slider-v::-webkit-slider-runnable-track{width:4px;background:rgba(255,255,255,.15);border-radius:99px;}
 }
-.vol-icon{font-size:.8rem;color:rgba(255,255,255,.4);cursor:pointer;flex-shrink:0;line-height:1;width:14px;text-align:center;}
-.vol-slider{-webkit-appearance:none;appearance:none;height:3px;border-radius:99px;background:rgba(255,255,255,.15);outline:none;cursor:pointer;flex:1;min-width:0;}
-.vol-slider::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:var(--amber);cursor:pointer;}
+
 .player-right{display:flex;align-items:center;gap:5px;flex-shrink:0;}
 .p-queue{font-size:.62rem;color:rgba(255,255,255,.3);font-family:var(--mono);white-space:nowrap;}
 .p-close{width:24px;height:24px;border-radius:var(--r-sm);border:1px solid rgba(255,255,255,.1);background:transparent;color:rgba(255,255,255,.38);cursor:pointer;font-size:.7rem;display:grid;place-items:center;transition:var(--tr);}
@@ -603,18 +614,21 @@ body.sb-col #player{left:56px;}
     <button class="p-btn" onclick="playNext()" title="다음">⏭</button>
     <button class="p-btn" id="btnRepeat" onclick="toggleRepeat()" title="반복">↺</button>
   </div>
-  <!-- 진행바 + (시간 | 볼륨) 2줄 구조 -->
+  <!-- 진행바 + 시간 -->
   <div class="player-progress-wrap">
     <div class="player-progress" id="progressBar" onclick="seekTo(event)">
       <div class="player-progress-bar" id="progressFill"></div>
     </div>
-    <div class="player-bottom-row">
-      <span id="timeCurrent" class="player-time-txt">0:00</span>
-      <div class="player-vol">
-        <span class="vol-icon" id="volIcon" onclick="toggleMute()">🔊</span>
-        <input type="range" class="vol-slider" id="volSlider" min="0" max="100" value="80" oninput="setVolume(this.value)"/>
-      </div>
-      <span id="timeDuration" class="player-time-txt">0:00</span>
+    <div class="player-time">
+      <span id="timeCurrent">0:00</span>
+      <span id="timeDuration">0:00</span>
+    </div>
+  </div>
+  <!-- 볼륨 아이콘 (클릭 시 팝업 슬라이더) -->
+  <div class="vol-wrap" id="volWrap">
+    <button class="p-btn vol-btn" id="volIcon" onclick="toggleVolPopup()" title="볼륨">🔊</button>
+    <div class="vol-popup" id="volPopup">
+      <input type="range" class="vol-slider-v" id="volSlider" min="0" max="100" value="80" oninput="setVolume(this.value)"/>
     </div>
   </div>
   <div class="player-right">
@@ -1174,12 +1188,35 @@ function seekTo(e){
     }catch(e){}
   }
 }
+function toggleVolPopup(){
+  const popup=$('volPopup');
+  popup.classList.toggle('open');
+  if(popup.classList.contains('open')){
+    // 팝업 열릴 때 외부 클릭으로 닫기
+    setTimeout(()=>{
+      document.addEventListener('click',closeVolPopup,{once:true,capture:true});
+    },0);
+  }
+}
+function closeVolPopup(e){
+  const wrap=$('volWrap');
+  if(wrap&&!wrap.contains(e.target)){
+    $('volPopup').classList.remove('open');
+  } else {
+    // 슬라이더 내부 클릭이면 다시 리스너 등록
+    document.addEventListener('click',closeVolPopup,{once:true,capture:true});
+  }
+}
 function setVolume(v){
   lastVol=Number(v);isMuted=lastVol===0;
   els.volIcon.textContent=isMuted?'🔇':lastVol<50?'🔉':'🔊';
   if(window.ytPlayer&&window.ytPlayer.setVolume){try{window.ytPlayer.setVolume(Number(v));}catch(e){}}
 }
-function toggleMute(){isMuted=!isMuted;els.volSlider.value=isMuted?0:lastVol;setVolume(isMuted?0:lastVol);}
+function toggleMute(){
+  isMuted=!isMuted;
+  els.volSlider.value=isMuted?0:lastVol;
+  setVolume(isMuted?0:lastVol);
+}
 
 async function copyText(text,msg='복사됨'){try{await navigator.clipboard.writeText(text);showToast(msg);}catch{showMessage('복사에 실패했습니다.','error');}}
 async function copyCurrentViewSummary(){const f=getFiltered();if(!f.length)return showMessage('복사할 목록이 없습니다.','error');await copyText(f.map((i,n)=>`${n+1}. [${i.folder}] ${i.title}\n- ${i.url}\n- 태그: ${(i.tags||[]).join(', ')||'-'}\n`).join('\n'),'목록 복사됨');}
