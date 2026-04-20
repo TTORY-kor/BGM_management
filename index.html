@@ -448,7 +448,7 @@ body.sidebar-collapsed .sidebar-section { padding: 10px 8px 0; }
   display: flex; flex-direction: column;
   box-shadow: var(--sh-xs);
   transition: var(--tr);
-  height: 200px;
+   height: 200px;
 }
 .bgm-card:hover {
   box-shadow: var(--sh);
@@ -555,7 +555,6 @@ body.sidebar-collapsed .sidebar-section { padding: 10px 8px 0; }
   border-radius: var(--r);
   min-height: 52px;
   overflow: visible;
-  height: auto;
 }
 #bgmGrid.compact .bgm-card:hover { transform: none; box-shadow: var(--sh-sm); }
 #bgmGrid.compact .card-side-bar  { position: relative; width: 4px; height: auto; align-self: stretch; flex-shrink: 0; border-radius: var(--r-xs) 0 0 var(--r-xs); }
@@ -660,34 +659,10 @@ body.sidebar-collapsed .sidebar-section { padding: 10px 8px 0; }
 .footer-note { margin-top: 10px; font-size: .7rem; color: var(--faint); line-height: 1.65; }
 
 /* ─────────────────────────────
-   하단 플레이어
-───────────────────────────── */
-#bottomPlayer {
-  position: fixed; bottom: 0; left: 0; right: 0;
-  background: var(--sb-bg);
-  border-top: 1px solid var(--sb-border);
-  z-index: 999;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 10px 16px;
-}
-#bottomPlayer.visible { display: flex; }
-#bottomPlayerClose {
-  position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
-  width: 32px; height: 32px; border-radius: 50%;
-  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
-  color: #fff; cursor: pointer; font-size: .9rem;
-  display: grid; place-items: center; transition: var(--tr);
-}
-#bottomPlayerClose:hover { background: rgba(255,255,255,.18); }
-
-/* ─────────────────────────────
    TOAST
 ───────────────────────────── */
 .toast {
-  position: fixed; right: 16px; bottom: 80px;
+  position: fixed; right: 16px; bottom: 16px;
   background: var(--sb-bg); color: #fff;
   padding: 10px 16px; border-radius: var(--r-lg);
   box-shadow: var(--sh-lg); z-index: 300;
@@ -725,12 +700,6 @@ body.sidebar-collapsed .sidebar-section { padding: 10px 8px 0; }
 <body>
 
 <div id="toast" class="toast"></div>
-
-<!-- ── 하단 플레이어 ── -->
-<div id="bottomPlayer">
-  <iframe id="bottomPlayerFrame" width="320" height="180" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-  <button id="bottomPlayerClose" title="플레이어 닫기">✕</button>
-</div>
 
 <!-- ── 추가/수정 모달 ── -->
 <div id="inputOverlay" aria-hidden="true">
@@ -770,6 +739,7 @@ body.sidebar-collapsed .sidebar-section { padding: 10px 8px 0; }
 </div>
 
 
+   
 <!-- ── 사이드바 ── -->
 <aside class="sidebar">
   <div class="brand">
@@ -934,602 +904,621 @@ body.sidebar-collapsed .sidebar-section { padding: 10px 8px 0; }
 </main>
 
 <script>
-  const API_URL = 'https://script.google.com/macros/s/AKfycbxTueg894w7U-jKmAfx8dnUjc8SsnY8f_clKzK7JkksvqmqluI96EdckREd9yuTd8A/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxTueg894w7U-jKmAfx8dnUjc8SsnY8f_clKzK7JkksvqmqluI96EdckREd9yuTd8A/exec';
 
-  let allItems = [];
-  let currentFilter = { type: 'folder', value: '전체' };
-  let searchKeyword = '';
-  let isSaving = false;
-  let sortMode = localStorage.getItem('bgm_sortMode') || 'updated_desc';
-  let densityMode = localStorage.getItem('bgm_densityMode') || 'comfortable';
-  let favoritesOnly = localStorage.getItem('bgm_favoritesOnly') === 'true';
-  let favoriteIds = new Set(JSON.parse(localStorage.getItem('bgm_favoriteIds') || '[]'));
-  let sidebarCollapsed = localStorage.getItem('bgm_sidebarCollapsed') === 'true';
-  // [FIX] 모달 열림 상태를 별도 변수로 추적 (style.display 의존 제거)
-  let isModalOpen = false;
+    let allItems = [];
+    let currentFilter = { type: 'folder', value: '전체' };
+    let searchKeyword = '';
+    let isSaving = false;
+    let sortMode = localStorage.getItem('bgm_sortMode') || 'updated_desc';
+    let densityMode = localStorage.getItem('bgm_densityMode') || 'comfortable';
+    let favoritesOnly = localStorage.getItem('bgm_favoritesOnly') === 'true';
+    let favoriteIds = new Set(JSON.parse(localStorage.getItem('bgm_favoriteIds') || '[]'));
+    let sidebarCollapsed = localStorage.getItem('bgm_sidebarCollapsed') === 'true';
 
-  const els = {
-    overlay: document.getElementById('inputOverlay'),
-    formTitle: document.getElementById('formTitle'),
-    editId: document.getElementById('editId'),
-    inTitle: document.getElementById('inTitle'),
-    inUrl: document.getElementById('inUrl'),
-    inTag: document.getElementById('inTag'),
-    inFolder: document.getElementById('inFolder'),
-    saveBtn: document.getElementById('saveBtn'),
-    folderMenu: document.getElementById('folderMenu'),
-    tagMenu: document.getElementById('tagMenu'),
-    bgmGrid: document.getElementById('bgmGrid'),
-    loading: document.getElementById('loading'),
-    viewTitle: document.getElementById('viewTitle'),
-    viewDesc: document.getElementById('viewDesc'),
-    messageBox: document.getElementById('messageBox'),
-    searchInput: document.getElementById('searchInput'),
-    emptyState: document.getElementById('emptyState'),
-    statusBar: document.getElementById('statusBar'),
-    sortSelect: document.getElementById('sortSelect'),
-    densitySelect: document.getElementById('densitySelect'),
-    toast: document.getElementById('toast'),
-    sideFilterInput: document.getElementById('sideFilterInput'),
-    allCount: document.getElementById('allCount'),
-    favoriteCount: document.getElementById('favoriteCount'),
-    favoritesOnlyBtn: document.getElementById('favoritesOnlyBtn'),
-    collapseBtn: document.getElementById('collapseBtn'),
-    statTotal: document.getElementById('statTotal'),
-    statVisible: document.getElementById('statVisible'),
-    statFolders: document.getElementById('statFolders'),
-    statFavorites: document.getElementById('statFavorites'),
-    gridModeComfortable: document.getElementById('gridModeComfortable'),
-    gridModeCompact: document.getElementById('gridModeCompact'),
-    bottomPlayer: document.getElementById('bottomPlayer'),
-    bottomPlayerFrame: document.getElementById('bottomPlayerFrame'),
-    bottomPlayerClose: document.getElementById('bottomPlayerClose')
-  };
+    const els = {
+      overlay: document.getElementById('inputOverlay'),
+      formTitle: document.getElementById('formTitle'),
+      editId: document.getElementById('editId'),
+      inTitle: document.getElementById('inTitle'),
+      inUrl: document.getElementById('inUrl'),
+      inTag: document.getElementById('inTag'),
+      inFolder: document.getElementById('inFolder'),
+      saveBtn: document.getElementById('saveBtn'),
+      folderMenu: document.getElementById('folderMenu'),
+      tagMenu: document.getElementById('tagMenu'),
+      bgmGrid: document.getElementById('bgmGrid'),
+      loading: document.getElementById('loading'),
+      viewTitle: document.getElementById('viewTitle'),
+      viewDesc: document.getElementById('viewDesc'),
+      messageBox: document.getElementById('messageBox'),
+      searchInput: document.getElementById('searchInput'),
+      emptyState: document.getElementById('emptyState'),
+      statusBar: document.getElementById('statusBar'),
+      sortSelect: document.getElementById('sortSelect'),
+      densitySelect: document.getElementById('densitySelect'),
+      toast: document.getElementById('toast'),
+      sideFilterInput: document.getElementById('sideFilterInput'),
+      allCount: document.getElementById('allCount'),
+      favoriteCount: document.getElementById('favoriteCount'),
+      favoritesOnlyBtn: document.getElementById('favoritesOnlyBtn'),
+      collapseBtn: document.getElementById('collapseBtn'),
+      statTotal: document.getElementById('statTotal'),
+      statVisible: document.getElementById('statVisible'),
+      statFolders: document.getElementById('statFolders'),
+      statFavorites: document.getElementById('statFavorites'),
+      gridModeComfortable: document.getElementById('gridModeComfortable'),
+      gridModeCompact: document.getElementById('gridModeCompact')
+    };
 
-  els.sortSelect.value = sortMode;
-  els.densitySelect.value = densityMode;
-  applyDensity(false); // [FIX] 초기화 시 불필요한 재렌더 방지를 위해 false 전달
-  applySidebarState();
-  applyFavoritesToggleState();
-
-  // [FIX] 하단 플레이어 닫기 버튼
-  els.bottomPlayerClose.addEventListener('click', () => {
-    els.bottomPlayerFrame.src = '';
-    els.bottomPlayer.classList.remove('visible');
-  });
-
-  function showToast(text) {
-    els.toast.textContent = text;
-    els.toast.classList.add('show');
-    clearTimeout(showToast._timer);
-    showToast._timer = setTimeout(() => els.toast.classList.remove('show'), 1800);
-  }
-
-  function showMessage(text, type = 'info') {
-    els.messageBox.textContent = text;
-    els.messageBox.className = `message-box show ${type}`;
-  }
-  function hideMessage() {
-    els.messageBox.className = 'message-box';
-    els.messageBox.textContent = '';
-  }
-  function setLoading(isLoading, text = '데이터를 불러오는 중입니다...') {
-    els.loading.style.display = isLoading ? 'block' : 'none';
-    els.loading.textContent = text;
-    if (isLoading) {
-      els.bgmGrid.style.display = 'none';
-      els.emptyState.style.display = 'none';
-    }
-  }
-  function normalizeText(value) { return String(value ?? '').trim(); }
-  function normalizeTags(raw) {
-    return String(raw ?? '').split('/').map(tag => tag.trim()).filter(Boolean).filter((tag, i, arr) => arr.indexOf(tag) === i);
-  }
-  function stringToColor(str) {
-    let hash = 0; const text = String(str || '기타');
-    for (let i = 0; i < text.length; i++) hash = text.charCodeAt(i) + ((hash << 5) - hash);
-    const h = Math.abs(hash % 360); return `hsl(${h}, 72%, 45%)`;
-  }
-  function stringToLightColor(str) {
-    let hash = 0; const text = String(str || '기타');
-    for (let i = 0; i < text.length; i++) hash = text.charCodeAt(i) + ((hash << 5) - hash);
-    const h = Math.abs(hash % 360); return `hsl(${h}, 85%, 93%)`;
-  }
-  function getYoutubeId(url) {
-    if (!url) return null;
-    const value = url.trim();
-    const patterns = [/(?:youtube\.com\/watch\?v=)([^&#]+)/, /(?:youtu\.be\/)([^?&#]+)/, /(?:youtube\.com\/embed\/)([^?&#]+)/, /(?:youtube\.com\/shorts\/)([^?&#]+)/];
-    for (const pattern of patterns) {
-      const match = value.match(pattern);
-      if (match && match[1] && match[1].length >= 11) return match[1].slice(0, 11);
-    }
-    return null;
-  }
-  function isValidYoutubeUrl(url) { return !!getYoutubeId(url); }
-  function formatDateText(createdAt, updatedAt) {
-    function shorten(d) {
-      if (!d) return '-';
-      const dt = new Date(d);
-      if (!isNaN(dt.getTime())) {
-        const yy = String(dt.getFullYear()).slice(2);
-        const mm = String(dt.getMonth()+1).padStart(2,'0');
-        const dd = String(dt.getDate()).padStart(2,'0');
-        return `${yy}.${mm}.${dd}`;
-      }
-      return String(d).slice(0, 10);
-    }
-    return `등록 ${shorten(createdAt)}  수정 ${shorten(updatedAt)}`;
-  }
-  function parseDateSafe(text) {
-    const value = new Date(text);
-    return Number.isNaN(value.getTime()) ? new Date(0) : value;
-  }
-  function requestJSON(url, options = {}) {
-    return fetch(url, options).then(response => {
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return response.json();
-    });
-  }
-
-  function saveFavorites() { localStorage.setItem('bgm_favoriteIds', JSON.stringify([...favoriteIds])); }
-  function toggleFavorite(id) {
-    if (favoriteIds.has(id)) favoriteIds.delete(id); else favoriteIds.add(id);
-    saveFavorites(); renderMenus(); renderGrid(); updateStats(getFilteredItems());
-    showToast(favoriteIds.has(id) ? '즐겨찾기에 추가했습니다.' : '즐겨찾기에서 제거했습니다.');
-  }
-  function toggleFavoritesOnly() {
-    favoritesOnly = !favoritesOnly;
-    localStorage.setItem('bgm_favoritesOnly', String(favoritesOnly));
-    applyFavoritesToggleState(); renderGrid(); renderStatusBar(); updateStats(getFilteredItems());
-  }
-  function applyFavoritesToggleState() {
-    els.favoritesOnlyBtn.textContent = favoritesOnly ? '즐겨찾기만 ON' : '즐겨찾기만';
-    els.favoritesOnlyBtn.classList.toggle('soft', favoritesOnly);
-  }
-  function setDensity(mode) {
-    densityMode = mode;
-    localStorage.setItem('bgm_densityMode', densityMode);
+    els.sortSelect.value = sortMode;
     els.densitySelect.value = densityMode;
-    applyDensity(true);
-  }
-  function handleDensityChange(mode) { setDensity(mode); }
+    applyDensity();
+    applySidebarState();
+    applyFavoritesToggleState();
 
-  // [FIX] shouldRender 파라미터로 초기화 시 불필요한 재렌더 방지
-  function applyDensity(shouldRender = true) {
-    els.bgmGrid.classList.toggle('compact', densityMode === 'compact');
-    els.gridModeComfortable.classList.toggle('active', densityMode === 'comfortable');
-    els.gridModeCompact.classList.toggle('active', densityMode === 'compact');
-    if (shouldRender && allItems.length > 0) renderGrid();
-  }
-
-  function handleSortChange(value) { sortMode = value; localStorage.setItem('bgm_sortMode', sortMode); renderGrid(); renderStatusBar(); }
-  function toggleSidebar() {
-    sidebarCollapsed = !sidebarCollapsed; localStorage.setItem('bgm_sidebarCollapsed', String(sidebarCollapsed)); applySidebarState();
-  }
-  function applySidebarState() { document.body.classList.toggle('sidebar-collapsed', sidebarCollapsed); }
-
-  // [FIX] isModalOpen 변수로 열림 상태 정확히 추적
-  function toggleInput(forceState) {
-    const shouldOpen = typeof forceState === 'boolean' ? forceState : !isModalOpen;
-    isModalOpen = shouldOpen;
-    els.overlay.style.display = shouldOpen ? 'flex' : 'none';
-    els.overlay.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
-  }
-  function resetForm() {
-    els.formTitle.textContent = '➕ 새로운 BGM 추가';
-    els.editId.value = ''; els.inTitle.value = ''; els.inUrl.value = ''; els.inTag.value = ''; els.inFolder.value = '';
-    els.saveBtn.disabled = false; els.saveBtn.textContent = '저장하기';
-  }
-  function openAddForm() {
-    resetForm();
-    document.getElementById('urlPreviewWrap').style.display = 'none';
-    document.getElementById('urlPreviewFrame').src = '';
-    document.getElementById('tagPreviewChips').innerHTML = '';
-    toggleInput(true);
-    els.inTitle.focus();
-  }
-  function openEditFormById(id) {
-    const item = allItems.find(v => String(v.id) === String(id));
-    if (!item) return showMessage('수정할 항목을 찾지 못했습니다.', 'error');
-    els.formTitle.textContent = '✏️ 곡 정보 수정';
-    els.editId.value = item.id; els.inTitle.value = item.title; els.inUrl.value = item.url;
-    els.inTag.value = (item.tags || []).join('/'); els.inFolder.value = item.folder;
-    toggleInput(true);
-    els.inTitle.focus();
-    setTimeout(() => {
-      onUrlInputPreview();
-      onTagInputPreview();
-    }, 50);
-  }
-
-  function setFilter(value, type) {
-    currentFilter = { value, type };
-    updateHeader(); renderMenus(); renderGrid(); renderStatusBar(); updateStats(getFilteredItems());
-  }
-  function handleSearch(value) {
-    searchKeyword = normalizeText(value).toLowerCase();
-    const cb = document.getElementById('searchClearBtn');
-    if (cb) cb.classList.toggle('vis', searchKeyword.length > 0);
-    renderGrid(); renderStatusBar(); updateStats(getFilteredItems());
-  }
-  function clearSearch() {
-    searchKeyword = ''; els.searchInput.value = '';
-    const cb = document.getElementById('searchClearBtn');
-    if (cb) cb.classList.remove('vis');
-    renderGrid(); renderStatusBar(); updateStats(getFilteredItems());
-  }
-
-  function updateHeader() {
-    let title = '전체 목록';
-    let desc = '등록된 BGM을 정리하고, 빠르게 찾고, 장면용으로 바로 꺼내 쓸 수 있습니다.';
-    if (currentFilter.type === 'special' && currentFilter.value === '__favorites__') {
-      title = '즐겨찾기'; desc = '자주 쓰는 트랙만 따로 모아서 봅니다.';
-    } else if (currentFilter.type === 'special' && currentFilter.value === '__recent__') {
-      title = '최근 수정'; desc = '가장 최근에 손댄 곡들을 우선해서 봅니다.';
-    } else if (currentFilter.value !== '전체') {
-      if (currentFilter.type === 'folder') { title = `폴더: ${currentFilter.value}`; desc = '선택한 폴더에 속한 BGM만 표시합니다.'; }
-      else if (currentFilter.type === 'tag') { title = `태그: #${currentFilter.value}`; desc = '선택한 태그가 붙은 BGM만 표시합니다.'; }
+    function showToast(text) {
+      els.toast.textContent = text;
+      els.toast.classList.add('show');
+      clearTimeout(showToast._timer);
+      showToast._timer = setTimeout(() => els.toast.classList.remove('show'), 1800);
     }
-    els.viewTitle.textContent = title; els.viewDesc.textContent = desc;
-  }
-  function sortModeLabel(mode) {
-    switch (mode) {
-      case 'created_desc': return '최근 등록순';
-      case 'title_asc': return '제목 오름차순';
-      case 'folder_asc': return '폴더 오름차순';
-      default: return '최근 수정순';
+
+    function showMessage(text, type = 'info') {
+      els.messageBox.textContent = text;
+      els.messageBox.className = `message-box show ${type}`;
     }
-  }
-  function renderStatusBar() {
-    els.statusBar.innerHTML = '';
-    const pills = [{ text: `전체 ${allItems.length}곡` }];
-    if (currentFilter.type === 'special' && currentFilter.value === '__favorites__') pills.push({ text: '즐겨찾기 보기' });
-    if (currentFilter.type === 'special' && currentFilter.value === '__recent__') pills.push({ text: '최근 수정 보기' });
-    if (currentFilter.value !== '전체' && currentFilter.type === 'folder') pills.push({ text: `폴더: ${currentFilter.value}` });
-    if (currentFilter.value !== '전체' && currentFilter.type === 'tag') pills.push({ text: `태그: #${currentFilter.value}` });
-    if (favoritesOnly) pills.push({ text: '즐겨찾기만 ON' });
-    if (searchKeyword) pills.push({ text: `검색: "${searchKeyword}"` });
-    pills.push({ text: `정렬: ${sortModeLabel(sortMode)}` });
-    pills.forEach(pill => {
-      const node = document.createElement('div'); node.className = 'status-pill'; node.textContent = pill.text; els.statusBar.appendChild(node);
-    });
-  }
-
-  function renderMenus() {
-    const sideKeyword = normalizeText(els.sideFilterInput.value).toLowerCase();
-    document.getElementById('menu-all').classList.toggle('active', currentFilter.type === 'folder' && currentFilter.value === '전체');
-    document.getElementById('menu-favorites').classList.toggle('active', currentFilter.type === 'special' && currentFilter.value === '__favorites__');
-    document.getElementById('menu-recent').classList.toggle('active', currentFilter.type === 'special' && currentFilter.value === '__recent__');
-    els.folderMenu.innerHTML = ''; els.tagMenu.innerHTML = '';
-
-    const folders = [...new Set(allItems.map(item => item.folder))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'ko'));
-    const tags = [...new Set(allItems.flatMap(item => item.tags || []))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'ko'));
-    const folderCounts = Object.fromEntries(folders.map(folder => [folder, allItems.filter(item => item.folder === folder).length]));
-    const tagCounts = Object.fromEntries(tags.map(tag => [tag, allItems.filter(item => (item.tags || []).includes(tag)).length]));
-
-    folders.filter(folder => !sideKeyword || folder.toLowerCase().includes(sideKeyword)).forEach(folder => {
-      const item = document.createElement('div');
-      item.className = `menu-item ${currentFilter.type === 'folder' && currentFilter.value === folder ? 'active' : ''}`;
-      item.addEventListener('click', () => setFilter(folder, 'folder'));
-      const dot = document.createElement('div'); dot.className = 'color-dot'; dot.style.background = stringToColor(folder);
-      const text = document.createElement('span'); text.className = 'menu-label'; text.textContent = folder;
-      const count = document.createElement('span'); count.className = 'menu-count'; count.textContent = folderCounts[folder];
-      item.appendChild(dot); item.appendChild(text); item.appendChild(count); els.folderMenu.appendChild(item);
-    });
-
-    tags.filter(tag => !sideKeyword || tag.toLowerCase().includes(sideKeyword)).forEach(tag => {
-      const chip = document.createElement('button'); chip.type = 'button'; chip.className = 'tag-chip'; chip.textContent = `#${tag} · ${tagCounts[tag]}`;
-      chip.style.background = stringToLightColor(tag); chip.style.color = stringToColor(tag); chip.addEventListener('click', () => setFilter(tag, 'tag')); els.tagMenu.appendChild(chip);
-    });
-
-    els.allCount.textContent = allItems.length; els.favoriteCount.textContent = favoriteIds.size;
-  }
-
-  function getFilteredItems() {
-    let filtered = [...allItems];
-    if (currentFilter.type === 'special' && currentFilter.value === '__favorites__') filtered = filtered.filter(item => favoriteIds.has(item.id));
-    else if (currentFilter.type === 'special' && currentFilter.value === '__recent__') filtered = filtered.sort((a, b) => parseDateSafe(b.updatedAt) - parseDateSafe(a.updatedAt)).slice(0, 24);
-    else if (currentFilter.value !== '전체') {
-      if (currentFilter.type === 'folder') filtered = filtered.filter(item => item.folder === currentFilter.value);
-      else if (currentFilter.type === 'tag') filtered = filtered.filter(item => (item.tags || []).includes(currentFilter.value));
+    function hideMessage() {
+      els.messageBox.className = 'message-box';
+      els.messageBox.textContent = '';
     }
-    if (favoritesOnly) filtered = filtered.filter(item => favoriteIds.has(item.id));
-    if (searchKeyword) {
-      filtered = filtered.filter(item => [item.title, item.folder, item.url, item.createdAt, item.updatedAt, ...(item.tags || [])].join(' ').toLowerCase().includes(searchKeyword));
+    function setLoading(isLoading, text = '데이터를 불러오는 중입니다...') {
+      els.loading.style.display = isLoading ? 'block' : 'none';
+      els.loading.textContent = text;
+      if (isLoading) {
+        els.bgmGrid.style.display = 'none';
+        els.emptyState.style.display = 'none';
+      }
     }
-    filtered.sort((a, b) => {
-      switch (sortMode) {
-        case 'created_desc': return parseDateSafe(b.createdAt) - parseDateSafe(a.createdAt);
-        case 'title_asc': return a.title.localeCompare(b.title, 'ko');
-        case 'folder_asc': {
-          const folderCompare = a.folder.localeCompare(b.folder, 'ko');
-          return folderCompare !== 0 ? folderCompare : a.title.localeCompare(b.title, 'ko');
+    function normalizeText(value) { return String(value ?? '').trim(); }
+    function normalizeTags(raw) {
+      return String(raw ?? '').split('/').map(tag => tag.trim()).filter(Boolean).filter((tag, i, arr) => arr.indexOf(tag) === i);
+    }
+    function stringToColor(str) {
+      let hash = 0; const text = String(str || '기타');
+      for (let i = 0; i < text.length; i++) hash = text.charCodeAt(i) + ((hash << 5) - hash);
+      const h = Math.abs(hash % 360); return `hsl(${h}, 72%, 45%)`;
+    }
+    function stringToLightColor(str) {
+      let hash = 0; const text = String(str || '기타');
+      for (let i = 0; i < text.length; i++) hash = text.charCodeAt(i) + ((hash << 5) - hash);
+      const h = Math.abs(hash % 360); return `hsl(${h}, 85%, 93%)`;
+    }
+    function getYoutubeId(url) {
+      if (!url) return null;
+      const value = url.trim();
+      const patterns = [/(?:youtube\.com\/watch\?v=)([^&#]+)/, /(?:youtu\.be\/)([^?&#]+)/, /(?:youtube\.com\/embed\/)([^?&#]+)/, /(?:youtube\.com\/shorts\/)([^?&#]+)/];
+      for (const pattern of patterns) {
+        const match = value.match(pattern);
+        if (match && match[1] && match[1].length >= 11) return match[1].slice(0, 11);
+      }
+      return null;
+    }
+    function isValidYoutubeUrl(url) { return !!getYoutubeId(url); }
+    function formatDateText(createdAt, updatedAt) {
+      function shorten(d) {
+        if (!d) return '-';
+        // "2024. 3. 15. 오후 2:30:00" 같은 형태 → "24.03.15"
+        const dt = new Date(d);
+        if (!isNaN(dt.getTime())) {
+          const yy = String(dt.getFullYear()).slice(2);
+          const mm = String(dt.getMonth()+1).padStart(2,'0');
+          const dd = String(dt.getDate()).padStart(2,'0');
+          return `${yy}.${mm}.${dd}`;
         }
-        default: return parseDateSafe(b.updatedAt) - parseDateSafe(a.updatedAt);
+        // 파싱 실패 시 앞 10자만
+        return String(d).slice(0, 10);
       }
-    });
-    return filtered;
-  }
-
-  function updateStats(filteredItems) {
-    els.statTotal.textContent = allItems.length;
-    els.statVisible.textContent = filteredItems.length;
-    els.statFolders.textContent = new Set(allItems.map(item => item.folder).filter(Boolean)).size;
-    els.statFavorites.textContent = favoriteIds.size;
-  }
-
-  function createVideoNode(item) {
-    const videoBox = document.createElement('div'); videoBox.className = 'video-box';
-    const youtubeId = getYoutubeId(item.url);
-    if (!youtubeId) {
-      const fallback = document.createElement('div'); fallback.className = 'video-fallback'; fallback.textContent = '유효한 유튜브 링크가 아니어서 미리보기를 표시할 수 없습니다.'; videoBox.appendChild(fallback); return videoBox;
+      return `등록 ${shorten(createdAt)}  수정 ${shorten(updatedAt)}`;
     }
-    const iframe = document.createElement('iframe');
-    iframe.src = `https://www.youtube.com/embed/${youtubeId}`; iframe.allowFullscreen = true; iframe.loading = 'lazy'; iframe.referrerPolicy = 'strict-origin-when-cross-origin'; iframe.title = `${item.title} 미리보기`;
-    videoBox.appendChild(iframe); return videoBox;
-  }
-
-  function createCard(item) {
-    const isListMode = densityMode === 'compact';
-    const card = document.createElement('div'); card.className = 'bgm-card';
-    card.addEventListener('click', (e) => {
-      if (e.target.closest('.action-btn') ||
-          e.target.closest('.card-fav-btn') ||
-          e.target.closest('.list-fav-btn') ||
-          e.target.closest('.card-tag')) return;
-      playVideo(item.url);
-    });
-
-    const sideBar = document.createElement('div'); sideBar.className = 'card-side-bar'; sideBar.style.background = stringToColor(item.folder);
-    card.appendChild(sideBar);
-
-    if (!isListMode) {
-      const topbar = document.createElement('div'); topbar.className = 'card-topbar';
-      const badge = document.createElement('div'); badge.className = 'card-badge'; badge.textContent = item.folder || '기타';
-      const fav = document.createElement('button'); fav.className = `card-fav-btn ${favoriteIds.has(item.id) ? 'active' : ''}`; fav.textContent = '★'; fav.title = '즐겨찾기'; fav.addEventListener('click', () => toggleFavorite(item.id));
-      topbar.appendChild(badge); topbar.appendChild(fav);
-      card.appendChild(topbar);
-      card.appendChild(createVideoNode(item));
+    function parseDateSafe(text) {
+      const value = new Date(text);
+      return Number.isNaN(value.getTime()) ? new Date(0) : value;
     }
-
-    const body = document.createElement('div'); body.className = 'card-body';
-
-    if (isListMode) {
-      const folderLabel = document.createElement('div');
-      folderLabel.className = 'list-folder-label';
-      folderLabel.style.color = stringToColor(item.folder);
-      folderLabel.textContent = item.folder || '기타';
-      body.appendChild(folderLabel);
-    }
-
-    const title = document.createElement('h3'); title.className = 'card-title'; title.textContent = item.title;
-    body.appendChild(title);
-
-    if (!isListMode) {
-      const folder = document.createElement('div'); folder.className = 'card-folder'; folder.style.color = stringToColor(item.folder); folder.textContent = item.folder;
-      const date = document.createElement('div'); date.className = 'card-date'; date.textContent = formatDateText(item.createdAt, item.updatedAt);
-      const link = document.createElement('a'); link.className = 'card-url'; link.href = item.url; link.target = '_blank'; link.rel = 'noopener noreferrer'; link.textContent = '↗ 원본 링크 열기';
-      body.appendChild(folder); body.appendChild(date); body.appendChild(link);
-    }
-
-    const tagsWrap = document.createElement('div'); tagsWrap.className = 'card-tags';
-    (item.tags || []).forEach(tag => {
-      const chip = document.createElement('span'); chip.className = 'card-tag';
-      chip.style.background = stringToLightColor(tag); chip.style.color = stringToColor(tag);
-      chip.textContent = `#${tag}`; chip.title = `"${tag}" 태그로 필터`; chip.style.cursor = 'pointer';
-      chip.addEventListener('click', () => setFilter(tag, 'tag'));
-      tagsWrap.appendChild(chip);
-    });
-    body.appendChild(tagsWrap);
-
-    const actions = document.createElement('div'); actions.className = 'card-actions';
-    if (isListMode) {
-      const favBtn = document.createElement('button');
-      favBtn.className = `list-fav-btn ${favoriteIds.has(item.id) ? 'active' : ''}`;
-      favBtn.textContent = '★'; favBtn.title = '즐겨찾기';
-      favBtn.addEventListener('click', () => toggleFavorite(item.id));
-      actions.appendChild(favBtn);
-    }
-    const copyBtn = document.createElement('button'); copyBtn.className = 'action-btn btn-copy'; copyBtn.textContent = '복사'; copyBtn.addEventListener('click', () => copyText(item.url, '링크를 복사했습니다.'));
-    const editBtn = document.createElement('button'); editBtn.className = 'action-btn'; editBtn.textContent = '수정'; editBtn.addEventListener('click', () => openEditFormById(item.id));
-    const deleteBtn = document.createElement('button'); deleteBtn.className = 'action-btn btn-delete'; deleteBtn.textContent = '삭제'; deleteBtn.addEventListener('click', () => deleteItem(item.id));
-    actions.appendChild(copyBtn); actions.appendChild(editBtn); actions.appendChild(deleteBtn);
-    body.appendChild(actions);
-    card.appendChild(body); return card;
-  }
-
-  function renderGrid() {
-    const filtered = getFilteredItems(); els.bgmGrid.innerHTML = '';
-    if (allItems.length === 0) {
-      els.bgmGrid.style.display = 'none'; els.emptyState.style.display = 'block';
-      // [FIX] innerHTML로 <strong> 구조 유지
-      els.emptyState.innerHTML = '<strong>아직 등록된 BGM이 없습니다</strong>새 곡을 추가해보세요.';
-      updateStats(filtered); return;
-    }
-    if (filtered.length === 0) {
-      els.bgmGrid.style.display = 'none'; els.emptyState.style.display = 'block';
-      // [FIX] innerHTML로 <strong> 구조 유지
-      els.emptyState.innerHTML = '<strong>표시할 BGM이 없습니다</strong>조건을 변경하거나 새 곡을 추가해보세요.';
-      updateStats(filtered); return;
-    }
-    filtered.forEach(item => els.bgmGrid.appendChild(createCard(item)));
-    els.emptyState.style.display = 'none'; els.bgmGrid.style.display = 'grid';
-    const bc = document.getElementById('boardCount'); if(bc) bc.textContent = filtered.length + '곡';
-    updateStats(filtered);
-  }
-
-  async function copyText(text, toastText = '복사했습니다.') {
-    try { await navigator.clipboard.writeText(text); showToast(toastText); }
-    catch (_) { showMessage('복사에 실패했습니다.', 'error'); }
-  }
-
-  async function copyCurrentViewSummary() {
-    const filtered = getFilteredItems();
-    if (!filtered.length) return showMessage('복사할 목록이 없습니다.', 'error');
-    const text = filtered.map((item, idx) => `${idx + 1}. [${item.folder}] ${item.title}\n- ${item.url}\n- 태그: ${(item.tags || []).join(', ') || '-'}\n`).join('\n');
-    await copyText(text, '현재 목록을 복사했습니다.');
-  }
-
-  async function fetchYoutubeTitle(url) {
-    try {
-      const res = await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`);
-      const data = await res.json();
-      return data.title;
-    } catch {
-      return '';
-    }
-  }
-
-  async function saveToSheet() {
-    if (isSaving) return;
-
-    const id = normalizeText(els.editId.value);
-    const title = normalizeText(els.inTitle.value);
-    const url = normalizeText(els.inUrl.value);
-    const tag = normalizeText(els.inTag.value);
-    const folder = normalizeText(els.inFolder.value) || '기타';
-
-    if (!title || !url) return showMessage('곡 제목과 URL은 필수입니다.', 'error');
-    if (!isValidYoutubeUrl(url)) return showMessage('유효한 유튜브 URL을 입력해주세요.', 'error');
-
-    const newYtId = getYoutubeId(url);
-    const duplicate = allItems.find(item => getYoutubeId(item.url) === newYtId && item.id !== id);
-    if (duplicate) {
-      if (!confirm(`이미 같은 곡이 있습니다.\n\n[${duplicate.folder}] ${duplicate.title}\n\n그래도 저장할까요?`)) return;
-    }
-
-    isSaving = true;
-    els.saveBtn.disabled = true;
-    els.saveBtn.textContent = '저장 중...';
-
-    try {
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: id ? 'edit' : 'add', id: id || null, title, url, tag, folder })
+    function requestJSON(url, options = {}) {
+      return fetch(url, options).then(response => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
       });
-      const result = await res.json();
-      if (result.success !== false) {
-        showToast('저장 완료!');
-        toggleInput(false);
-        resetForm();
-        await loadData(true);
-      } else {
-        showMessage('저장 실패: ' + (result.message || '오류'), 'error');
-      }
-    } catch (err) {
-      console.error(err);
-      showMessage('서버 오류 발생', 'error');
     }
 
-    isSaving = false;
-    els.saveBtn.disabled = false;
-    els.saveBtn.textContent = '저장하기';
-  }
-
-  // [FIX] deleteItem: URLSearchParams → JSON, result.ok → result.success 로 통일
-  async function deleteItem(id) {
-    if (!id) return showMessage('삭제할 id가 없습니다.', 'error');
-    if (!confirm('정말 이 곡을 삭제하시겠습니까?')) return;
-    try {
-      hideMessage();
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'delete', id })
-      });
-      const result = await res.json();
-      if (result.success === false) throw new Error(result.message || '삭제 실패');
-      favoriteIds.delete(id); saveFavorites();
-      showMessage('삭제가 완료되었습니다.', 'success');
-      await loadData(false);
-    } catch (error) {
-      console.error(error); showMessage(`삭제에 실패했습니다. ${error.message || ''}`, 'error');
+    function saveFavorites() { localStorage.setItem('bgm_favoriteIds', JSON.stringify([...favoriteIds])); }
+    function toggleFavorite(id) {
+      if (favoriteIds.has(id)) favoriteIds.delete(id); else favoriteIds.add(id);
+      saveFavorites(); renderMenus(); renderGrid(); updateStats(getFilteredItems());
+      showToast(favoriteIds.has(id) ? '즐겨찾기에 추가했습니다.' : '즐겨찾기에서 제거했습니다.');
     }
-  }
+    function toggleFavoritesOnly() {
+      favoritesOnly = !favoritesOnly;
+      localStorage.setItem('bgm_favoritesOnly', String(favoritesOnly));
+      applyFavoritesToggleState(); renderGrid(); renderStatusBar(); updateStats(getFilteredItems());
+    }
+    function applyFavoritesToggleState() {
+      els.favoritesOnlyBtn.textContent = favoritesOnly ? '즐겨찾기만 ON' : '즐겨찾기만';
+      els.favoritesOnlyBtn.classList.toggle('soft', favoritesOnly);
+    }
+    function setDensity(mode) {
+      densityMode = mode; localStorage.setItem('bgm_densityMode', densityMode); els.densitySelect.value = densityMode; applyDensity();
+    }
+    function handleDensityChange(mode) { setDensity(mode); }
+    function applyDensity() {
+      els.bgmGrid.classList.toggle('compact', densityMode === 'compact');
+      els.gridModeComfortable.classList.toggle('active', densityMode === 'comfortable');
+      els.gridModeCompact.classList.toggle('active', densityMode === 'compact');
+      // 리스트↔그리드 전환 시 카드 구조가 달라지므로 재렌더
+      if (allItems.length > 0) renderGrid();
+    }
+    function handleSortChange(value) { sortMode = value; localStorage.setItem('bgm_sortMode', sortMode); renderGrid(); renderStatusBar(); }
+    function toggleSidebar() {
+      sidebarCollapsed = !sidebarCollapsed; localStorage.setItem('bgm_sidebarCollapsed', String(sidebarCollapsed)); applySidebarState();
+    }
+    function applySidebarState() { document.body.classList.toggle('sidebar-collapsed', sidebarCollapsed); }
 
-  async function loadData(showRefreshMessage = false) {
-    setLoading(true, '데이터를 불러오는 중입니다...');
-    try {
-      if (showRefreshMessage) showMessage('데이터를 새로고침하고 있습니다.', 'info');
-      const result = await requestJSON(`${API_URL}?action=list`, { method: 'GET', cache: 'no-store' });
-      if (!result.ok) throw new Error(result.error || '목록 불러오기 실패');
-      allItems = (result.items || []).map(item => ({
-        id: normalizeText(item.id),
-        title: normalizeText(item.title),
-        url: normalizeText(item.url),
-        tags: normalizeTags(item.tag),
-        folder: normalizeText(item.folder) || '기타',
-        createdAt: normalizeText(item.createdAt),
-        updatedAt: normalizeText(item.updatedAt)
-      }));
+    function toggleInput(forceState) {
+      const shouldOpen = typeof forceState === 'boolean' ? forceState : els.overlay.style.display !== 'flex';
+      els.overlay.style.display = shouldOpen ? 'flex' : 'none';
+      els.overlay.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
+    }
+    function resetForm() {
+      els.formTitle.textContent = '➕ 새로운 BGM 추가';
+      els.editId.value = ''; els.inTitle.value = ''; els.inUrl.value = ''; els.inTag.value = ''; els.inFolder.value = '';
+      els.saveBtn.disabled = false; els.saveBtn.textContent = '저장하기';
+    }
+    function openAddForm() { resetForm(); toggleInput(true); els.inTitle.focus(); }
+    function openEditFormById(id) {
+      const item = allItems.find(v => String(v.id) === String(id));
+      if (!item) return showMessage('수정할 항목을 찾지 못했습니다.', 'error');
+      els.formTitle.textContent = '✏️ 곡 정보 수정';
+      els.editId.value = item.id; els.inTitle.value = item.title; els.inUrl.value = item.url; els.inTag.value = (item.tags || []).join('/'); els.inFolder.value = item.folder;
+      toggleInput(true); els.inTitle.focus();
+    }
+
+    function setFilter(value, type) {
+      currentFilter = { value, type };
       updateHeader(); renderMenus(); renderGrid(); renderStatusBar(); updateStats(getFilteredItems());
-      if (!showRefreshMessage) hideMessage(); else showMessage('새로고침이 완료되었습니다.', 'success');
-    } catch (error) {
-      console.error(error); allItems = []; renderMenus(); renderGrid(); renderStatusBar(); updateStats([]);
-      showMessage(`데이터를 불러오지 못했습니다. ${error.message || ''}`, 'error');
-    } finally { setLoading(false); }
-  }
-
-  // [FIX] 하단 플레이어 — 닫기 버튼 포함, innerHTML 대신 frame src만 교체
-  function playVideo(url) {
-    const id = getYoutubeId(url);
-    if (!id) return;
-    els.bottomPlayerFrame.src = `https://www.youtube.com/embed/${id}?autoplay=1`;
-    els.bottomPlayer.classList.add('visible');
-  }
-
-  // URL 미리보기 (모달)
-  async function onUrlInputPreview() {
-    const url = els.inUrl.value;
-    const id = getYoutubeId(url);
-    if (id) {
-      els.urlPreviewWrap.style.display = 'block';
-      els.urlPreviewFrame.src = `https://www.youtube.com/embed/${id}`;
-      if (!els.inTitle.value) {
-        const title = await fetchYoutubeTitle(url);
-        if (title) els.inTitle.value = title;
-      }
-    } else {
-      els.urlPreviewWrap.style.display = 'none';
     }
-  }
+    function handleSearch(value) { searchKeyword = normalizeText(value).toLowerCase(); const cb = document.getElementById('searchClearBtn'); if(cb) cb.classList.toggle('vis', searchKeyword.length > 0); renderGrid(); renderStatusBar(); updateStats(getFilteredItems()); }
+    function clearSearch() { searchKeyword = ''; els.searchInput.value = ''; const cb = document.getElementById('searchClearBtn'); if(cb) cb.classList.remove('vis'); renderGrid(); renderStatusBar(); updateStats(getFilteredItems()); }
 
-  // 태그 실시간 칩 프리뷰 (모달)
-  function onTagInputPreview() {
-    const raw = normalizeText(els.inTag.value);
-    const tags = raw ? raw.split('/').map(t => t.trim()).filter(Boolean) : [];
-    const container = document.getElementById('tagPreviewChips');
-    container.innerHTML = '';
-    tags.forEach(tag => {
-      const chip = document.createElement('span');
-      chip.style.cssText = `display:inline-block;padding:3px 9px;border-radius:99px;font-size:.7rem;font-weight:700;background:${stringToLightColor(tag)};color:${stringToColor(tag)}`;
-      chip.textContent = '#' + tag;
-      container.appendChild(chip);
+    function updateHeader() {
+      let title = '전체 목록';
+      let desc = '등록된 BGM을 정리하고, 빠르게 찾고, 장면용으로 바로 꺼내 쓸 수 있습니다.';
+      if (currentFilter.type === 'special' && currentFilter.value === '__favorites__') {
+        title = '즐겨찾기'; desc = '자주 쓰는 트랙만 따로 모아서 봅니다.';
+      } else if (currentFilter.type === 'special' && currentFilter.value === '__recent__') {
+        title = '최근 수정'; desc = '가장 최근에 손댄 곡들을 우선해서 봅니다.';
+      } else if (currentFilter.value !== '전체') {
+        if (currentFilter.type === 'folder') { title = `폴더: ${currentFilter.value}`; desc = '선택한 폴더에 속한 BGM만 표시합니다.'; }
+        else if (currentFilter.type === 'tag') { title = `태그: #${currentFilter.value}`; desc = '선택한 태그가 붙은 BGM만 표시합니다.'; }
+      }
+      els.viewTitle.textContent = title; els.viewDesc.textContent = desc;
+    }
+    function sortModeLabel(mode) {
+      switch (mode) {
+        case 'created_desc': return '최근 등록순';
+        case 'title_asc': return '제목 오름차순';
+        case 'folder_asc': return '폴더 오름차순';
+        default: return '최근 수정순';
+      }
+    }
+    function renderStatusBar() {
+      els.statusBar.innerHTML = '';
+      const pills = [{ text: `전체 ${allItems.length}곡` }];
+      if (currentFilter.type === 'special' && currentFilter.value === '__favorites__') pills.push({ text: '즐겨찾기 보기' });
+      if (currentFilter.type === 'special' && currentFilter.value === '__recent__') pills.push({ text: '최근 수정 보기' });
+      if (currentFilter.value !== '전체' && currentFilter.type === 'folder') pills.push({ text: `폴더: ${currentFilter.value}` });
+      if (currentFilter.value !== '전체' && currentFilter.type === 'tag') pills.push({ text: `태그: #${currentFilter.value}` });
+      if (favoritesOnly) pills.push({ text: '즐겨찾기만 ON' });
+      if (searchKeyword) pills.push({ text: `검색: "${searchKeyword}"` });
+      pills.push({ text: `정렬: ${sortModeLabel(sortMode)}` });
+      pills.forEach(pill => {
+        const node = document.createElement('div'); node.className = 'status-pill'; node.textContent = pill.text; els.statusBar.appendChild(node);
+      });
+    }
+
+    function renderMenus() {
+      const sideKeyword = normalizeText(els.sideFilterInput.value).toLowerCase();
+      document.getElementById('menu-all').classList.toggle('active', currentFilter.type === 'folder' && currentFilter.value === '전체');
+      document.getElementById('menu-favorites').classList.toggle('active', currentFilter.type === 'special' && currentFilter.value === '__favorites__');
+      document.getElementById('menu-recent').classList.toggle('active', currentFilter.type === 'special' && currentFilter.value === '__recent__');
+      els.folderMenu.innerHTML = ''; els.tagMenu.innerHTML = '';
+
+      const folders = [...new Set(allItems.map(item => item.folder))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'ko'));
+      const tags = [...new Set(allItems.flatMap(item => item.tags || []))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'ko'));
+      const folderCounts = Object.fromEntries(folders.map(folder => [folder, allItems.filter(item => item.folder === folder).length]));
+      const tagCounts = Object.fromEntries(tags.map(tag => [tag, allItems.filter(item => (item.tags || []).includes(tag)).length]));
+
+      folders.filter(folder => !sideKeyword || folder.toLowerCase().includes(sideKeyword)).forEach(folder => {
+        const item = document.createElement('div');
+        item.className = `menu-item ${currentFilter.type === 'folder' && currentFilter.value === folder ? 'active' : ''}`;
+        item.addEventListener('click', () => setFilter(folder, 'folder'));
+        const dot = document.createElement('div'); dot.className = 'color-dot'; dot.style.background = stringToColor(folder);
+        const text = document.createElement('span'); text.className = 'menu-label'; text.textContent = folder;
+        const count = document.createElement('span'); count.className = 'menu-count'; count.textContent = folderCounts[folder];
+        item.appendChild(dot); item.appendChild(text); item.appendChild(count); els.folderMenu.appendChild(item);
+      });
+
+      tags.filter(tag => !sideKeyword || tag.toLowerCase().includes(sideKeyword)).forEach(tag => {
+        const chip = document.createElement('button'); chip.type = 'button'; chip.className = 'tag-chip'; chip.textContent = `#${tag} · ${tagCounts[tag]}`;
+        chip.style.background = stringToLightColor(tag); chip.style.color = stringToColor(tag); chip.addEventListener('click', () => setFilter(tag, 'tag')); els.tagMenu.appendChild(chip);
+      });
+
+      els.allCount.textContent = allItems.length; els.favoriteCount.textContent = favoriteIds.size;
+    }
+
+    function getFilteredItems() {
+      let filtered = [...allItems];
+      if (currentFilter.type === 'special' && currentFilter.value === '__favorites__') filtered = filtered.filter(item => favoriteIds.has(item.id));
+      else if (currentFilter.type === 'special' && currentFilter.value === '__recent__') filtered = filtered.sort((a, b) => parseDateSafe(b.updatedAt) - parseDateSafe(a.updatedAt)).slice(0, 24);
+      else if (currentFilter.value !== '전체') {
+        if (currentFilter.type === 'folder') filtered = filtered.filter(item => item.folder === currentFilter.value);
+        else if (currentFilter.type === 'tag') filtered = filtered.filter(item => (item.tags || []).includes(currentFilter.value));
+      }
+      if (favoritesOnly) filtered = filtered.filter(item => favoriteIds.has(item.id));
+      if (searchKeyword) {
+        filtered = filtered.filter(item => [item.title, item.folder, item.url, item.createdAt, item.updatedAt, ...(item.tags || [])].join(' ').toLowerCase().includes(searchKeyword));
+      }
+      filtered.sort((a, b) => {
+        switch (sortMode) {
+          case 'created_desc': return parseDateSafe(b.createdAt) - parseDateSafe(a.createdAt);
+          case 'title_asc': return a.title.localeCompare(b.title, 'ko');
+          case 'folder_asc': {
+            const folderCompare = a.folder.localeCompare(b.folder, 'ko');
+            return folderCompare !== 0 ? folderCompare : a.title.localeCompare(b.title, 'ko');
+          }
+          default: return parseDateSafe(b.updatedAt) - parseDateSafe(a.updatedAt);
+        }
+      });
+      return filtered;
+    }
+
+    function updateStats(filteredItems) {
+      els.statTotal.textContent = allItems.length;
+      els.statVisible.textContent = filteredItems.length;
+      els.statFolders.textContent = new Set(allItems.map(item => item.folder).filter(Boolean)).size;
+      els.statFavorites.textContent = favoriteIds.size;
+    }
+
+    function createVideoNode(item) {
+      const videoBox = document.createElement('div'); videoBox.className = 'video-box';
+      const youtubeId = getYoutubeId(item.url);
+      if (!youtubeId) {
+        const fallback = document.createElement('div'); fallback.className = 'video-fallback'; fallback.textContent = '유효한 유튜브 링크가 아니어서 미리보기를 표시할 수 없습니다.'; videoBox.appendChild(fallback); return videoBox;
+      }
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube.com/embed/${youtubeId}`; iframe.allowFullscreen = true; iframe.loading = 'lazy'; iframe.referrerPolicy = 'strict-origin-when-cross-origin'; iframe.title = `${item.title} 미리보기`;
+      videoBox.appendChild(iframe); return videoBox;
+    }
+
+    function createCard(item) {
+      const isListMode = densityMode === 'compact';
+      const card = document.createElement('div'); card.className = 'bgm-card';
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.action-btn') || 
+            e.target.closest('.card-fav-btn') ||
+            e.target.closest('.list-fav-btn') ||
+            e.target.closest('.card-tag')) return;
+      
+        playVideo(item.url);
+      });
+
+      // 사이드바 (컬러 바)
+      const sideBar = document.createElement('div'); sideBar.className = 'card-side-bar'; sideBar.style.background = stringToColor(item.folder);
+      card.appendChild(sideBar);
+
+      if (!isListMode) {
+        // 그리드 모드: topbar (배지 + 즐겨찾기)
+        const topbar = document.createElement('div'); topbar.className = 'card-topbar';
+        const badge = document.createElement('div'); badge.className = 'card-badge'; badge.textContent = item.folder || '기타';
+        const fav = document.createElement('button'); fav.className = `card-fav-btn ${favoriteIds.has(item.id) ? 'active' : ''}`; fav.textContent = '★'; fav.title = '즐겨찾기'; fav.addEventListener('click', () => toggleFavorite(item.id));
+        topbar.appendChild(badge); topbar.appendChild(fav);
+        card.appendChild(topbar);
+        card.appendChild(createVideoNode(item));
+      }
+
+      const body = document.createElement('div'); body.className = 'card-body';
+
+      if (isListMode) {
+        // 리스트 모드 전용: 폴더 레이블 + 즐겨찾기 버튼 인라인
+        const folderLabel = document.createElement('div');
+        folderLabel.className = 'list-folder-label';
+        folderLabel.style.color = stringToColor(item.folder);
+        folderLabel.textContent = item.folder || '기타';
+        body.appendChild(folderLabel);
+      }
+
+      const title = document.createElement('h3'); title.className = 'card-title'; title.textContent = item.title;
+      body.appendChild(title);
+
+      if (!isListMode) {
+        const folder = document.createElement('div'); folder.className = 'card-folder'; folder.style.color = stringToColor(item.folder); folder.textContent = item.folder;
+        const date = document.createElement('div'); date.className = 'card-date'; date.textContent = formatDateText(item.createdAt, item.updatedAt);
+        const link = document.createElement('a'); link.className = 'card-url'; link.href = item.url; link.target = '_blank'; link.rel = 'noopener noreferrer'; link.textContent = '↗ 원본 링크 열기';
+        body.appendChild(folder); body.appendChild(date); body.appendChild(link);
+      }
+
+      // 태그 (클릭 시 필터 적용)
+      const tagsWrap = document.createElement('div'); tagsWrap.className = 'card-tags';
+      (item.tags || []).forEach(tag => {
+        const chip = document.createElement('span'); chip.className = 'card-tag';
+        chip.style.background = stringToLightColor(tag); chip.style.color = stringToColor(tag);
+        chip.textContent = `#${tag}`;
+        chip.title = `"${tag}" 태그로 필터`;
+        chip.style.cursor = 'pointer';
+        chip.addEventListener('click', () => setFilter(tag, 'tag'));
+        tagsWrap.appendChild(chip);
+      });
+      body.appendChild(tagsWrap);
+
+      // 액션 버튼
+      const actions = document.createElement('div'); actions.className = 'card-actions';
+      if (isListMode) {
+        // 리스트: 즐겨찾기 버튼 인라인
+        const favBtn = document.createElement('button');
+        favBtn.className = `list-fav-btn ${favoriteIds.has(item.id) ? 'active' : ''}`;
+        favBtn.textContent = '★'; favBtn.title = '즐겨찾기';
+        favBtn.addEventListener('click', () => toggleFavorite(item.id));
+        actions.appendChild(favBtn);
+      }
+      const copyBtn = document.createElement('button'); copyBtn.className = 'action-btn btn-copy'; copyBtn.textContent = '복사'; copyBtn.addEventListener('click', () => copyText(item.url, '링크를 복사했습니다.'));
+      const editBtn = document.createElement('button'); editBtn.className = 'action-btn'; editBtn.textContent = '수정'; editBtn.addEventListener('click', () => openEditFormById(item.id));
+      const deleteBtn = document.createElement('button'); deleteBtn.className = 'action-btn btn-delete'; deleteBtn.textContent = '삭제'; deleteBtn.addEventListener('click', () => deleteItem(item.id));
+      actions.appendChild(copyBtn); actions.appendChild(editBtn); actions.appendChild(deleteBtn);
+      body.appendChild(actions);
+
+      card.appendChild(body); return card;
+    }
+
+    function renderGrid() {
+      const filtered = getFilteredItems(); els.bgmGrid.innerHTML = '';
+      if (allItems.length === 0) {
+        els.bgmGrid.style.display = 'none'; els.emptyState.style.display = 'block'; els.emptyState.textContent = '아직 등록된 BGM이 없습니다.'; updateStats(filtered); return;
+      }
+      if (filtered.length === 0) {
+        els.bgmGrid.style.display = 'none'; els.emptyState.style.display = 'block'; els.emptyState.textContent = '현재 조건에 맞는 BGM이 없습니다.'; updateStats(filtered); return;
+      }
+      filtered.forEach(item => els.bgmGrid.appendChild(createCard(item)));
+      els.emptyState.style.display = 'none'; els.bgmGrid.style.display = 'grid';
+      const bc = document.getElementById('boardCount'); if(bc) bc.textContent = filtered.length + '곡';
+      updateStats(filtered);
+    }
+
+    async function copyText(text, toastText = '복사했습니다.') {
+      try { await navigator.clipboard.writeText(text); showToast(toastText); }
+      catch (_) { showMessage('복사에 실패했습니다.', 'error'); }
+    }
+
+    async function copyCurrentViewSummary() {
+      const filtered = getFilteredItems();
+      if (!filtered.length) return showMessage('복사할 목록이 없습니다.', 'error');
+      const text = filtered.map((item, idx) => `${idx + 1}. [${item.folder}] ${item.title}\n- ${item.url}\n- 태그: ${(item.tags || []).join(', ') || '-'}\n`).join('\n');
+      await copyText(text, '현재 목록을 복사했습니다.');
+    }
+
+
+   async function fetchYoutubeTitle(url) {
+     try {
+       const res = await fetch(`https://www.youtube.com/oembed?url=${url}&format=json`);
+       const data = await res.json();
+       return data.title;
+     } catch {
+       return '';
+     }
+   }
+
+
+
+
+
+
+   
+   async function saveToSheet() {
+     if (isSaving) return;
+   
+     const id = normalizeText(els.editId.value);
+     const title = normalizeText(els.inTitle.value);
+     const url = normalizeText(els.inUrl.value);
+     const tag = normalizeText(els.inTag.value);
+     const folder = normalizeText(els.inFolder.value) || '기타';
+   
+     if (!title || !url) {
+       return showMessage('곡 제목과 URL은 필수입니다.', 'error');
+     }
+   
+     if (!isValidYoutubeUrl(url)) {
+       return showMessage('유효한 유튜브 URL을 입력해주세요.', 'error');
+     }
+   
+     // 🔥 중복 체크 (유튜브 ID 기준)
+     const newId = getYoutubeId(url);
+     const duplicate = allItems.find(item => getYoutubeId(item.url) === newId && item.id !== id);
+   
+     if (duplicate) {
+       if (!confirm(`이미 같은 곡이 있습니다.\n\n[${duplicate.folder}] ${duplicate.title}\n\n그래도 저장할까요?`)) {
+         return;
+       }
+     }
+   
+     isSaving = true;
+     els.saveBtn.disabled = true;
+     els.saveBtn.textContent = '저장 중...';
+   
+     try {
+       const res = await fetch(API_URL, {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({
+           action: id ? 'edit' : 'add',
+           id: id || null,
+           title,
+           url,
+           tag,
+           folder
+         })
+       });
+   
+       const result = await res.json();
+   
+       if (result.success !== false) {
+         showToast('저장 완료!');
+         toggleInput(false);
+         resetForm();
+         await loadData(true);
+       } else {
+         showMessage('저장 실패: ' + (result.message || '오류'), 'error');
+       }
+   
+     } catch (err) {
+       console.error(err);
+       showMessage('서버 오류 발생', 'error');
+     }
+   
+     isSaving = false;
+     els.saveBtn.disabled = false;
+     els.saveBtn.textContent = '저장하기';
+   }
+    async function deleteItem(id) {
+      if (!id) return showMessage('삭제할 id가 없습니다.', 'error');
+      if (!confirm('정말 이 곡을 삭제하시겠습니까?')) return;
+      try {
+        hideMessage();
+        const payload = new URLSearchParams(); payload.append('action', 'delete'); payload.append('id', id);
+        const result = await requestJSON(API_URL, { method: 'POST', body: payload });
+        if (!result.ok) throw new Error(result.error || '삭제 실패');
+        favoriteIds.delete(id); saveFavorites();
+        showMessage('삭제가 완료되었습니다.', 'success');
+        await loadData(false);
+      } catch (error) {
+        console.error(error); showMessage(`삭제에 실패했습니다. ${error.message || ''}`, 'error');
+      }
+    }
+
+    async function loadData(showRefreshMessage = false) {
+      setLoading(true, '데이터를 불러오는 중입니다...');
+      try {
+        if (showRefreshMessage) showMessage('데이터를 새로고침하고 있습니다.', 'info');
+        const result = await requestJSON(`${API_URL}?action=list`, { method: 'GET', cache: 'no-store' });
+        if (!result.ok) throw new Error(result.error || '목록 불러오기 실패');
+        allItems = (result.items || []).map(item => ({
+          id: normalizeText(item.id),
+          title: normalizeText(item.title),
+          url: normalizeText(item.url),
+          tags: normalizeTags(item.tag),
+          folder: normalizeText(item.folder) || '기타',
+          createdAt: normalizeText(item.createdAt),
+          updatedAt: normalizeText(item.updatedAt)
+        }));
+        updateHeader(); renderMenus(); renderGrid(); renderStatusBar(); updateStats(getFilteredItems());
+        if (!showRefreshMessage) hideMessage(); else showMessage('새로고침이 완료되었습니다.', 'success');
+      } catch (error) {
+        console.error(error); allItems = []; renderMenus(); renderGrid(); renderStatusBar(); updateStats([]);
+        showMessage(`데이터를 불러오지 못했습니다. ${error.message || ''}`, 'error');
+      } finally { setLoading(false); }
+    }
+
+    els.overlay.addEventListener('click', event => { if (event.target === els.overlay) toggleInput(false); });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') toggleInput(false);
+      // 단축키: N = 새 곡 추가, Ctrl+K = 검색창 포커스
+      if (!els.overlay.style.display || els.overlay.style.display === 'none') {
+        if (event.key === 'n' || event.key === 'N') { if (!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) { event.preventDefault(); openAddForm(); } }
+        if ((event.ctrlKey || event.metaKey) && event.key === 'k') { event.preventDefault(); els.searchInput.focus(); els.searchInput.select(); }
+      }
     });
+    [els.inTitle, els.inUrl, els.inTag, els.inFolder].forEach(input => input.addEventListener('keydown', event => { if (event.key === 'Enter') saveToSheet(); }));
+    els.collapseBtn.addEventListener('click', toggleSidebar);
+
+   
+async function playVideo(url) {
+  const id = getYoutubeId(url);
+  if (!id) return;
+
+  let player = document.getElementById('bottomPlayer');
+
+  if (!player) {
+    player = document.createElement('div');
+    player.id = 'bottomPlayer';
+    player.style = `
+      position:fixed;bottom:0;left:0;right:0;
+      background:#fff;padding:10px;border-top:1px solid #ccc;
+      z-index:999;display:flex;justify-content:center;
+    `;
+    document.body.appendChild(player);
   }
 
-  // 이벤트 리스너
-  els.overlay.addEventListener('click', event => { if (event.target === els.overlay) toggleInput(false); });
-  document.addEventListener('keydown', event => {
-    if (event.key === 'Escape') {
-      if (isModalOpen) toggleInput(false);
-      else if (els.bottomPlayer.classList.contains('visible')) {
-        els.bottomPlayerFrame.src = '';
-        els.bottomPlayer.classList.remove('visible');
-      }
-    }
-    if (!isModalOpen) {
-      if (event.key === 'n' || event.key === 'N') {
-        if (!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) { event.preventDefault(); openAddForm(); }
-      }
-      if ((event.ctrlKey || event.metaKey) && event.key === 'k') { event.preventDefault(); els.searchInput.focus(); els.searchInput.select(); }
-    }
-  });
-  [els.inTitle, els.inUrl, els.inTag, els.inFolder].forEach(input => input.addEventListener('keydown', event => { if (event.key === 'Enter') saveToSheet(); }));
-  els.collapseBtn.addEventListener('click', toggleSidebar);
+  player.innerHTML = `
+    <iframe width="320" height="180"
+      src="https://www.youtube.com/embed/${id}?autoplay=1"
+      frameborder="0" allow="autoplay">
+    </iframe>
+  `;
+}
+   
+    // ── URL 미리보기 (모달)
+async function onUrlInputPreview() {
+  const url = els.inUrl.value;
+  const id = getYoutubeId(url);
 
-  loadData(false);
-</script>
+  if (id) {
+    els.urlPreviewWrap.style.display = 'block';
+    els.urlPreviewFrame.src = `https://www.youtube.com/embed/${id}`;
+
+    if (!els.inTitle.value) {
+      const title = await fetchYoutubeTitle(url);
+      if (title) els.inTitle.value = title;
+    }
+
+  } else {
+    els.urlPreviewWrap.style.display = 'none';
+  }
+}
+
+    // ── 태그 실시간 칩 프리뷰 (모달)
+    function onTagInputPreview() {
+      const raw = normalizeText(els.inTag.value);
+      const tags = raw ? raw.split('/').map(t => t.trim()).filter(Boolean) : [];
+      const container = document.getElementById('tagPreviewChips');
+      container.innerHTML = '';
+      tags.forEach(tag => {
+        const chip = document.createElement('span');
+        chip.style.cssText = `display:inline-block;padding:3px 9px;border-radius:99px;font-size:.7rem;font-weight:700;background:${stringToLightColor(tag)};color:${stringToColor(tag)}`;
+        chip.textContent = '#' + tag;
+        container.appendChild(chip);
+      });
+    }
+
+    // ── 모달 열릴 때 미리보기 초기화
+    const _origOpenAddForm = openAddForm;
+    openAddForm = function() {
+      _origOpenAddForm();
+      document.getElementById('urlPreviewWrap').style.display = 'none';
+      document.getElementById('urlPreviewFrame').src = '';
+      document.getElementById('tagPreviewChips').innerHTML = '';
+    };
+    const _origOpenEditFormById = openEditFormById;
+    openEditFormById = function(id) {
+      _origOpenEditFormById(id);
+      setTimeout(() => {
+        onUrlInputPreview();
+        onTagInputPreview();
+      }, 50);
+    };
+
+    loadData(false);
+
+   let currentIndex = 0;
+
+
+  </script>
 </body>
 </html>
