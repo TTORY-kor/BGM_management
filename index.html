@@ -6,7 +6,6 @@
 <title>BGM Studio PRO</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
-/* ── 다크 ── */
 :root,[data-theme="dark"]{
   --bg:#0e0f11;--bg2:#131417;--surface:#1a1c20;--surface2:#21232a;--surface3:#272930;
   --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.13);--border3:rgba(255,255,255,.22);
@@ -18,7 +17,6 @@
   --sh:0 4px 20px rgba(0,0,0,.5);--sh-lg:0 16px 48px rgba(0,0,0,.6);
   --player-bg:#0a0b0d;
 }
-/* ── 라이트 ── */
 [data-theme="light"]{
   --bg:#f5f7fc;--bg2:#ffffff;--surface:#ffffff;--surface2:#f0f4fa;--surface3:#e8eef8;
   --border:rgba(0,0,0,.07);--border2:rgba(0,0,0,.12);--border3:rgba(0,0,0,.18);
@@ -42,58 +40,36 @@ html,body{height:100%;overflow:hidden;}
 body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;transition:background var(--tr-slow),color var(--tr-slow);}
 button,input,select,textarea{font:inherit;}
 a{color:inherit;text-decoration:none;}
-::-webkit-scrollbar{width:4px;}
-::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:var(--faint);border-radius:99px;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--faint);border-radius:99px;}
 
 /* ══ 사이드바 ══ */
-.sidebar{
-  width:var(--sw);flex-shrink:0;background:var(--bg2);
-  display:flex;flex-direction:column;overflow:hidden;
-  border-right:1px solid var(--border);
-  transition:width .24s cubic-bezier(.4,0,.2,1),background var(--tr-slow);
-}
+.sidebar{width:var(--sw);flex-shrink:0;background:var(--bg2);display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--border);transition:width .24s cubic-bezier(.4,0,.2,1),background var(--tr-slow);}
 body.sb-col .sidebar{width:56px;}
-
-.brand{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:16px 12px 13px;border-bottom:1px solid var(--border);
-  flex-shrink:0;gap:8px;
-}
+.brand{display:flex;align-items:center;justify-content:space-between;padding:16px 12px 13px;border-bottom:1px solid var(--border);flex-shrink:0;gap:8px;}
 .brand-main{display:flex;align-items:center;gap:9px;min-width:0;flex:1;}
 .brand-icon{width:30px;height:30px;border-radius:var(--r);background:linear-gradient(135deg,var(--amber),var(--amber2));display:grid;place-items:center;font-size:.82rem;flex-shrink:0;box-shadow:0 3px 10px var(--amber-glow);position:relative;}
 .brand-icon::after{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(135deg,rgba(255,255,255,.25) 0%,transparent 60%);}
 .brand-text{min-width:0;overflow:hidden;}
 .brand-name{font-size:.78rem;font-weight:700;color:var(--text);white-space:nowrap;}
 .brand-sub{font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;}
+/* 접혀있어도 토글 버튼 항상 표시 */
 .sb-toggle{width:22px;height:22px;border-radius:var(--r-sm);border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;display:grid;place-items:center;font-size:.68rem;flex-shrink:0;transition:var(--tr);}
 .sb-toggle:hover{background:var(--surface2);color:var(--text);}
 
-body.sb-col .brand-text,
-body.sb-col .sec-label,
-body.sb-col .menu-label,
-body.sb-col .menu-count,
-body.sb-col .sb-search,
-body.sb-col .tag-cloud,
-body.sb-col .folder-sec,
-body.sb-col .sb-hint,
-body.sb-col .theme-row{display:none!important;}
+body.sb-col .brand-text,body.sb-col .sec-label,body.sb-col .menu-label,body.sb-col .menu-count,body.sb-col .sb-search,body.sb-col .tag-cloud,body.sb-col .folder-sec,body.sb-col .sb-hint,body.sb-col .theme-row{display:none!important;}
 body.sb-col .menu-item{justify-content:center;padding:8px;}
 body.sb-col .sb-sec{padding:7px 5px 0;}
-body.sb-col .brand{padding:13px 10px;justify-content:center;}
+body.sb-col .brand{padding:13px 10px;flex-direction:column;align-items:center;gap:8px;justify-content:center;}
 body.sb-col .brand-main{justify-content:center;}
-body.sb-col .sb-toggle{display:grid;}
 
 .sb-body{flex:1;overflow-y:auto;padding:10px 7px 80px;display:flex;flex-direction:column;gap:1px;}
 .sb-sec{margin-bottom:1px;}
 .sec-label{font-size:.57rem;font-weight:600;text-transform:uppercase;letter-spacing:.14em;color:var(--faint);padding:0 7px 5px;}
-
 .sb-search{display:flex;align-items:center;gap:6px;padding:6px 9px;border-radius:var(--r-sm);background:var(--surface2);border:1px solid var(--border);margin-bottom:3px;transition:var(--tr);}
 .sb-search:focus-within{border-color:var(--amber);background:var(--amber-dim);box-shadow:0 0 0 2px var(--amber-ring);}
 .sb-search svg{color:var(--faint);flex-shrink:0;}
 .sb-search input{width:100%;background:transparent;border:0;outline:none;color:var(--text);font-size:.75rem;}
 .sb-search input::placeholder{color:var(--faint);}
-
 .menu-list{display:flex;flex-direction:column;gap:1px;}
 .menu-item{display:flex;align-items:center;gap:8px;padding:7px 9px;min-height:33px;border-radius:var(--r-sm);cursor:pointer;transition:all var(--tr);color:var(--text2);font-size:.79rem;font-weight:500;user-select:none;overflow:hidden;position:relative;}
 .menu-item:hover{background:var(--surface2);color:var(--text);}
@@ -108,22 +84,16 @@ body.sb-col .sb-toggle{display:grid;}
 .menu-item.active .menu-count{background:var(--amber-glow);color:var(--amber);border-color:transparent;}
 .color-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;border:1.5px solid rgba(255,255,255,.12);transition:transform var(--tr);}
 .color-dot:hover{transform:scale(1.3);}
-
-/* 폴더 행 */
 .folder-row{display:flex;align-items:center;border-radius:var(--r-sm);overflow:hidden;}
 .folder-row .menu-item{flex:1;border-radius:0;}
 .folder-color-btn{width:26px;height:33px;border:0;background:transparent;cursor:pointer;display:grid;place-items:center;font-size:.68rem;color:var(--faint);transition:var(--tr);flex-shrink:0;}
 .folder-color-btn:hover{color:var(--amber);background:var(--amber-dim);}
-
-/* 태그 */
 .tag-cloud{display:flex;flex-wrap:wrap;gap:3px;padding:1px 2px 3px;}
 .tag-chip{font-size:.63rem;font-weight:600;padding:2px 7px;border-radius:3px;cursor:pointer;border:0;transition:var(--tr);line-height:1.5;display:flex;align-items:center;gap:3px;}
 .tag-chip:hover{opacity:.72;transform:translateY(-1px);}
 .tag-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
-
 .sb-hint{margin:3px 5px 0;padding:8px 9px;border-radius:var(--r-sm);background:var(--surface2);border:1px solid var(--border);font-size:.63rem;color:var(--muted);line-height:1.8;}
 .kbd{display:inline-block;background:var(--surface3);color:var(--text2);border:1px solid var(--border2);border-radius:3px;padding:0 4px;font-size:.57rem;font-weight:600;font-family:var(--mono);}
-
 .theme-row{display:flex;align-items:center;justify-content:space-between;padding:3px 8px;}
 .theme-row span{font-size:.75rem;color:var(--text2);font-weight:500;}
 .theme-toggle{width:48px;height:24px;border-radius:99px;border:1px solid var(--border2);background:var(--surface2);cursor:pointer;flex-shrink:0;display:flex;align-items:center;padding:2px;transition:var(--tr);}
@@ -134,27 +104,15 @@ body.sb-col .sb-toggle{display:grid;}
 
 /* ══ MAIN ══ */
 .main-content{flex:1;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;min-width:0;background:var(--bg);transition:background var(--tr-slow);padding-bottom:var(--ph);}
-
-/* ── 상단 헤더바 ── */
-.topbar{
-  background:var(--bg2);border-bottom:1px solid var(--border);
-  padding:10px 16px;
-  display:flex;align-items:center;gap:10px;
-  flex-shrink:0;transition:background var(--tr-slow);
-}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;transition:background var(--tr-slow);}
 .topbar-title{font-size:.85rem;font-weight:700;color:var(--text);letter-spacing:-.02em;white-space:nowrap;}
-/* URL 입력 (참고 사이트처럼 인라인) */
 .url-input-wrap{flex:1;display:flex;align-items:center;gap:8px;min-width:0;}
 .url-input-box{flex:1;display:flex;align-items:center;gap:7px;height:34px;padding:0 11px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);transition:var(--tr);}
 .url-input-box:focus-within{border-color:var(--amber);box-shadow:0 0 0 2px var(--amber-ring);background:var(--amber-dim);}
 .url-input-box svg{color:var(--faint);flex-shrink:0;}
 .url-input-box input{flex:1;background:transparent;border:0;outline:none;color:var(--text);font-size:.8rem;}
 .url-input-box input::placeholder{color:var(--faint);}
-
-/* 헤더 우측 버튼 */
 .topbar-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
-
-/* ── 버튼 ── */
 .btn{height:32px;padding:0 12px;border-radius:var(--r-sm);border:1px solid var(--border2);background:var(--surface);color:var(--text2);cursor:pointer;font-weight:500;font-size:.77rem;transition:var(--tr);white-space:nowrap;display:inline-flex;align-items:center;gap:5px;}
 .btn:hover{background:var(--surface2);border-color:var(--border3);color:var(--text);}
 .btn:active{transform:scale(.97);}
@@ -163,17 +121,8 @@ body.sb-col .sb-toggle{display:grid;}
 .btn.primary:hover{background:var(--amber3);border-color:var(--amber3);}
 .btn.ghost{background:transparent;border-color:transparent;color:var(--muted);}
 .btn.ghost:hover{background:var(--surface2);border-color:var(--border);color:var(--text2);}
-.btn.soft{background:var(--amber-dim);color:var(--amber);border-color:var(--amber-ring);font-weight:600;}
-.btn.soft:hover{background:var(--amber-glow);}
-.btn.icon-btn{width:32px;padding:0;border-radius:var(--r-sm);justify-content:center;font-size:.9rem;}
 .btn.active-state{background:var(--amber-dim);color:var(--amber);border-color:var(--amber-ring);font-weight:700;}
-
-/* ── 필터/툴바 ── */
-.filterbar{
-  padding:8px 16px;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:7px;flex-wrap:wrap;
-  background:var(--bg2);flex-shrink:0;transition:background var(--tr-slow);
-}
+.filterbar{padding:8px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px;flex-wrap:wrap;background:var(--bg2);flex-shrink:0;transition:background var(--tr-slow);}
 .search-box{display:flex;align-items:center;gap:6px;flex:1;min-width:140px;height:30px;padding:0 9px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);transition:var(--tr);}
 .search-box:focus-within{border-color:var(--amber);box-shadow:0 0 0 2px var(--amber-ring);background:var(--amber-dim);}
 .search-box svg{color:var(--faint);flex-shrink:0;}
@@ -182,33 +131,23 @@ body.sb-col .sb-toggle{display:grid;}
 .search-clear{width:13px;height:13px;border-radius:50%;border:0;background:var(--faint);color:var(--bg);cursor:pointer;font-size:.52rem;display:none;place-items:center;flex-shrink:0;}
 .search-clear.vis{display:grid;}
 .search-clear:hover{background:var(--amber);}
-
 .sel-wrap{display:flex;align-items:center;gap:5px;height:30px;padding:0 8px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer;transition:var(--tr);}
 .sel-wrap:focus-within{border-color:var(--amber);}
 .sel-wrap svg{color:var(--faint);flex-shrink:0;}
 .sel-wrap select{background:transparent;border:0;outline:none;color:var(--text2);font-size:.75rem;cursor:pointer;}
 .sel-wrap select option{background:var(--surface);color:var(--text);}
-
-/* 뷰 토글 (아이콘) */
 .view-toggle-wrap{display:inline-flex;padding:2px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);gap:1px;}
 .vt-btn{width:28px;height:26px;border-radius:4px;border:0;background:transparent;color:var(--muted);cursor:pointer;display:grid;place-items:center;font-size:.88rem;transition:var(--tr);}
 .vt-btn:hover{color:var(--text2);}
 .vt-btn.active{background:var(--amber-dim);color:var(--amber);}
-
 .fb-sep{width:1px;height:16px;background:var(--border);flex-shrink:0;}
-
-/* 상태바 */
 .status-bar{display:flex;flex-wrap:wrap;gap:3px;padding:6px 16px 0;}
 .status-pill{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:2px 7px;font-size:.64rem;font-weight:500;color:var(--muted);font-family:var(--mono);}
-
-/* 메시지 */
 .message-box{display:none;margin:6px 16px 0;padding:8px 11px;border-radius:var(--r-sm);font-size:.77rem;line-height:1.5;border:1px solid transparent;gap:6px;}
 .message-box.show{display:flex;align-items:flex-start;}
 .message-box.info{background:var(--amber-dim);color:var(--amber);border-color:var(--amber-ring);}
 .message-box.error{background:var(--rose-dim);color:var(--rose);border-color:rgba(220,38,38,.2);}
 .message-box.success{background:var(--green-dim);color:var(--green);border-color:rgba(22,163,74,.2);}
-
-/* ══ 보드 ══ */
 .board-wrap{margin:10px 16px 16px;flex:1;}
 .board-header{display:flex;align-items:center;justify-content:space-between;padding:9px 12px 8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg) var(--r-lg) 0 0;transition:background var(--tr-slow);}
 .board-title-txt{font-size:.8rem;font-weight:700;color:var(--text);}
@@ -219,15 +158,10 @@ body.sb-col .sb-toggle{display:grid;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .empty-state{text-align:center;padding:48px 20px;color:var(--muted);font-size:.8rem;}
 .empty-state strong{display:block;font-size:.9rem;color:var(--text2);margin-bottom:4px;}
-
-/* ══ 그리드 ══ */
 #bgmGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:1px;background:var(--border);}
-
-/* ══ 카드 (그리드) ══ */
 .bgm-card{background:var(--surface);position:relative;display:flex;flex-direction:column;cursor:pointer;transition:background var(--tr);}
 .bgm-card:hover{background:var(--surface2);}
 .card-stripe{position:absolute;left:0;top:0;bottom:0;width:3px;z-index:2;}
-
 .card-thumb{position:relative;padding-bottom:56.25%;background:var(--surface3);overflow:hidden;margin-left:3px;}
 .card-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .28s ease;}
 .bgm-card:hover .card-thumb img{transform:scale(1.04);}
@@ -238,7 +172,6 @@ body.sb-col .sb-toggle{display:grid;}
 .card-play-icon span{width:34px;height:34px;border-radius:50%;background:rgba(245,166,35,.9);display:grid;place-items:center;font-size:.85rem;box-shadow:0 2px 12px rgba(0,0,0,.35);}
 .card-fav-btn{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.18);cursor:pointer;font-size:.7rem;display:grid;place-items:center;transition:var(--tr);color:rgba(255,255,255,.65);z-index:3;backdrop-filter:blur(4px);}
 .card-fav-btn:hover,.card-fav-btn.active{background:rgba(245,166,35,.85);color:#fff;border-color:transparent;}
-
 .card-inner{padding:9px 11px 9px 14px;display:flex;flex-direction:column;gap:5px;flex:1;}
 .card-folder-badge{font-size:.57rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;padding:2px 5px;border-radius:3px;width:fit-content;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .card-title{font-size:.81rem;font-weight:600;line-height:1.45;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
@@ -249,15 +182,12 @@ body.sb-col .sb-toggle{display:grid;}
 .card-tags{display:flex;flex-wrap:wrap;gap:3px;}
 .card-tag{font-size:.59rem;font-weight:600;padding:2px 5px;border-radius:3px;cursor:pointer;transition:var(--tr);}
 .card-tag:hover{opacity:.7;}
-
 .card-actions{display:flex;border-top:1px solid var(--border);}
 .card-action-btn{flex:1;height:28px;border:0;border-right:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-weight:500;font-size:.66rem;transition:var(--tr);display:inline-flex;align-items:center;justify-content:center;}
 .card-action-btn:last-child{border-right:0;}
 .card-action-btn:hover{background:var(--surface2);color:var(--text2);}
 .card-action-btn.copy:hover{color:var(--amber);background:var(--amber-dim);}
 .card-action-btn.del:hover{color:var(--rose);background:var(--rose-dim);}
-
-/* ══ 리스트 뷰 ══ */
 #bgmGrid.compact{grid-template-columns:1fr;gap:0;background:transparent;}
 #bgmGrid.compact .bgm-card{flex-direction:row;align-items:stretch;border-bottom:1px solid var(--border);height:auto;}
 #bgmGrid.compact .bgm-card:last-child{border-bottom:0;}
@@ -265,9 +195,7 @@ body.sb-col .sb-toggle{display:grid;}
 #bgmGrid.compact .card-stripe{position:relative;width:3px;height:auto;flex-shrink:0;top:auto;bottom:auto;left:auto;}
 #bgmGrid.compact .card-thumb{padding-bottom:0;width:72px;height:42px;flex-shrink:0;margin-left:0;}
 #bgmGrid.compact .card-thumb img{position:static;width:100%;height:100%;}
-#bgmGrid.compact .card-thumb-overlay,
-#bgmGrid.compact .card-play-icon,
-#bgmGrid.compact .card-fav-btn{display:none;}
+#bgmGrid.compact .card-thumb-overlay,#bgmGrid.compact .card-play-icon,#bgmGrid.compact .card-fav-btn{display:none;}
 #bgmGrid.compact .card-inner{flex-direction:row;align-items:center;padding:7px 11px;gap:9px;flex-wrap:nowrap;flex:1;}
 #bgmGrid.compact .card-folder-badge{flex-shrink:0;max-width:64px;}
 #bgmGrid.compact .card-title{flex:1;-webkit-line-clamp:1;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.77rem;}
@@ -278,14 +206,7 @@ body.sb-col .sb-toggle{display:grid;}
 #bgmGrid.compact .card-action-btn{width:38px;}
 .list-fav{width:22px;height:22px;border-radius:var(--r-sm);border:1px solid var(--border);background:transparent;cursor:pointer;font-size:.66rem;flex-shrink:0;display:grid;place-items:center;transition:var(--tr);color:var(--faint);}
 .list-fav.active,.list-fav:hover{color:var(--amber);border-color:var(--amber);background:var(--amber-dim);}
-
-/* ══ 하단 플레이어 ══ */
-#player{
-  position:fixed;bottom:0;left:0;right:0;height:var(--ph);
-  background:var(--player-bg);border-top:1px solid rgba(255,255,255,.08);
-  z-index:500;display:flex;align-items:center;gap:10px;padding:0 18px;
-  transition:transform .28s cubic-bezier(.4,0,.2,1);
-}
+#player{position:fixed;bottom:0;left:0;right:0;height:var(--ph);background:var(--player-bg);border-top:1px solid rgba(255,255,255,.08);z-index:500;display:flex;align-items:center;gap:10px;padding:0 18px;transition:transform .28s cubic-bezier(.4,0,.2,1);}
 #player.hidden{transform:translateY(100%);}
 .player-thumb{width:44px;height:44px;border-radius:var(--r-sm);overflow:hidden;flex-shrink:0;background:var(--surface2);}
 .player-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
@@ -297,9 +218,9 @@ body.sb-col .sb-toggle{display:grid;}
 .p-btn:hover{color:#fff;background:rgba(255,255,255,.08);}
 .p-btn.play{width:36px;height:36px;background:var(--amber);color:#0e0f11;font-size:.95rem;}
 .p-btn.play:hover{background:var(--amber3);transform:scale(1.06);}
-.p-btn.active-repeat{color:var(--amber);}
+.p-btn.p-active{color:var(--amber);}
 .player-progress-wrap{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0;}
-.player-progress{width:100%;height:3px;background:rgba(255,255,255,.1);border-radius:99px;cursor:pointer;position:relative;}
+.player-progress{width:100%;height:3px;background:rgba(255,255,255,.1);border-radius:99px;cursor:pointer;transition:height .1s;}
 .player-progress:hover{height:5px;}
 .player-progress-bar{height:100%;background:var(--amber);border-radius:99px;width:0%;pointer-events:none;}
 .player-time{display:flex;justify-content:space-between;font-size:.58rem;color:rgba(255,255,255,.3);font-family:var(--mono);}
@@ -312,8 +233,6 @@ body.sb-col .sb-toggle{display:grid;}
 .p-close{width:24px;height:24px;border-radius:var(--r-sm);border:1px solid rgba(255,255,255,.08);background:transparent;color:rgba(255,255,255,.35);cursor:pointer;font-size:.68rem;display:grid;place-items:center;transition:var(--tr);}
 .p-close:hover{background:var(--rose-dim);border-color:rgba(220,38,38,.3);color:var(--rose);}
 #ytFrame{position:absolute;width:0;height:0;border:0;opacity:0;pointer-events:none;}
-
-/* ══ 모달 ══ */
 #inputOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.58);backdrop-filter:blur(6px);z-index:600;justify-content:center;align-items:center;padding:20px;}
 .modal-card{background:var(--surface);border:1px solid var(--border2);padding:20px;border-radius:var(--r-xl);width:100%;max-width:500px;box-shadow:var(--sh-lg);animation:modal-in .16s ease;max-height:90vh;overflow-y:auto;}
 @keyframes modal-in{from{opacity:0;transform:scale(.97) translateY(6px);}to{opacity:1;transform:none;}}
@@ -336,8 +255,6 @@ body.sb-col .sb-toggle{display:grid;}
 .form-actions{display:flex;gap:7px;margin-top:14px;}
 .form-actions .btn{flex:1;height:34px;font-size:.79rem;}
 .form-footer{margin-top:8px;font-size:.63rem;color:var(--faint);line-height:1.7;}
-
-/* ══ 컬러 피커 ══ */
 #colorPickerOverlay{display:none;position:fixed;inset:0;z-index:700;justify-content:center;align-items:center;}
 #colorPickerOverlay .cp-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.38);}
 .cp-card{position:relative;z-index:1;background:var(--surface);border:1px solid var(--border2);padding:14px;border-radius:var(--r-lg);min-width:210px;box-shadow:var(--sh-lg);animation:modal-in .14s ease;}
@@ -350,32 +267,14 @@ body.sb-col .sb-toggle{display:grid;}
 .cp-custom input[type="color"]{width:32px;height:26px;border:1px solid var(--border2);border-radius:var(--r-sm);background:transparent;cursor:pointer;padding:2px;}
 .cp-actions{display:flex;gap:5px;}
 .cp-actions .btn{flex:1;height:28px;font-size:.71rem;}
-
-/* ══ TOAST ══ */
 .toast{position:fixed;right:14px;bottom:calc(var(--ph)+10px);background:var(--surface2);color:var(--text);padding:8px 12px 8px 10px;border-radius:var(--r-lg);box-shadow:var(--sh-lg);z-index:300;opacity:0;transform:translateY(4px);pointer-events:none;transition:.18s ease;font-size:.74rem;max-width:230px;border:1px solid var(--border2);display:flex;align-items:center;gap:6px;}
 .toast-icon{width:15px;height:15px;border-radius:50%;background:var(--amber-dim);color:var(--amber);font-size:.52rem;font-weight:700;display:grid;place-items:center;flex-shrink:0;}
 .toast.show{opacity:1;transform:translateY(0);}
-
 @keyframes fade-up{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
 .topbar,.filterbar,.board-wrap{animation:fade-up .25s ease both;}
 .filterbar{animation-delay:.04s;}.board-wrap{animation-delay:.08s;}
-
-@media(max-width:960px){
-  body{flex-direction:column;overflow:auto;}
-  .sidebar{width:100%;}
-  body.sb-col .sidebar{width:100%;}
-  .main-content{overflow:visible;}
-  .filterbar,.board-wrap,.status-bar,.message-box{margin-left:10px;margin-right:10px;}
-  .form-grid{grid-template-columns:1fr;}
-  .span-2{grid-column:auto;}
-  .player-vol{display:none;}
-  .player-info{width:130px;}
-}
-@media(max-width:620px){
-  #bgmGrid{grid-template-columns:1fr;}
-  .form-actions{flex-direction:column;}
-  .player-progress-wrap{display:none;}
-}
+@media(max-width:960px){body{flex-direction:column;overflow:auto;}.sidebar{width:100%;}body.sb-col .sidebar{width:100%;}.main-content{overflow:visible;}.filterbar,.board-wrap,.status-bar,.message-box{margin-left:10px;margin-right:10px;}.form-grid{grid-template-columns:1fr;}.span-2{grid-column:auto;}.player-vol{display:none;}.player-info{width:130px;}}
+@media(max-width:620px){#bgmGrid{grid-template-columns:1fr;}.form-actions{flex-direction:column;}.player-progress-wrap{display:none;}}
 </style>
 </head>
 <body>
@@ -383,25 +282,17 @@ body.sb-col .sb-toggle{display:grid;}
 <div id="toast" class="toast"><div class="toast-icon">✓</div><span id="toastText"></span></div>
 <iframe id="ytFrame" allow="autoplay"></iframe>
 
-<!-- 컬러 피커 -->
 <div id="colorPickerOverlay">
   <div class="cp-backdrop" onclick="closeColorPicker()"></div>
   <div class="cp-card">
     <h4 id="cpTitle">색상 변경</h4>
     <div class="cp-presets" id="cpPresets"></div>
-    <div class="cp-custom">
-      <span>직접 선택</span>
-      <input type="color" id="cpInput" oninput="onCpInput(this.value)"/>
-    </div>
-    <div class="cp-actions">
-      <button class="btn primary" onclick="applyColorPicker()">적용</button>
-      <button class="btn ghost" onclick="closeColorPicker()">취소</button>
-    </div>
+    <div class="cp-custom"><span>직접 선택</span><input type="color" id="cpInput" oninput="onCpInput(this.value)"/></div>
+    <div class="cp-actions"><button class="btn primary" onclick="applyColorPicker()">적용</button><button class="btn ghost" onclick="closeColorPicker()">취소</button></div>
   </div>
 </div>
 
-<!-- 추가/수정 모달 -->
-<div id="inputOverlay" aria-hidden="true">
+<div id="inputOverlay">
   <div class="modal-card" role="dialog" aria-modal="true">
     <div class="modal-head">
       <h3 id="formTitle">새로운 BGM 추가</h3>
@@ -409,167 +300,81 @@ body.sb-col .sb-toggle{display:grid;}
     </div>
     <input type="hidden" id="editId"/>
     <div class="form-grid">
-      <div class="field span-2">
-        <label class="field-label" for="inTitle">제목 / 장면 설명<span class="req">*</span></label>
-        <input type="text" id="inTitle" placeholder="예: 이별 후 새벽 산책" maxlength="200"/>
-      </div>
+      <div class="field span-2"><label class="field-label" for="inTitle">제목 / 장면 설명<span class="req">*</span></label><input type="text" id="inTitle" placeholder="예: 이별 후 새벽 산책" maxlength="200"/></div>
       <div class="field span-2">
         <label class="field-label" for="inUrl">유튜브 URL<span class="req">*</span></label>
         <input type="text" id="inUrl" placeholder="https://www.youtube.com/watch?v=..." oninput="onUrlInputPreview()"/>
         <div id="urlPreviewWrap"><iframe id="urlPreviewFrame" allowfullscreen loading="lazy"></iframe></div>
       </div>
-      <div class="field">
-        <label class="field-label" for="inFolder">폴더</label>
-        <input type="text" id="inFolder" placeholder="전투 / 일상 / 슬픔" maxlength="100"/>
-      </div>
-      <div class="field">
-        <label class="field-label" for="inTag">태그 <span style="font-weight:400;color:var(--faint);text-transform:none;letter-spacing:0">(/ 구분)</span></label>
-        <input type="text" id="inTag" placeholder="긴장/몽환/야간" maxlength="200" oninput="onTagInputPreview()"/>
-        <div id="tagPreviewChips"></div>
-      </div>
+      <div class="field"><label class="field-label" for="inFolder">폴더</label><input type="text" id="inFolder" placeholder="전투 / 일상 / 슬픔" maxlength="100"/></div>
+      <div class="field"><label class="field-label" for="inTag">태그 <span style="font-weight:400;color:var(--faint);text-transform:none;letter-spacing:0">(/ 구분)</span></label><input type="text" id="inTag" placeholder="긴장/몽환/야간" maxlength="200" oninput="onTagInputPreview()"/><div id="tagPreviewChips"></div></div>
     </div>
     <div class="form-hint">태그는 <strong style="color:var(--amber)">/</strong> 로 구분합니다.</div>
-    <div class="form-actions">
-      <button class="btn primary" id="saveBtn" onclick="saveToSheet()">저장</button>
-      <button class="btn ghost" onclick="toggleInput(false)">취소</button>
-    </div>
+    <div class="form-actions"><button class="btn primary" id="saveBtn" onclick="saveToSheet()">저장</button><button class="btn ghost" onclick="toggleInput(false)">취소</button></div>
     <div class="form-footer"><span class="kbd">N</span> 추가 · <span class="kbd">Ctrl+K</span> 검색 · <span class="kbd">Esc</span> 닫기</div>
   </div>
 </div>
 
-<!-- 사이드바 -->
 <aside class="sidebar">
   <div class="brand">
-    <div class="brand-main">
-      <div class="brand-icon">🎵</div>
-      <div class="brand-text">
-        <div class="brand-name">BGM Studio</div>
-        <div class="brand-sub">PRO</div>
-      </div>
-    </div>
-    <button class="sb-toggle" id="collapseBtn">☰</button>
+    <div class="brand-main"><div class="brand-icon">🎵</div><div class="brand-text"><div class="brand-name">BGM Studio</div><div class="brand-sub">PRO</div></div></div>
+    <button class="sb-toggle" id="collapseBtn" title="사이드바 접기/펴기">☰</button>
   </div>
   <div class="sb-body">
     <div class="sb-sec">
       <div class="sec-label">메뉴</div>
       <div class="menu-list">
-        <div class="menu-item active" id="menu-all" onclick="setFilter('전체','folder')">
-          <span class="menu-icon">⊞</span><span class="menu-label">전체 보기</span><span class="menu-count" id="allCount">0</span>
-        </div>
-        <div class="menu-item" id="menu-favorites" onclick="setFilter('__favorites__','special')">
-          <span class="menu-icon">★</span><span class="menu-label">즐겨찾기</span><span class="menu-count" id="favoriteCount">0</span>
-        </div>
-        <div class="menu-item" id="menu-recent" onclick="setFilter('__recent__','special')">
-          <span class="menu-icon">◷</span><span class="menu-label">최근 수정</span>
-        </div>
-        <div class="menu-item add-btn" onclick="openAddForm()">
-          <span class="menu-icon">＋</span><span class="menu-label">BGM 추가</span>
-        </div>
+        <div class="menu-item active" id="menu-all" onclick="setFilter('전체','folder')"><span class="menu-icon">⊞</span><span class="menu-label">전체 보기</span><span class="menu-count" id="allCount">0</span></div>
+        <div class="menu-item" id="menu-favorites" onclick="setFilter('__favorites__','special')"><span class="menu-icon">★</span><span class="menu-label">즐겨찾기</span><span class="menu-count" id="favoriteCount">0</span></div>
+        <div class="menu-item" id="menu-recent" onclick="setFilter('__recent__','special')"><span class="menu-icon">◷</span><span class="menu-label">최근 수정</span></div>
+        <div class="menu-item add-btn" onclick="openAddForm()"><span class="menu-icon">＋</span><span class="menu-label">BGM 추가</span></div>
       </div>
     </div>
-    <div class="sb-sec">
-      <div class="sec-label">테마</div>
-      <div class="theme-row">
-        <span id="themeLabel">다크 모드</span>
-        <button class="theme-toggle" onclick="toggleTheme()">
-          <div class="theme-knob"><span id="themeKnobIcon">🌙</span></div>
-        </button>
-      </div>
-    </div>
-    <div class="sb-sec">
-      <div class="sec-label">검색</div>
-      <div class="sb-search">
-        <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="3.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 8l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-        <input type="text" id="sideFilterInput" placeholder="폴더·태그 검색" oninput="renderMenus()"/>
-      </div>
-    </div>
-    <div class="sb-sec folder-sec">
-      <div class="sec-label">Folders</div>
-      <div id="folderMenu"></div>
-    </div>
-    <div class="sb-sec">
-      <div class="sec-label">Tags</div>
-      <div class="tag-cloud" id="tagMenu"></div>
-    </div>
-    <div class="sb-hint">
-      폴더 🎨 · 태그 우클릭 → 색상 변경<br>
-      <span class="kbd">N</span> 추가 &nbsp;<span class="kbd">Ctrl+K</span> 검색
-    </div>
+    <div class="sb-sec"><div class="sec-label">테마</div><div class="theme-row"><span id="themeLabel">다크 모드</span><button class="theme-toggle" onclick="toggleTheme()"><div class="theme-knob"><span id="themeKnobIcon">🌙</span></div></button></div></div>
+    <div class="sb-sec"><div class="sec-label">검색</div><div class="sb-search"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="3.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 8l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><input type="text" id="sideFilterInput" placeholder="폴더·태그 검색" oninput="renderMenus()"/></div></div>
+    <div class="sb-sec folder-sec"><div class="sec-label">Folders</div><div id="folderMenu"></div></div>
+    <div class="sb-sec"><div class="sec-label">Tags</div><div class="tag-cloud" id="tagMenu"></div></div>
+    <div class="sb-hint">폴더 🎨 · 태그 우클릭 → 색상 변경<br><span class="kbd">N</span> 추가 &nbsp;<span class="kbd">Ctrl+K</span> 검색</div>
   </div>
 </aside>
 
-<!-- 메인 -->
 <main class="main-content">
-
-  <!-- 헤더 (URL 입력 인라인) -->
   <div class="topbar">
     <div class="topbar-title" id="viewTitle">전체 목록</div>
     <div class="url-input-wrap">
       <div class="url-input-box">
         <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.4"/><path d="M10 10l2.5 2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-        <input type="text" id="quickUrlInput" placeholder="YouTube URL 붙여넣기 (예: https://www.youtube.com/watch?v=...)" oninput="onQuickUrlInput(this.value)" onkeydown="onQuickUrlKeydown(event)"/>
+        <input type="text" id="quickUrlInput" placeholder="YouTube URL 붙여넣기..." onkeydown="if(event.key==='Enter')quickAddFromUrl()"/>
       </div>
       <button class="btn primary" onclick="quickAddFromUrl()">＋ 곡 추가</button>
     </div>
-    <div class="topbar-right">
-      <button class="btn ghost" onclick="loadData(true)" title="새로고침">↻</button>
-    </div>
+    <div class="topbar-right"><button class="btn ghost" onclick="loadData(true)" title="새로고침">↻</button></div>
   </div>
-
-  <!-- 필터바 -->
   <div class="filterbar">
-    <div class="search-box">
-      <svg width="11" height="11" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.4"/><path d="M10 10l2.5 2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-      <input type="text" id="searchInput" placeholder="제목, 태그, 폴더 검색..." oninput="handleSearch(this.value)" onfocus="this.select()"/>
-      <button class="search-clear" id="searchClearBtn" onclick="clearSearch()">✕</button>
-    </div>
-    <div class="sel-wrap">
-      <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-      <select id="sortSelect" onchange="handleSortChange(this.value)">
-        <option value="updated_desc">최근 수정순</option>
-        <option value="created_desc">최근 등록순</option>
-        <option value="title_asc">제목 오름차순</option>
-        <option value="folder_asc">폴더 오름차순</option>
-      </select>
-    </div>
+    <div class="search-box"><svg width="11" height="11" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.4"/><path d="M10 10l2.5 2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><input type="text" id="searchInput" placeholder="제목, 태그, 폴더 검색..." oninput="handleSearch(this.value)" onfocus="this.select()"/><button class="search-clear" id="searchClearBtn" onclick="clearSearch()">✕</button></div>
+    <div class="sel-wrap"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><select id="sortSelect" onchange="handleSortChange(this.value)"><option value="updated_desc">최근 수정순</option><option value="created_desc">최근 등록순</option><option value="title_asc">제목 오름차순</option><option value="folder_asc">폴더 오름차순</option></select></div>
     <div class="fb-sep"></div>
     <button class="btn ghost" onclick="clearSearch()" style="height:30px;font-size:.74rem;">초기화</button>
     <button class="btn ghost" onclick="copyCurrentViewSummary()" style="height:30px;font-size:.74rem;">목록 복사</button>
     <button class="btn" id="favoritesOnlyBtn" onclick="toggleFavoritesOnly()" style="height:30px;font-size:.74rem;">★ 즐겨찾기만</button>
     <div class="fb-sep"></div>
-    <!-- 뷰 토글 아이콘 -->
-    <div class="view-toggle-wrap">
-      <button class="vt-btn active" id="vtGrid" onclick="setDensity('comfortable')" title="카드 뷰">⊞</button>
-      <button class="vt-btn" id="vtList" onclick="setDensity('compact')" title="리스트 뷰">≡</button>
-    </div>
+    <div class="view-toggle-wrap"><button class="vt-btn active" id="vtGrid" onclick="setDensity('comfortable')" title="카드 뷰">⊞</button><button class="vt-btn" id="vtList" onclick="setDensity('compact')" title="리스트 뷰">≡</button></div>
   </div>
-
   <div class="status-bar" id="statusBar"></div>
   <div id="messageBox" class="message-box"></div>
-
   <div class="board-wrap">
-    <div class="board-header">
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span class="board-title-txt" id="viewDesc">전체</span>
-        <span class="board-count-txt" id="boardCount"></span>
-      </div>
-    </div>
+    <div class="board-header"><div style="display:flex;align-items:center;gap:8px;"><span class="board-title-txt" id="viewDesc">전체</span><span class="board-count-txt" id="boardCount"></span></div></div>
     <div class="board-body">
       <div id="loading" class="loading">데이터를 불러오는 중입니다...</div>
       <div id="bgmGrid" style="display:none;"></div>
       <div id="emptyState" class="empty-state" style="display:none;"></div>
     </div>
   </div>
-
 </main>
 
-<!-- 하단 플레이어 -->
 <div id="player" class="hidden">
   <div class="player-thumb"><img id="playerThumb" src="" alt=""/></div>
-  <div class="player-info">
-    <div class="player-title" id="playerTitle">—</div>
-    <div class="player-sub" id="playerSub"></div>
-  </div>
+  <div class="player-info"><div class="player-title" id="playerTitle">—</div><div class="player-sub" id="playerSub"></div></div>
   <div class="player-controls">
     <button class="p-btn" id="btnShuffle" onclick="toggleShuffle()" title="셔플">⇄</button>
     <button class="p-btn" onclick="playPrev()" title="이전">⏮</button>
@@ -578,33 +383,34 @@ body.sb-col .sb-toggle{display:grid;}
     <button class="p-btn" id="btnRepeat" onclick="toggleRepeat()" title="반복">↺</button>
   </div>
   <div class="player-progress-wrap">
-    <div class="player-progress" id="progressBar" onclick="seekTo(event)">
-      <div class="player-progress-bar" id="progressFill"></div>
-    </div>
+    <div class="player-progress" id="progressBar" onclick="seekTo(event)"><div class="player-progress-bar" id="progressFill"></div></div>
     <div class="player-time"><span id="timeCurrent">0:00</span><span id="timeDuration">0:00</span></div>
   </div>
-  <div class="player-vol">
-    <span class="vol-icon" id="volIcon" onclick="toggleMute()">🔊</span>
-    <input type="range" class="vol-slider" id="volSlider" min="0" max="100" value="80" oninput="setVolume(this.value)"/>
-  </div>
-  <div class="player-right">
-    <span class="p-queue" id="queueInfo"></span>
-    <button class="p-close" onclick="closePlayer()">✕</button>
-  </div>
+  <div class="player-vol"><span class="vol-icon" id="volIcon" onclick="toggleMute()">🔊</span><input type="range" class="vol-slider" id="volSlider" min="0" max="100" value="80" oninput="setVolume(this.value)"/></div>
+  <div class="player-right"><span class="p-queue" id="queueInfo"></span><button class="p-close" onclick="closePlayer()">✕</button></div>
 </div>
 
 <script>
-/* ══════════════════════════════════
-   API / 상수
-══════════════════════════════════ */
-const API_URL='https://script.google.com/macros/s/AKfycbw3T4U6TXuvNFjHwXlC0RcQ2jazWqS5S7BSdjsey6xOeP1iQ_IdgTJ2XBqko1d_R9Q/exec';
+/* ══ API ══
+   CORS 완전 해결: 모든 요청을 GET으로 전송
+   Apps Script URL에 쿼리스트링으로 파라미터를 붙임
+*/
+const API_URL='https://script.google.com/macros/s/AKfycbwSBj5FYwZ6OT3JHdKxyJ7s52DhDso9qiKGWbX2KpgpM0-AosZ9aOmMZSCvnUe2_5U/exec';
 const COLOR_PRESETS=['#f5a623','#ef4444','#f97316','#eab308','#22c55e','#14b8a6','#3b82f6','#8b5cf6','#ec4899','#6b7280','#0ea5e9','#84cc16'];
 
-/* ══════════════════════════════════
-   상태
-══════════════════════════════════ */
-let allItems=[], currentFilter={type:'folder',value:'전체'}, searchKeyword='', isSaving=false;
-let sortMode   =localStorage.getItem('bgm_sortMode')   ||'updated_desc';
+// GET 요청 헬퍼 — 파라미터를 URL에 붙여서 전송 (CORS 없음)
+function apiCall(params){
+  const qs=Object.entries(params)
+    .filter(([,v])=>v!=null&&v!=='')
+    .map(([k,v])=>`${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+    .join('&');
+  return fetch(`${API_URL}?${qs}`,{method:'GET',cache:'no-store'})
+    .then(r=>{if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.json();});
+}
+
+/* ══ 상태 ══ */
+let allItems=[],currentFilter={type:'folder',value:'전체'},searchKeyword='',isSaving=false;
+let sortMode=localStorage.getItem('bgm_sortMode')||'updated_desc';
 let densityMode=localStorage.getItem('bgm_densityMode')||'comfortable';
 let favoritesOnly=localStorage.getItem('bgm_favoritesOnly')==='true';
 let favoriteIds=new Set(JSON.parse(localStorage.getItem('bgm_favoriteIds')||'[]'));
@@ -612,57 +418,38 @@ let sidebarCollapsed=localStorage.getItem('bgm_sidebarCollapsed')==='true';
 let themeMode=localStorage.getItem('bgm_theme')||'dark';
 let isModalOpen=false;
 let folderColors=JSON.parse(localStorage.getItem('bgm_folderColors')||'{}');
-let tagColors   =JSON.parse(localStorage.getItem('bgm_tagColors')   ||'{}');
+let tagColors=JSON.parse(localStorage.getItem('bgm_tagColors')||'{}');
+let queue=[],queueIndex=-1,isPlaying=false,isShuffle=false,isRepeat=false;
+let progressTimer=null,elapsedSec=0,durationSec=300,isMuted=false,lastVol=80;
+let cpTarget=null,cpTemp='';
 
-// 플레이어
-let queue=[], queueIndex=-1, isPlaying=false, isShuffle=false, isRepeat=false;
-let progressTimer=null, elapsedSec=0, durationSec=300, isMuted=false, lastVol=80;
-
-// 컬러 피커
-let cpTarget=null, cpTemp='';
-
-/* ══════════════════════════════════
-   DOM
-══════════════════════════════════ */
+/* ══ DOM ══ */
 const $=id=>document.getElementById(id);
 const els={
-  overlay:$('inputOverlay'), formTitle:$('formTitle'), editId:$('editId'),
-  inTitle:$('inTitle'), inUrl:$('inUrl'), inTag:$('inTag'), inFolder:$('inFolder'),
-  saveBtn:$('saveBtn'), folderMenu:$('folderMenu'), tagMenu:$('tagMenu'),
-  bgmGrid:$('bgmGrid'), loading:$('loading'),
-  viewTitle:$('viewTitle'), viewDesc:$('viewDesc'),
-  messageBox:$('messageBox'), searchInput:$('searchInput'),
-  emptyState:$('emptyState'), statusBar:$('statusBar'),
-  sortSelect:$('sortSelect'),
-  toastEl:$('toast'), toastText:$('toastText'),
-  sideFilterInput:$('sideFilterInput'),
-  allCount:$('allCount'), favoriteCount:$('favoriteCount'),
-  favoritesOnlyBtn:$('favoritesOnlyBtn'), collapseBtn:$('collapseBtn'),
-  vtGrid:$('vtGrid'), vtList:$('vtList'),
-  urlPreviewWrap:$('urlPreviewWrap'), urlPreviewFrame:$('urlPreviewFrame'),
-  tagPreviewChips:$('tagPreviewChips'),
-  themeLabel:$('themeLabel'), themeKnobIcon:$('themeKnobIcon'),
-  player:$('player'), playerThumb:$('playerThumb'),
-  playerTitle:$('playerTitle'), playerSub:$('playerSub'),
-  btnPlay:$('btnPlay'), btnShuffle:$('btnShuffle'), btnRepeat:$('btnRepeat'),
-  progressFill:$('progressFill'),
-  timeCurrent:$('timeCurrent'), timeDuration:$('timeDuration'),
-  volSlider:$('volSlider'), volIcon:$('volIcon'),
-  queueInfo:$('queueInfo'), ytFrame:$('ytFrame'),
-  cpOverlay:$('colorPickerOverlay'), cpTitle:$('cpTitle'),
-  cpPresets:$('cpPresets'), cpInput:$('cpInput'),
+  overlay:$('inputOverlay'),formTitle:$('formTitle'),editId:$('editId'),
+  inTitle:$('inTitle'),inUrl:$('inUrl'),inTag:$('inTag'),inFolder:$('inFolder'),
+  saveBtn:$('saveBtn'),folderMenu:$('folderMenu'),tagMenu:$('tagMenu'),
+  bgmGrid:$('bgmGrid'),loading:$('loading'),viewTitle:$('viewTitle'),viewDesc:$('viewDesc'),
+  messageBox:$('messageBox'),searchInput:$('searchInput'),emptyState:$('emptyState'),
+  statusBar:$('statusBar'),sortSelect:$('sortSelect'),
+  toastEl:$('toast'),toastText:$('toastText'),sideFilterInput:$('sideFilterInput'),
+  allCount:$('allCount'),favoriteCount:$('favoriteCount'),
+  favoritesOnlyBtn:$('favoritesOnlyBtn'),collapseBtn:$('collapseBtn'),
+  vtGrid:$('vtGrid'),vtList:$('vtList'),
+  urlPreviewWrap:$('urlPreviewWrap'),urlPreviewFrame:$('urlPreviewFrame'),tagPreviewChips:$('tagPreviewChips'),
+  themeLabel:$('themeLabel'),themeKnobIcon:$('themeKnobIcon'),
+  player:$('player'),playerThumb:$('playerThumb'),playerTitle:$('playerTitle'),playerSub:$('playerSub'),
+  btnPlay:$('btnPlay'),btnShuffle:$('btnShuffle'),btnRepeat:$('btnRepeat'),
+  progressFill:$('progressFill'),timeCurrent:$('timeCurrent'),timeDuration:$('timeDuration'),
+  volSlider:$('volSlider'),volIcon:$('volIcon'),queueInfo:$('queueInfo'),ytFrame:$('ytFrame'),
+  cpOverlay:$('colorPickerOverlay'),cpTitle:$('cpTitle'),cpPresets:$('cpPresets'),cpInput:$('cpInput'),
   quickUrlInput:$('quickUrlInput'),
 };
 
-/* ══════════════════════════════════
-   초기화
-══════════════════════════════════ */
 els.sortSelect.value=sortMode;
-applyDensity(false); applySidebarState(); applyFavoritesToggleState(); applyTheme(false);
+applyDensity(false);applySidebarState();applyFavoritesToggleState();applyTheme(false);
 
-/* ══════════════════════════════════
-   유틸
-══════════════════════════════════ */
+/* ══ 유틸 ══ */
 function showToast(t){els.toastText.textContent=t;els.toastEl.classList.add('show');clearTimeout(showToast._t);showToast._t=setTimeout(()=>els.toastEl.classList.remove('show'),2000);}
 function showMessage(t,type='info'){els.messageBox.textContent=t;els.messageBox.className=`message-box show ${type}`;}
 function hideMessage(){els.messageBox.className='message-box';els.messageBox.textContent='';}
@@ -679,46 +466,30 @@ function thumb(url){const id=getYtId(url);return id?`https://img.youtube.com/vi/
 function fmtDate(d){if(!d)return'-';const dt=new Date(d);if(isNaN(dt))return String(d).slice(0,10);return`${String(dt.getFullYear()).slice(2)}.${String(dt.getMonth()+1).padStart(2,'0')}.${String(dt.getDate()).padStart(2,'0')}`;}
 function safeDate(t){const d=new Date(t);return isNaN(d)?new Date(0):d;}
 function fmtTime(s){s=Math.floor(s||0);return`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;}
-function reqJSON(url,opts={}){return fetch(url,opts).then(r=>{if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.json();});}
-
-/* ── 색상 ── */
 function getFolderColor(n){return folderColors[n]||defColor(n);}
 function getTagColor(n){return tagColors[n]||defColor(n);}
 function defColor(s){let h=0;s=String(s||'x');for(let i=0;i<s.length;i++)h=s.charCodeAt(i)+((h<<5)-h);return`hsl(${Math.abs(h%360)},62%,56%)`;}
 function dimC(c){return c.startsWith('hsl')?c.replace('hsl(','hsla(').replace(')',`,.13)`):c+'22';}
 
-/* ══════════════════════════════════
-   빠른 URL 추가 (상단 인라인)
-══════════════════════════════════ */
-function onQuickUrlInput(val){
-  // 실시간 피드백 없음 — Enter 또는 버튼으로만 처리
-}
-function onQuickUrlKeydown(e){if(e.key==='Enter')quickAddFromUrl();}
+/* ══ 빠른 URL 추가 ══ */
 async function quickAddFromUrl(){
-  const url=norm(els.quickUrlInput.value);
-  if(!url)return;
+  const url=norm(els.quickUrlInput.value);if(!url)return;
   if(!isYt(url)){showMessage('유효한 유튜브 URL을 입력해주세요.','error');return;}
-  // 중복 체크
   const dup=allItems.find(i=>getYtId(i.url)===getYtId(url));
   if(dup){showMessage(`이미 등록된 곡입니다: [${dup.folder}] ${dup.title}`,'error');return;}
-  // 제목 자동 가져오기 후 모달 열기
-  openAddForm();
-  els.inUrl.value=url;
-  els.quickUrlInput.value='';
+  openAddForm();els.inUrl.value=url;els.quickUrlInput.value='';
   await onUrlInputPreview();
 }
 
-/* ══════════════════════════════════
-   컬러 피커
-══════════════════════════════════ */
+/* ══ 컬러 피커 ══ */
 function openColorPicker(type,name,cur){
   cpTarget={type,name};cpTemp=cur;
   els.cpTitle.textContent=`"${name}" 색상 변경`;
   els.cpInput.value=cur.startsWith('#')?cur:'#f5a623';
   els.cpPresets.innerHTML='';
   COLOR_PRESETS.forEach(c=>{
-    const d=document.createElement('div');d.className='cp-dot'+(c===cpTemp?' sel':'');
-    d.style.background=c;d.onclick=()=>{cpTemp=c;els.cpInput.value=c;document.querySelectorAll('.cp-dot').forEach(x=>x.classList.remove('sel'));d.classList.add('sel');};
+    const d=document.createElement('div');d.className='cp-dot'+(c===cpTemp?' sel':'');d.style.background=c;
+    d.onclick=()=>{cpTemp=c;els.cpInput.value=c;document.querySelectorAll('.cp-dot').forEach(x=>x.classList.remove('sel'));d.classList.add('sel');};
     els.cpPresets.appendChild(d);
   });
   els.cpOverlay.style.display='flex';
@@ -732,9 +503,7 @@ function applyColorPicker(){
 }
 function closeColorPicker(){els.cpOverlay.style.display='none';cpTarget=null;}
 
-/* ══════════════════════════════════
-   테마
-══════════════════════════════════ */
+/* ══ 테마 ══ */
 function toggleTheme(){themeMode=themeMode==='dark'?'light':'dark';localStorage.setItem('bgm_theme',themeMode);applyTheme(true);}
 function applyTheme(animate){
   const html=document.documentElement;
@@ -745,21 +514,13 @@ function applyTheme(animate){
   els.themeKnobIcon.textContent=dk?'🌙':'☀️';
 }
 
-/* ══════════════════════════════════
-   즐겨찾기
-══════════════════════════════════ */
+/* ══ 즐겨찾기 ══ */
 function saveFavs(){localStorage.setItem('bgm_favoriteIds',JSON.stringify([...favoriteIds]));}
-function toggleFavorite(id){
-  favoriteIds.has(id)?favoriteIds.delete(id):favoriteIds.add(id);
-  saveFavs();renderMenus();renderGrid();
-  showToast(favoriteIds.has(id)?'즐겨찾기 추가':'즐겨찾기 제거');
-}
+function toggleFavorite(id){favoriteIds.has(id)?favoriteIds.delete(id):favoriteIds.add(id);saveFavs();renderMenus();renderGrid();showToast(favoriteIds.has(id)?'즐겨찾기 추가':'즐겨찾기 제거');}
 function toggleFavoritesOnly(){favoritesOnly=!favoritesOnly;localStorage.setItem('bgm_favoritesOnly',String(favoritesOnly));applyFavoritesToggleState();renderGrid();renderStatusBar();}
 function applyFavoritesToggleState(){els.favoritesOnlyBtn.textContent=favoritesOnly?'★ ON':'★ 즐겨찾기만';els.favoritesOnlyBtn.classList.toggle('active-state',favoritesOnly);}
 
-/* ══════════════════════════════════
-   뷰 모드
-══════════════════════════════════ */
+/* ══ 뷰 ══ */
 function setDensity(mode){densityMode=mode;localStorage.setItem('bgm_densityMode',mode);applyDensity(true);}
 function applyDensity(shouldRender=true){
   els.bgmGrid.classList.toggle('compact',densityMode==='compact');
@@ -771,10 +532,8 @@ function handleSortChange(v){sortMode=v;localStorage.setItem('bgm_sortMode',v);r
 function toggleSidebar(){sidebarCollapsed=!sidebarCollapsed;localStorage.setItem('bgm_sidebarCollapsed',String(sidebarCollapsed));applySidebarState();}
 function applySidebarState(){document.body.classList.toggle('sb-col',sidebarCollapsed);}
 
-/* ══════════════════════════════════
-   모달
-══════════════════════════════════ */
-function toggleInput(open){if(typeof open!=='boolean')open=!isModalOpen;isModalOpen=open;els.overlay.style.display=open?'flex':'none';els.overlay.setAttribute('aria-hidden',open?'false':'true');}
+/* ══ 모달 ══ */
+function toggleInput(open){if(typeof open!=='boolean')open=!isModalOpen;isModalOpen=open;els.overlay.style.display=open?'flex':'none';}
 function resetForm(){els.formTitle.textContent='새로운 BGM 추가';els.editId.value=els.inTitle.value=els.inUrl.value=els.inTag.value=els.inFolder.value='';els.saveBtn.disabled=false;els.saveBtn.textContent='저장';}
 function openAddForm(){resetForm();els.urlPreviewWrap.style.display='none';els.urlPreviewFrame.src='';els.tagPreviewChips.innerHTML='';toggleInput(true);els.inTitle.focus();}
 function openEditFormById(id){
@@ -787,16 +546,12 @@ function openEditFormById(id){
   setTimeout(()=>{onUrlInputPreview();onTagInputPreview();},50);
 }
 
-/* ══════════════════════════════════
-   필터 / 검색
-══════════════════════════════════ */
+/* ══ 필터 ══ */
 function setFilter(v,t){currentFilter={value:v,type:t};updateHeader();renderMenus();renderGrid();renderStatusBar();}
 function handleSearch(v){searchKeyword=norm(v).toLowerCase();$('searchClearBtn').classList.toggle('vis',searchKeyword.length>0);renderGrid();renderStatusBar();}
 function clearSearch(){searchKeyword='';els.searchInput.value='';$('searchClearBtn').classList.remove('vis');renderGrid();renderStatusBar();}
 
-/* ══════════════════════════════════
-   헤더 / 상태바
-══════════════════════════════════ */
+/* ══ 헤더 / 상태바 ══ */
 function updateHeader(){
   const MAP={__favorites__:['즐겨찾기','즐겨찾기'],__recent__:['최근 수정','최근 수정']};
   if(currentFilter.type==='special'&&MAP[currentFilter.value]){els.viewTitle.textContent=MAP[currentFilter.value][0];els.viewDesc.textContent=MAP[currentFilter.value][1];}
@@ -817,26 +572,21 @@ function renderStatusBar(){
   els.statusBar.innerHTML=pills.map(t=>`<div class="status-pill">${t}</div>`).join('');
 }
 
-/* ══════════════════════════════════
-   사이드 메뉴
-══════════════════════════════════ */
+/* ══ 사이드 메뉴 ══ */
 function renderMenus(){
   const kw=norm(els.sideFilterInput.value).toLowerCase();
   $('menu-all').classList.toggle('active',currentFilter.type==='folder'&&currentFilter.value==='전체');
   $('menu-favorites').classList.toggle('active',currentFilter.type==='special'&&currentFilter.value==='__favorites__');
   $('menu-recent').classList.toggle('active',currentFilter.type==='special'&&currentFilter.value==='__recent__');
   els.folderMenu.innerHTML='';els.tagMenu.innerHTML='';
-
   const folders=[...new Set(allItems.map(i=>i.folder))].filter(Boolean).sort((a,b)=>a.localeCompare(b,'ko'));
   const tags=[...new Set(allItems.flatMap(i=>i.tags||[]))].filter(Boolean).sort((a,b)=>a.localeCompare(b,'ko'));
   const fCnt=Object.fromEntries(folders.map(f=>[f,allItems.filter(i=>i.folder===f).length]));
   const tCnt=Object.fromEntries(tags.map(t=>[t,allItems.filter(i=>(i.tags||[]).includes(t)).length]));
-
   folders.filter(f=>!kw||f.toLowerCase().includes(kw)).forEach(f=>{
     const color=getFolderColor(f);
     const row=document.createElement('div');row.className='folder-row';
-    const item=document.createElement('div');
-    item.className=`menu-item${currentFilter.type==='folder'&&currentFilter.value===f?' active':''}`;
+    const item=document.createElement('div');item.className=`menu-item${currentFilter.type==='folder'&&currentFilter.value===f?' active':''}`;
     item.addEventListener('click',()=>setFilter(f,'folder'));
     const dot=document.createElement('div');dot.className='color-dot';dot.style.background=color;
     const lbl=document.createElement('span');lbl.className='menu-label';lbl.textContent=f;
@@ -846,7 +596,6 @@ function renderMenus(){
     cb.onclick=e=>{e.stopPropagation();openColorPicker('folder',f,color);};
     row.append(item,cb);els.folderMenu.appendChild(row);
   });
-
   tags.filter(t=>!kw||t.toLowerCase().includes(kw)).forEach(t=>{
     const color=getTagColor(t);
     const chip=document.createElement('button');chip.type='button';chip.className='tag-chip';
@@ -858,13 +607,10 @@ function renderMenus(){
     chip.title='클릭: 필터 / 우클릭: 색상 변경';
     els.tagMenu.appendChild(chip);
   });
-
   els.allCount.textContent=allItems.length;els.favoriteCount.textContent=favoriteIds.size;
 }
 
-/* ══════════════════════════════════
-   필터링
-══════════════════════════════════ */
+/* ══ 필터링 ══ */
 function getFiltered(){
   let f=[...allItems];
   if(currentFilter.type==='special'&&currentFilter.value==='__favorites__')f=f.filter(i=>favoriteIds.has(i.id));
@@ -886,33 +632,21 @@ function getFiltered(){
   return f;
 }
 
-/* ══════════════════════════════════
-   카드
-══════════════════════════════════ */
+/* ══ 카드 ══ */
 function makeTagChip(tag){
   const color=getTagColor(tag);
-  const c=document.createElement('span');c.className='card-tag';
-  c.style.background=dimC(color);c.style.color=color;c.textContent=`#${tag}`;
+  const c=document.createElement('span');c.className='card-tag';c.style.background=dimC(color);c.style.color=color;c.textContent=`#${tag}`;
   c.addEventListener('click',e=>{e.stopPropagation();setFilter(tag,'tag');});
   c.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation();openColorPicker('tag',tag,color);});
-  c.title='클릭: 필터 / 우클릭: 색상 변경';
   return c;
 }
 function createCard(item){
-  const isList=densityMode==='compact';
-  const fc=getFolderColor(item.folder);
+  const isList=densityMode==='compact';const fc=getFolderColor(item.folder);
   const card=document.createElement('div');card.className='bgm-card';
-  card.addEventListener('click',e=>{
-    if(e.target.closest('.card-action-btn,.card-fav-btn,.list-fav,.card-tag'))return;
-    playFromItem(item);
-  });
-
+  card.addEventListener('click',e=>{if(e.target.closest('.card-action-btn,.card-fav-btn,.list-fav,.card-tag'))return;playFromItem(item);});
   const stripe=document.createElement('div');stripe.className='card-stripe';stripe.style.background=fc;card.appendChild(stripe);
-
-  // 썸네일
   const tdiv=document.createElement('div');tdiv.className='card-thumb';
-  const img=document.createElement('img');img.src=thumb(item.url);img.alt=item.title;img.loading='lazy';
-  img.onerror=()=>{tdiv.style.display='none';};
+  const img=document.createElement('img');img.src=thumb(item.url);img.alt=item.title;img.loading='lazy';img.onerror=()=>{tdiv.style.display='none';};
   tdiv.appendChild(img);
   if(!isList){
     const ov=document.createElement('div');ov.className='card-thumb-overlay';tdiv.appendChild(ov);
@@ -921,37 +655,25 @@ function createCard(item){
     fb.addEventListener('click',e=>{e.stopPropagation();toggleFavorite(item.id);});tdiv.appendChild(fb);
   }
   card.appendChild(tdiv);
-
   const inner=document.createElement('div');inner.className='card-inner';
-
   if(isList){
-    const lf=document.createElement('div');
-    lf.style.cssText=`font-size:.57rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:${fc};white-space:nowrap;flex-shrink:0;min-width:48px;`;
-    lf.textContent=item.folder||'기타';
+    const lf=document.createElement('div');lf.style.cssText=`font-size:.57rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:${fc};white-space:nowrap;flex-shrink:0;min-width:48px;`;lf.textContent=item.folder||'기타';
     const tt=document.createElement('div');tt.className='card-title';tt.textContent=item.title;
-    const tg=document.createElement('div');tg.className='card-tags';
-    (item.tags||[]).forEach(t=>tg.appendChild(makeTagChip(t)));
+    const tg=document.createElement('div');tg.className='card-tags';(item.tags||[]).forEach(t=>tg.appendChild(makeTagChip(t)));
     inner.append(lf,tt,tg);
-  } else {
+  }else{
     const bdg=document.createElement('div');bdg.className='card-folder-badge';bdg.textContent=item.folder||'기타';bdg.style.background=dimC(fc);bdg.style.color=fc;
     const tt=document.createElement('div');tt.className='card-title';tt.textContent=item.title;
     const meta=document.createElement('div');meta.className='card-meta';
     const dt=document.createElement('div');dt.className='card-date';dt.textContent=`${fmtDate(item.createdAt)} · ${fmtDate(item.updatedAt)}`;
-    const lnk=document.createElement('a');lnk.className='card-link';lnk.href=item.url;lnk.target='_blank';lnk.rel='noopener noreferrer';lnk.textContent='↗';
-    lnk.addEventListener('click',e=>e.stopPropagation());
+    const lnk=document.createElement('a');lnk.className='card-link';lnk.href=item.url;lnk.target='_blank';lnk.rel='noopener noreferrer';lnk.textContent='↗';lnk.addEventListener('click',e=>e.stopPropagation());
     meta.append(dt,lnk);
-    const tg=document.createElement('div');tg.className='card-tags';
-    (item.tags||[]).forEach(t=>tg.appendChild(makeTagChip(t)));
+    const tg=document.createElement('div');tg.className='card-tags';(item.tags||[]).forEach(t=>tg.appendChild(makeTagChip(t)));
     inner.append(bdg,tt,meta,tg);
   }
   card.appendChild(inner);
-
   const actions=document.createElement('div');actions.className='card-actions';
-  if(isList){
-    const lf=document.createElement('button');lf.className='card-action-btn list-fav';
-    lf.style.color=favoriteIds.has(item.id)?'var(--amber)':'var(--faint)';
-    lf.textContent='★';lf.addEventListener('click',()=>toggleFavorite(item.id));actions.appendChild(lf);
-  }
+  if(isList){const lf=document.createElement('button');lf.className='card-action-btn list-fav';lf.style.color=favoriteIds.has(item.id)?'var(--amber)':'var(--faint)';lf.textContent='★';lf.addEventListener('click',()=>toggleFavorite(item.id));actions.appendChild(lf);}
   const cp=document.createElement('button');cp.className='card-action-btn copy';cp.textContent='복사';cp.addEventListener('click',()=>copyText(item.url,'링크 복사됨'));
   const ed=document.createElement('button');ed.className='card-action-btn';ed.textContent='수정';ed.addEventListener('click',()=>openEditFormById(item.id));
   const dl=document.createElement('button');dl.className='card-action-btn del';dl.textContent='삭제';dl.addEventListener('click',()=>deleteItem(item.id));
@@ -959,9 +681,7 @@ function createCard(item){
   return card;
 }
 
-/* ══════════════════════════════════
-   그리드 렌더
-══════════════════════════════════ */
+/* ══ 그리드 ══ */
 function renderGrid(){
   const filtered=getFiltered();els.bgmGrid.innerHTML='';
   if(allItems.length===0){els.bgmGrid.style.display='none';els.emptyState.style.display='block';els.emptyState.innerHTML='<strong>아직 등록된 BGM이 없습니다</strong>새 곡을 추가해보세요.';return;}
@@ -971,152 +691,92 @@ function renderGrid(){
   const bc=$('boardCount');if(bc)bc.textContent=`${filtered.length}곡`;
 }
 
-/* ══════════════════════════════════
-   플레이어
-══════════════════════════════════ */
+/* ══ 플레이어 ══ */
 function playFromItem(item){
-  const filtered=getFiltered();
-  queue=isShuffle?[...filtered].sort(()=>Math.random()-.5):filtered;
-  queueIndex=queue.findIndex(i=>i.id===item.id);
-  if(queueIndex===-1){queue=[item];queueIndex=0;}
+  const filtered=getFiltered();queue=isShuffle?[...filtered].sort(()=>Math.random()-.5):filtered;
+  queueIndex=queue.findIndex(i=>i.id===item.id);if(queueIndex===-1){queue=[item];queueIndex=0;}
   loadTrack(queueIndex);
 }
 function loadTrack(idx){
-  if(idx<0||idx>=queue.length)return;
-  queueIndex=idx;const item=queue[idx];
+  if(idx<0||idx>=queue.length)return;queueIndex=idx;const item=queue[idx];
   const ytId=getYtId(item.url);if(!ytId)return;
-  els.playerThumb.src=thumb(item.url);
-  els.playerTitle.textContent=item.title;
-  els.playerSub.textContent=item.folder||'로컬 재생';
-  els.queueInfo.textContent=`${idx+1} / ${queue.length}`;
+  els.playerThumb.src=thumb(item.url);els.playerTitle.textContent=item.title;
+  els.playerSub.textContent=item.folder||'로컬 재생';els.queueInfo.textContent=`${idx+1} / ${queue.length}`;
   els.player.classList.remove('hidden');
   els.ytFrame.src=`https://www.youtube.com/embed/${ytId}?autoplay=1&enablejsapi=1&origin=${encodeURIComponent(location.origin)}&controls=0`;
   isPlaying=true;els.btnPlay.textContent='⏸';
   els.progressFill.style.width='0%';els.timeCurrent.textContent='0:00';els.timeDuration.textContent='—';
   clearInterval(progressTimer);elapsedSec=0;durationSec=300;
   progressTimer=setInterval(()=>{
-    if(!isPlaying)return;
-    elapsedSec++;
+    if(!isPlaying)return;elapsedSec++;
     els.progressFill.style.width=Math.min((elapsedSec/durationSec)*100,100)+'%';
-    els.timeCurrent.textContent=fmtTime(elapsedSec);
-    els.timeDuration.textContent=fmtTime(durationSec);
-    if(elapsedSec>=durationSec){
-      clearInterval(progressTimer);
-      if(isRepeat)loadTrack(queueIndex);
-      else playNext();
-    }
+    els.timeCurrent.textContent=fmtTime(elapsedSec);els.timeDuration.textContent=fmtTime(durationSec);
+    if(elapsedSec>=durationSec){clearInterval(progressTimer);isRepeat?loadTrack(queueIndex):playNext();}
   },1000);
 }
-function togglePlay(){
-  isPlaying=!isPlaying;els.btnPlay.textContent=isPlaying?'⏸':'▶';
-  try{els.ytFrame.contentWindow.postMessage(JSON.stringify({event:'command',func:isPlaying?'playVideo':'pauseVideo',args:''}),'*');}catch(e){}
-}
+function togglePlay(){isPlaying=!isPlaying;els.btnPlay.textContent=isPlaying?'⏸':'▶';try{els.ytFrame.contentWindow.postMessage(JSON.stringify({event:'command',func:isPlaying?'playVideo':'pauseVideo',args:''}),'*');}catch(e){}}
 function playPrev(){if(queueIndex>0)loadTrack(queueIndex-1);}
-function playNext(){
-  if(isRepeat){loadTrack(queueIndex);return;}
-  if(queueIndex<queue.length-1)loadTrack(queueIndex+1);
-  else{clearInterval(progressTimer);isPlaying=false;els.btnPlay.textContent='▶';}
-}
-function toggleShuffle(){
-  isShuffle=!isShuffle;els.btnShuffle.classList.toggle('active-repeat',isShuffle);
-  if(isShuffle&&queue.length>0){queue=[...queue].sort(()=>Math.random()-.5);queueIndex=0;}
-  showToast(isShuffle?'셔플 ON':'셔플 OFF');
-}
-function toggleRepeat(){
-  isRepeat=!isRepeat;els.btnRepeat.classList.toggle('active-repeat',isRepeat);
-  showToast(isRepeat?'반복 ON':'반복 OFF');
-}
+function playNext(){if(isRepeat){loadTrack(queueIndex);return;}if(queueIndex<queue.length-1)loadTrack(queueIndex+1);else{clearInterval(progressTimer);isPlaying=false;els.btnPlay.textContent='▶';}}
+function toggleShuffle(){isShuffle=!isShuffle;els.btnShuffle.classList.toggle('p-active',isShuffle);if(isShuffle&&queue.length>0){queue=[...queue].sort(()=>Math.random()-.5);queueIndex=0;}showToast(isShuffle?'셔플 ON':'셔플 OFF');}
+function toggleRepeat(){isRepeat=!isRepeat;els.btnRepeat.classList.toggle('p-active',isRepeat);showToast(isRepeat?'반복 ON':'반복 OFF');}
 function closePlayer(){clearInterval(progressTimer);els.ytFrame.src='';els.player.classList.add('hidden');isPlaying=false;queue=[];queueIndex=-1;}
-function seekTo(e){
-  const rect=document.getElementById('progressBar').getBoundingClientRect();
-  const pct=Math.max(0,Math.min(1,(e.clientX-rect.left)/rect.width));
-  elapsedSec=Math.floor(pct*durationSec);
-  els.progressFill.style.width=(pct*100)+'%';
-  els.timeCurrent.textContent=fmtTime(elapsedSec);
-}
-function setVolume(v){
-  lastVol=Number(v);isMuted=lastVol===0;
-  els.volIcon.textContent=isMuted?'🔇':lastVol<50?'🔉':'🔊';
-  try{els.ytFrame.contentWindow.postMessage(JSON.stringify({event:'command',func:'setVolume',args:[Number(v)]}),'*');}catch(e){}
-}
-function toggleMute(){
-  isMuted=!isMuted;
-  els.volSlider.value=isMuted?0:lastVol;
-  setVolume(isMuted?0:lastVol);
-}
+function seekTo(e){const rect=$('progressBar').getBoundingClientRect();const pct=Math.max(0,Math.min(1,(e.clientX-rect.left)/rect.width));elapsedSec=Math.floor(pct*durationSec);els.progressFill.style.width=(pct*100)+'%';els.timeCurrent.textContent=fmtTime(elapsedSec);}
+function setVolume(v){lastVol=Number(v);isMuted=lastVol===0;els.volIcon.textContent=isMuted?'🔇':lastVol<50?'🔉':'🔊';try{els.ytFrame.contentWindow.postMessage(JSON.stringify({event:'command',func:'setVolume',args:[Number(v)]}),'*');}catch(e){}}
+function toggleMute(){isMuted=!isMuted;els.volSlider.value=isMuted?0:lastVol;setVolume(isMuted?0:lastVol);}
 
-/* ══════════════════════════════════
-   클립보드
-══════════════════════════════════ */
+/* ══ 클립보드 ══ */
 async function copyText(text,msg='복사됨'){try{await navigator.clipboard.writeText(text);showToast(msg);}catch{showMessage('복사에 실패했습니다.','error');}}
 async function copyCurrentViewSummary(){const f=getFiltered();if(!f.length)return showMessage('복사할 목록이 없습니다.','error');await copyText(f.map((i,n)=>`${n+1}. [${i.folder}] ${i.title}\n- ${i.url}\n- 태그: ${(i.tags||[]).join(', ')||'-'}\n`).join('\n'),'목록 복사됨');}
-
-/* ══════════════════════════════════
-   YouTube oEmbed
-══════════════════════════════════ */
 async function fetchYtTitle(url){try{const r=await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`);const d=await r.json();return d.title;}catch{return'';}}
 
-/* ══════════════════════════════════
-   저장
-══════════════════════════════════ */
+/* ══ 저장 (GET 방식) ══ */
 async function saveToSheet(){
   if(isSaving)return;
-  const id=norm(els.editId.value),title=norm(els.inTitle.value),url=norm(els.inUrl.value),tag=norm(els.inTag.value),folder=norm(els.inFolder.value)||'기타';
+  const id=norm(els.editId.value),title=norm(els.inTitle.value),url=norm(els.inUrl.value),
+        tag=norm(els.inTag.value),folder=norm(els.inFolder.value)||'기타';
   if(!title||!url)return showMessage('제목과 URL은 필수입니다.','error');
   if(!isYt(url))return showMessage('유효한 유튜브 URL을 입력해주세요.','error');
   const dup=allItems.find(i=>getYtId(i.url)===getYtId(url)&&i.id!==id);
   if(dup&&!confirm(`이미 같은 곡이 있습니다.\n\n[${dup.folder}] ${dup.title}\n\n그래도 저장할까요?`))return;
   isSaving=true;els.saveBtn.disabled=true;els.saveBtn.textContent='저장 중...';
   try{
-    const res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:id?'edit':'add',id:id||null,title,url,tag,folder})});
-    const result=await res.json();
-    if(result.success!==false){showToast('저장 완료!');toggleInput(false);resetForm();await loadData(true);}
-    else showMessage('저장 실패: '+(result.message||'오류'),'error');
-  }catch(e){console.error(e);showMessage('서버 오류 발생','error');}
+    const result=await apiCall({action:id?'edit':'add',id:id||null,title,url,tag,folder});
+    if(result.ok===true){showToast('저장 완료!');toggleInput(false);resetForm();await loadData(true);}
+    else showMessage('저장 실패: '+(result.message||result.error||'오류'),'error');
+  }catch(e){console.error(e);showMessage(`저장 오류: ${e.message}`,'error');}
   isSaving=false;els.saveBtn.disabled=false;els.saveBtn.textContent='저장';
 }
 
-/* ══════════════════════════════════
-   삭제
-══════════════════════════════════ */
+/* ══ 삭제 (GET 방식) ══ */
 async function deleteItem(id){
   if(!id||!confirm('정말 이 곡을 삭제하시겠습니까?'))return;
   try{
     hideMessage();
-    const res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'delete',id})});
-    const result=await res.json();
-    if(result.success===false)throw new Error(result.message||'삭제 실패');
-    favoriteIds.delete(id);saveFavs();showMessage('삭제 완료','success');await loadData(false);
+    const result=await apiCall({action:'delete',id});
+    if(result.ok===true){favoriteIds.delete(id);saveFavs();showMessage('삭제 완료','success');await loadData(false);}
+    else throw new Error(result.message||result.error||'삭제 실패');
   }catch(e){console.error(e);showMessage(`삭제 실패: ${e.message||''}`, 'error');}
 }
 
-/* ══════════════════════════════════
-   로드
-══════════════════════════════════ */
+/* ══ 로드 (GET 방식) ══ */
 async function loadData(showMsg=false){
   setLoading(true);
   try{
     if(showMsg)showMessage('새로고침 중...','info');
-    const result=await reqJSON(`${API_URL}?action=list`,{method:'GET',cache:'no-store'});
+    const result=await apiCall({action:'list'});
     if(!result.ok)throw new Error(result.error||'목록 불러오기 실패');
     allItems=(result.items||[]).map(i=>({id:norm(i.id),title:norm(i.title),url:norm(i.url),tags:normTags(i.tag),folder:norm(i.folder)||'기타',createdAt:norm(i.createdAt),updatedAt:norm(i.updatedAt)}));
     updateHeader();renderMenus();renderGrid();renderStatusBar();
     if(!showMsg)hideMessage();else showMessage('새로고침 완료','success');
-  }catch(e){
-    console.error(e);allItems=[];renderMenus();renderGrid();renderStatusBar();
-    showMessage(`데이터를 불러오지 못했습니다. ${e.message||''}`, 'error');
-  }finally{setLoading(false);}
+  }catch(e){console.error(e);allItems=[];renderMenus();renderGrid();renderStatusBar();showMessage(`데이터를 불러오지 못했습니다. ${e.message||''}`, 'error');}
+  finally{setLoading(false);}
 }
 
-/* ══════════════════════════════════
-   미리보기
-══════════════════════════════════ */
+/* ══ 미리보기 ══ */
 async function onUrlInputPreview(){
   const url=els.inUrl.value,id=getYtId(url);
-  if(id){
-    els.urlPreviewWrap.style.display='block';els.urlPreviewFrame.src=`https://www.youtube.com/embed/${id}`;
-    if(!els.inTitle.value){const t=await fetchYtTitle(url);if(t)els.inTitle.value=t;}
-  }else els.urlPreviewWrap.style.display='none';
+  if(id){els.urlPreviewWrap.style.display='block';els.urlPreviewFrame.src=`https://www.youtube.com/embed/${id}`;if(!els.inTitle.value){const t=await fetchYtTitle(url);if(t)els.inTitle.value=t;}}
+  else els.urlPreviewWrap.style.display='none';
 }
 function onTagInputPreview(){
   const tags=norm(els.inTag.value).split('/').map(t=>t.trim()).filter(Boolean);
@@ -1124,9 +784,7 @@ function onTagInputPreview(){
   tags.forEach(tag=>{const color=getTagColor(tag);const c=document.createElement('span');c.style.cssText=`display:inline-block;padding:2px 6px;border-radius:3px;font-size:.65rem;font-weight:600;background:${dimC(color)};color:${color}`;c.textContent='#'+tag;els.tagPreviewChips.appendChild(c);});
 }
 
-/* ══════════════════════════════════
-   이벤트
-══════════════════════════════════ */
+/* ══ 이벤트 ══ */
 els.overlay.addEventListener('click',e=>{if(e.target===els.overlay)toggleInput(false);});
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
