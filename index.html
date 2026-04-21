@@ -351,7 +351,6 @@ body.selection-mode .bgm-card.selected .card-check,body.selection-mode .bgm-card
 #bgmGrid.compact .list-memo-col{font-size:.72rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px;}
 #bgmGrid.compact .list-memo-col .list-memo-text{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;}
 #bgmGrid.compact .list-memo-col.empty,#bgmGrid.compact .list-tags-col.empty{color:var(--faint);justify-content:center;}
-#bgmGrid.compact .list-dash{color:var(--faint);font-weight:400;}
 #bgmGrid.compact .card-actions{border:0;flex-shrink:0;display:flex;align-items:center;align-self:center;padding:0 8px 0 0;gap:2px;}
 #bgmGrid.compact .card-action-btn{width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:.85rem;border-radius:var(--r-sm);}
 
@@ -1486,17 +1485,11 @@ function createCard(item){
     titleCol.appendChild(fprefix);
     const tt=document.createElement('div');tt.className='card-title';tt.textContent=item.title;
     titleCol.appendChild(tt);
-    // 태그 칸 (고정 200px)
+    // 태그 칸
     const tagsCol=document.createElement('div');
-    const tags=item.tags||[];
-    if(tags.length){
-      tagsCol.className='list-tags-col';
-      tags.forEach(t=>tagsCol.appendChild(makeTagChip(t)));
-    }else{
-      tagsCol.className='list-tags-col empty';
-      tagsCol.innerHTML='<span class="list-dash">—</span>';
-    }
-    // 메모 칸 (고정 260px) - 메모 텍스트 + 호버 편집 아이콘
+    tagsCol.className='list-tags-col'+(item.tags&&item.tags.length?'':' empty');
+    (item.tags||[]).forEach(t=>tagsCol.appendChild(makeTagChip(t)));
+    // 메모 칸 - 있으면 텍스트+편집 아이콘, 없으면 호버시 편집 아이콘만
     const memoCol=document.createElement('div');
     memoCol.className='list-memo-col'+(item.memo?'':' empty');
     if(item.memo){
@@ -1505,10 +1498,9 @@ function createCard(item){
       btn.addEventListener('click',e=>{e.stopPropagation();openMemoEdit(item);});
       memoCol.append(txt,btn);
     }else{
-      const dash=document.createElement('span');dash.className='list-dash';dash.textContent='—';
       const btn=document.createElement('button');btn.className='list-memo-btn';btn.textContent='✎';btn.title='메모 추가';
       btn.addEventListener('click',e=>{e.stopPropagation();openMemoEdit(item);});
-      memoCol.append(dash,btn);
+      memoCol.append(btn);
     }
     inner.append(titleCol,tagsCol,memoCol);
   }else{
