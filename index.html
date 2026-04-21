@@ -358,13 +358,14 @@ body.queue-open .main-content{margin-right:var(--qw);}
 #bgmGrid.compact .card-play-count{display:none;}
 
 .list-date{font-size:.65rem;color:var(--faint);font-family:var(--mono);white-space:nowrap;flex-shrink:0;}
-.list-dur{font-size:.65rem;color:var(--muted);font-family:var(--mono);white-space:nowrap;flex-shrink:0;}
-.list-memo{flex:0 0 140px;min-width:40px;height:26px;padding:0 9px;background:transparent;border:1px solid transparent;border-radius:var(--r-sm);color:var(--muted);font-size:.72rem;outline:none;transition:var(--tr);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.list-right{display:flex;align-items:center;gap:7px;flex-shrink:0;margin-left:auto;}
-.list-memo::placeholder{color:var(--faint);font-style:italic;}
-.list-memo:hover{border-color:var(--border2);background:var(--surface2);}
-.list-memo:focus{border-color:var(--pri);background:var(--pri-dim);color:var(--text);box-shadow:0 0 0 2px var(--pri-ring);}
-.list-memo:not(:placeholder-shown){color:var(--text2);border-color:var(--border);}
+/* Inline memo shown next to title (muted text) */
+.list-memo-inline{font-size:.72rem;color:var(--faint);font-weight:400;margin-left:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px;font-style:italic;}
+/* Memo edit icon appearing on hover */
+.list-memo-btn{width:26px;height:26px;border-radius:var(--r-sm);border:0;background:transparent;color:var(--faint);cursor:pointer;font-size:.82rem;flex-shrink:0;display:grid;place-items:center;transition:var(--tr);opacity:0;line-height:1;}
+.bgm-card:hover .list-memo-btn{opacity:1;}
+.list-memo-btn:hover{background:var(--pri-dim);color:var(--pri3);}
+.list-memo-btn.has-memo{color:var(--pri3);opacity:.85;}
+.list-right{display:flex;align-items:center;gap:5px;flex-shrink:0;margin-left:auto;}
 
 #bgmGrid.compact .card-actions{border:0;flex-shrink:0;display:flex;align-items:center;align-self:center;padding:0 10px 0 0;gap:2px;}
 #bgmGrid.compact .card-action-btn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:.9rem;border-radius:var(--r-sm);}
@@ -1094,7 +1095,7 @@ function openDetail(item){
   (item.tags||[]).forEach(tag=>{const color=getTagColor(tag);const c=document.createElement('span');c.style.cssText=`display:inline-flex;align-items:center;padding:3px 9px;border-radius:4px;font-size:.66rem;font-weight:600;background:${dimC(color)};color:${color};cursor:pointer;`;c.textContent=`#${tag}`;c.onclick=()=>{closeDetail();setFilter(tag,'tag');};els.detailTags.appendChild(c);});
   els.detailOverlay.style.display='flex';
   const dmi=$('detailMemoInput');
-  if(dmi){dmi.addEventListener('input',e=>{const it=allItems.find(x=>x.id===item.id);if(it)it.memo=e.target.value;const lm=document.querySelector(`.bgm-card[data-item-id="${item.id}"] .list-memo`);if(lm)lm.value=e.target.value;clearTimeout(dmi._t);dmi._t=setTimeout(()=>saveMemo(item.id,e.target.value),800);});dmi.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();clearTimeout(dmi._t);saveMemo(item.id,dmi.value);showToast('메모 저장됨');}});}
+  if(dmi){dmi.addEventListener('input',e=>{const it=allItems.find(x=>x.id===item.id);if(it)it.memo=e.target.value;clearTimeout(dmi._t);dmi._t=setTimeout(()=>{saveMemo(item.id,e.target.value);renderGrid();},800);});dmi.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();clearTimeout(dmi._t);saveMemo(item.id,dmi.value);showToast('메모 저장됨');renderGrid();}});}
 }
 function closeDetail(){els.detailOverlay.style.display='none';isDetailOpen=false;detailItem=null;}
 function detailPlay(){if(detailItem){closeDetail();playFromItem(detailItem);}}
@@ -1301,7 +1302,7 @@ async function deleteTagEverywhere(tag){
   let ok=0,fail=0;
   for(const i of affected){
     const newTags=(i.tags||[]).filter(t=>t!==tag);
-    try{const r=await apiCall({action:'edit',id:i.id,title:i.title,url:i.url,tag:newTags.join('/'),folder:(i.folders&&i.folders.length?i.folders:[i.folder]).join('/')});if(r.ok)ok++;else fail++;}catch{fail++;}
+    try{const r=await apiEditItem(i,{tag:newTags.join('/')});if(r.ok)ok++;else fail++;}catch{fail++;}
   }
   tagOrder=tagOrder.filter(t=>t!==tag);saveTagOrder();
   selectedTags=selectedTags.filter(t=>t!==tag);localStorage.setItem('bgm_selectedTags',JSON.stringify(selectedTags));
@@ -1321,7 +1322,7 @@ async function confirmTagRename(){
   let ok=0,fail=0;
   for(const i of affected){
     const newTags=(i.tags||[]).map(t=>t===oldT?newT:t).filter((t,i,a)=>a.indexOf(t)===i);
-    try{const r=await apiCall({action:'edit',id:i.id,title:i.title,url:i.url,tag:newTags.join('/'),folder:(i.folders&&i.folders.length?i.folders:[i.folder]).join('/')});if(r.ok)ok++;else fail++;}catch{fail++;}
+    try{const r=await apiEditItem(i,{tag:newTags.join('/')});if(r.ok)ok++;else fail++;}catch{fail++;}
   }
   // color/순서 이전
   if(tagColors[oldT]){tagColors[newT]=tagColors[oldT];delete tagColors[oldT];localStorage.setItem('bgm_tagColors',JSON.stringify(tagColors));}
@@ -1410,16 +1411,16 @@ function createCard(item){
   card.className='bgm-card'+(selectedIds.has(item.id)?' selected':'');
   card.dataset.itemId=item.id;
   card.addEventListener('click',e=>{
-    if(e.target.closest('.card-action-btn,.card-fav-btn,.list-fav,.card-tag,.card-check,.list-memo,input,textarea'))return;
+    if(e.target.closest('.card-action-btn,.card-fav-btn,.list-fav,.card-tag,.card-check,.list-memo-btn,input,textarea'))return;
     if(e.ctrlKey||e.metaKey){toggleSelect(item.id);return;}
     if(!isList)openDetail(item);else playFromItem(item);
   });
   card.addEventListener('contextmenu',e=>{
-    if(e.target.closest('.card-tag,.list-memo,input,textarea'))return;
+    if(e.target.closest('.card-tag,.list-memo-btn,input,textarea'))return;
     e.preventDefault();openCardContextMenu(e,item);
   });
 
-  const stripe=document.createElement('div');stripe.className='card-stripe';stripe.style.background=fc;card.appendChild(stripe);
+  // card-stripe 제거 — 더 이상 사용하지 않음
 
   // Checkbox
   const checkBox=document.createElement('div');
@@ -1454,18 +1455,21 @@ function createCard(item){
 
   if(isList){
     const lf=document.createElement('div');lf.style.cssText='display:flex;gap:4px;align-items:center;flex-shrink:0;max-width:120px;flex-wrap:nowrap;overflow:hidden;';makeFolderBadges(lf,true);
-    const tt=document.createElement('div');tt.className='card-title';tt.textContent=item.title;
+    // 제목 + 인라인 메모를 한 컨테이너에
+    const titleWrap=document.createElement('div');titleWrap.style.cssText='flex:1;min-width:0;display:flex;align-items:baseline;gap:0;overflow:hidden;';
+    const tt=document.createElement('div');tt.className='card-title';tt.textContent=item.title;tt.style.flexShrink='1';
+    titleWrap.appendChild(tt);
+    if(item.memo){
+      const im=document.createElement('span');im.className='list-memo-inline';im.textContent='— '+item.memo;im.title=item.memo;titleWrap.appendChild(im);
+    }
     const right=document.createElement('div');right.className='list-right';
-    const memo=document.createElement('input');memo.type='text';memo.className='list-memo';memo.placeholder='메모...';memo.value=item.memo||'';memo.maxLength=100;
-    memo.addEventListener('click',e=>e.stopPropagation());
-    memo.addEventListener('input',e=>{const it=allItems.find(x=>x.id===item.id);if(it)it.memo=e.target.value;clearTimeout(memo._t);memo._t=setTimeout(()=>saveMemo(item.id,e.target.value),800);});
-    memo.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();clearTimeout(memo._t);saveMemo(item.id,memo.value);memo.blur();showToast('메모 저장됨');}else if(e.key==='Escape'){memo.value=item.memo||'';memo.blur();}});
+    // 메모 편집 버튼 (호버 시 노출, 메모가 있으면 활성 색상)
+    const memoBtn=document.createElement('button');memoBtn.className='list-memo-btn'+(item.memo?' has-memo':'');memoBtn.textContent=item.memo?'📝':'✎';memoBtn.title=item.memo?'메모 수정':'메모 추가';
+    memoBtn.addEventListener('click',e=>{e.stopPropagation();openMemoEdit(item);});
     const tg=document.createElement('div');tg.className='card-tags';(item.tags||[]).forEach(t=>tg.appendChild(makeTagChip(t)));
-    const dur=getDurationFor(item);
-    if(dur>0){const dd=document.createElement('div');dd.className='list-dur';dd.textContent=fmtTime(dur);right.appendChild(dd);}
     const dt=document.createElement('div');dt.className='list-date';dt.textContent=fmtDate(item.updatedAt);
-    right.append(memo,tg,dt);
-    inner.append(lf,tt,right);
+    right.append(memoBtn,tg,dt);
+    inner.append(lf,titleWrap,right);
   }else{
     const bdgWrap=document.createElement('div');bdgWrap.style.cssText='display:flex;gap:4px;flex-wrap:wrap;';makeFolderBadges(bdgWrap,false);
     const tt=document.createElement('div');tt.className='card-title';tt.textContent=item.title;
@@ -1476,11 +1480,14 @@ function createCard(item){
   }
   card.appendChild(inner);
 
-  const actions=document.createElement('div');actions.className='card-actions';
-  const fav=document.createElement('button');fav.className='card-action-btn fav'+(favoriteIds.has(item.id)?' active':'');fav.textContent='★';fav.title='즐겨찾기';fav.addEventListener('click',e=>{e.stopPropagation();toggleFavorite(item.id);});
-  const cp=document.createElement('button');cp.className='card-action-btn copy';cp.textContent='🔗';cp.title='URL 복사';cp.addEventListener('click',e=>{e.stopPropagation();copyText(item.url,'링크 복사됨');});
-  actions.append(fav,cp);
-  card.appendChild(actions);
+  // Action bar — 리스트 뷰에서만 표시 (그리드 뷰는 썸네일 호버의 ★ 버튼 + 우클릭 메뉴 사용)
+  if(isList){
+    const actions=document.createElement('div');actions.className='card-actions';
+    const fav=document.createElement('button');fav.className='card-action-btn fav'+(favoriteIds.has(item.id)?' active':'');fav.textContent='★';fav.title='즐겨찾기';fav.addEventListener('click',e=>{e.stopPropagation();toggleFavorite(item.id);});
+    const cp=document.createElement('button');cp.className='card-action-btn copy';cp.textContent='🔗';cp.title='URL 복사';cp.addEventListener('click',e=>{e.stopPropagation();copyText(item.url,'링크 복사됨');});
+    actions.append(fav,cp);
+    card.appendChild(actions);
+  }
   return card;
 }
 
@@ -1556,7 +1563,7 @@ async function confirmTitleEdit(){
   if(!newTitle){showMessage('제목을 입력하세요.','error');return;}
   const i=titleEditTarget;closeTitleEdit();
   try{
-    const r=await apiCall({action:'edit',id:i.id,title:newTitle,url:i.url,tag:(i.tags||[]).join('/'),folder:(i.folders&&i.folders.length?i.folders:[i.folder]).join('/')});
+    const r=await apiEditItem(i,{title:newTitle});
     if(r.ok){showToast('이름 변경됨');await loadData(false);}
     else showMessage('변경 실패','error');
   }catch(e){showMessage(`변경 실패: ${e.message}`,'error');}
@@ -1604,7 +1611,7 @@ async function confirmTagAssign(){
   const newTags=norm($('tagAssignInput').value).split('/').map(t=>t.trim()).filter(Boolean).filter((t,i,a)=>a.indexOf(t)===i);
   const i=tagAssignTarget;closeTagAssign();
   try{
-    const r=await apiCall({action:'edit',id:i.id,title:i.title,url:i.url,tag:newTags.join('/'),folder:(i.folders&&i.folders.length?i.folders:[i.folder]).join('/')});
+    const r=await apiEditItem(i,{tag:newTags.join('/')});
     if(r.ok){showToast('태그 저장됨');await loadData(false);}
     else showMessage('저장 실패','error');
   }catch(e){showMessage(`저장 실패: ${e.message}`,'error');}
@@ -1662,7 +1669,7 @@ async function confirmMoveToFolder(){
   if(!items.length){closeMovePicker();return;}
   closeMovePicker();showTopBar(true);
   let ok=0,fail=0;
-  for(const i of items){try{const r=await apiCall({action:'edit',id:i.id,title:i.title,url:i.url,tag:(i.tags||[]).join('/'),folder});if(r.ok)ok++;else fail++;}catch{fail++;}}
+  for(const i of items){try{const r=await apiEditItem(i,{folder});if(r.ok)ok++;else fail++;}catch{fail++;}}
   clearSelection();showTopBar(false);await loadData(false);showToast(`${ok}곡 이동${fail?` (${fail}곡 실패)`:''}`);
 }
 
@@ -1762,6 +1769,20 @@ async function copyText(text,msg='복사됨'){try{await navigator.clipboard.writ
 async function copyCurrentViewSummary(){const f=getFiltered();if(!f.length)return showMessage('복사할 목록이 없습니다.','error');const label=currentFilter.value==='전체'?'전체':currentFilter.type==='special'?({'__favorites__':'즐겨찾기','__recent__':'최근 수정','__popular__':'자주 듣는 곡'}[currentFilter.value]||''):currentFilter.value;const text=f.map(i=>`${i.title}\n${i.url}`).join('\n\n');await copyText(text,`"${label||'목록'}" ${f.length}개 복사됨`);}
 async function fetchYtTitle(url){try{const r=await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`);const d=await r.json();return d.title;}catch{return'';}}
 async function saveMemo(id,memo){try{await apiCall({action:'memo',id,memo});}catch(e){console.error('[메모 저장 실패]',e);}}
+// 공통 수정 함수 — 지정하지 않은 필드는 기존 값 유지 (특히 memo 보존)
+async function apiEditItem(i,overrides={}){
+  const payload={
+    action:'edit',
+    id:i.id,
+    title:i.title,
+    url:i.url,
+    tag:(i.tags||[]).join('/'),
+    folder:(i.folders&&i.folders.length?i.folders:[i.folder]).join('/'),
+    memo:i.memo||'',
+    ...overrides
+  };
+  return apiCall(payload);
+}
 
 async function saveToSheet(){if(isSaving)return;const id=norm(els.editId.value),title=norm(els.inTitle.value),url=norm(els.inUrl.value),tag=norm(els.inTag.value),folder=norm(els.inFolder.value)||'기타';if(!title||!url)return showMessage('제목과 URL은 필수입니다.','error');if(!isYt(url))return showMessage('유효한 유튜브 URL을 입력해주세요.','error');const dup=allItems.find(i=>getYtId(i.url)===getYtId(url)&&i.id!==id);if(dup&&!confirm(`이미 같은 곡이 있습니다.\n\n[${dup.folder}] ${dup.title}\n\n그래도 저장할까요?`))return;isSaving=true;els.saveBtn.disabled=true;els.saveBtn.textContent='저장 중...';try{const result=await apiCall({action:id?'edit':'add',id:id||null,title,url,tag,folder,memo:norm(els.editId.value?allItems.find(i=>i.id===id)?.memo||'':'')});if(result.ok===true){showToast('저장 완료');toggleInput(false);resetForm();await loadData(true);}else showMessage('저장 실패: '+(result.message||result.error||'오류'),'error');}catch(e){console.error(e);showMessage(`저장 오류: ${e.message}`,'error');}isSaving=false;els.saveBtn.disabled=false;els.saveBtn.textContent='저장';}
 
