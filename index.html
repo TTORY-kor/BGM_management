@@ -3,45 +3,45 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>BGM Studio PRO</title>
+<title>호랑이 협곡</title>
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
 /* ============ THEME: BLUE & WHITE (Spotify-esque) ============ */
 :root,[data-theme="dark"]{
-  --bg:#0b1017;--bg2:#10151e;--bg3:#141a25;
-  --surface:#171d29;--surface2:#1d2533;--surface3:#242d3e;
-  --border:rgba(255,255,255,.06);--border2:rgba(255,255,255,.11);--border3:rgba(255,255,255,.18);
-  --text:#e8edf5;--text2:#b0b9cc;--muted:#6a7384;--faint:#444c5e;
-  /* Primary = Flat Blue */
-  --pri:#3b82f6;--pri2:#2563eb;--pri3:#60a5fa;--pri4:#93c5fd;
-  --pri-dim:rgba(59,130,246,.12);--pri-glow:rgba(59,130,246,.22);--pri-ring:rgba(59,130,246,.28);
-  --grad:#3b82f6;
-  --grad2:#2563eb;
-  --rose:#f87171;--rose-dim:rgba(248,113,113,.10);
-  --green:#4ade80;--green-dim:rgba(74,222,128,.10);
-  --amber:#fbbf24;--amber-dim:rgba(251,191,36,.10);
-  --sh:0 2px 8px rgba(0,0,0,.22);--sh-lg:0 8px 28px rgba(0,0,0,.32);
-  --sh-pri:0 2px 8px rgba(59,130,246,.22);
-  --player-bg:#0a0e15;
-  --url-bg:#141a25;--url-border:rgba(255,255,255,.14);--url-text:#ffffff;
+  --bg:#0d0b09;--bg2:#141110;--bg3:#1a1614;
+  --surface:#1e1a17;--surface2:#28221e;--surface3:#342b25;
+  --border:rgba(255,220,190,.06);--border2:rgba(255,220,190,.11);--border3:rgba(255,220,190,.18);
+  --text:#f5ede3;--text2:#c9bdb0;--muted:#8a7d70;--faint:#554a42;
+  /* Primary = Tiger Orange */
+  --pri:#d97a4a;--pri2:#b85a30;--pri3:#e89670;--pri4:#f4b896;
+  --pri-dim:rgba(217,122,74,.14);--pri-glow:rgba(217,122,74,.24);--pri-ring:rgba(217,122,74,.3);
+  --grad:#d97a4a;
+  --grad2:#b85a30;
+  --rose:#ef6b5a;--rose-dim:rgba(239,107,90,.11);
+  --green:#7aa96e;--green-dim:rgba(122,169,110,.10);
+  --amber:#e8a547;--amber-dim:rgba(232,165,71,.11);
+  --sh:0 2px 8px rgba(0,0,0,.35);--sh-lg:0 8px 28px rgba(0,0,0,.45);
+  --sh-pri:0 2px 8px rgba(217,122,74,.25);
+  --player-bg:#0a0907;
+  --url-bg:#1a1614;--url-border:rgba(255,220,190,.14);--url-text:#f5ede3;
 }
 [data-theme="light"]{
-  --bg:#f6f8fb;--bg2:#ffffff;--bg3:#fafbfd;
-  --surface:#ffffff;--surface2:#f2f5f9;--surface3:#e8edf3;
-  --border:rgba(15,23,42,.07);--border2:rgba(15,23,42,.12);--border3:rgba(15,23,42,.2);
-  --text:#0f172a;--text2:#334155;--muted:#64748b;--faint:#94a3b8;
-  --pri:#2563eb;--pri2:#1d4ed8;--pri3:#3b82f6;--pri4:#60a5fa;
-  --pri-dim:rgba(37,99,235,.08);--pri-glow:rgba(37,99,235,.15);--pri-ring:rgba(37,99,235,.22);
-  --grad:#2563eb;
-  --grad2:#1d4ed8;
-  --rose:#dc2626;--rose-dim:rgba(220,38,38,.07);
-  --green:#16a34a;--green-dim:rgba(22,163,74,.07);
-  --amber:#d97706;--amber-dim:rgba(217,119,6,.08);
-  --sh:0 1px 4px rgba(15,23,42,.06);--sh-lg:0 6px 20px rgba(15,23,42,.10);
-  --sh-pri:0 2px 8px rgba(37,99,235,.18);
-  --player-bg:#1e293b;
-  --url-bg:#f2f5f9;--url-border:rgba(15,23,42,.14);--url-text:#0f172a;
+  --bg:#faf6f1;--bg2:#ffffff;--bg3:#fdfaf5;
+  --surface:#ffffff;--surface2:#f5ede3;--surface3:#ebddcf;
+  --border:rgba(92,48,20,.08);--border2:rgba(92,48,20,.14);--border3:rgba(92,48,20,.22);
+  --text:#2a1a10;--text2:#4d372a;--muted:#7a6655;--faint:#a8968a;
+  --pri:#c26a4a;--pri2:#a4512f;--pri3:#d97a4a;--pri4:#e89670;
+  --pri-dim:rgba(194,106,74,.10);--pri-glow:rgba(194,106,74,.18);--pri-ring:rgba(194,106,74,.25);
+  --grad:#c26a4a;
+  --grad2:#a4512f;
+  --rose:#c5462e;--rose-dim:rgba(197,70,46,.08);
+  --green:#5a8648;--green-dim:rgba(90,134,72,.08);
+  --amber:#b8761e;--amber-dim:rgba(184,118,30,.09);
+  --sh:0 1px 4px rgba(92,48,20,.08);--sh-lg:0 6px 20px rgba(92,48,20,.12);
+  --sh-pri:0 2px 8px rgba(194,106,74,.2);
+  --player-bg:#2a1a10;
+  --url-bg:#f5ede3;--url-border:rgba(92,48,20,.15);--url-text:#2a1a10;
 }
 :root{--r-xs:2px;--r-sm:6px;--r:10px;--r-lg:14px;--r-xl:18px;--font:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;--mono:'DM Mono',monospace;--tr:.14s ease;--tr-slow:.28s cubic-bezier(.4,0,.2,1);--sw:240px;--ph:74px;--qw:320px;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -59,7 +59,7 @@ a{color:inherit;text-decoration:none;}
 body.sb-col .sidebar{width:60px;}
 .brand{display:flex;align-items:center;justify-content:space-between;padding:16px 14px 14px;border-bottom:1px solid var(--border);flex-shrink:0;gap:8px;}
 .brand-main{display:flex;align-items:center;gap:10px;min-width:0;flex:1;}
-.brand-icon{width:32px;height:32px;border-radius:var(--r-sm);background:var(--pri);display:grid;place-items:center;font-size:.9rem;flex-shrink:0;color:#fff;font-weight:700;}
+.brand-icon{width:32px;height:32px;border-radius:var(--r-sm);background:var(--surface2);display:grid;place-items:center;font-size:1.1rem;flex-shrink:0;color:#fff;font-weight:700;border:1px solid var(--border2);}
 .brand-icon::after{display:none;}
 .brand-text{min-width:0;overflow:hidden;}
 .brand-name{font-size:.82rem;font-weight:700;color:var(--text);white-space:nowrap;letter-spacing:-.01em;}
@@ -328,7 +328,7 @@ body.selection-mode .bgm-card.selected .card-check,body.selection-mode .bgm-card
 .card-folder-badge{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;padding:2px 7px;border-radius:4px;width:fit-content;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .card-title{font-size:.88rem;font-weight:600;line-height:1.45;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 .card-tags{display:flex;flex-wrap:wrap;gap:3px;}
-.card-memo{font-size:.7rem;color:var(--muted);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-style:italic;margin-top:1px;}
+.card-memo{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;font-size:.72rem;color:var(--muted);line-height:1.45;overflow:hidden;font-style:italic;margin-top:2px;word-break:break-word;width:100%;}
 .card-tag{font-size:.65rem;font-weight:600;padding:2px 7px;border-radius:4px;cursor:pointer;transition:var(--tr);}
 .card-tag:hover{opacity:.75;}
 
@@ -723,7 +723,7 @@ body.queue-open #queuePanel{transform:none;}
 <!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="brand">
-    <div class="brand-main"><div class="brand-icon">♫</div><div class="brand-text"><div class="brand-name">BGM Studio</div><div class="brand-sub">PRO</div></div></div>
+    <div class="brand-main"><div class="brand-icon">🐯</div><div class="brand-text"><div class="brand-name">호랑이 협곡</div><div class="brand-sub">BGM</div></div></div>
     <button class="sb-toggle" id="collapseBtn" title="사이드바 접기/펴기">☰</button>
   </div>
   <div class="sb-body">
@@ -890,7 +890,7 @@ body.queue-open #queuePanel{transform:none;}
 
 <script>
 const API_URL='https://script.google.com/macros/s/AKfycbwmmyI9JftuXVkm6UntkElQtg1FQFOoFTAo9lkmn5Sm-ePZciLzdiwmxb9c9rV12MY/exec';
-const COLOR_PRESETS=['#3b82f6','#6366f1','#8b5cf6','#ec4899','#ef4444','#f97316','#fbbf24','#22c55e','#14b8a6','#0ea5e9','#64748b','#84cc16'];
+const COLOR_PRESETS=['#d97a4a','#e89670','#b85a30','#8b4513','#c5462e','#e8a547','#a68b5b','#6b8e5a','#d4945c','#2f4858','#7a6655','#9b6e4a'];
 
 function apiCall(params){const qs=Object.entries(params).filter(([,v])=>v!=null&&v!=='').map(([k,v])=>`${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&');return fetch(`${API_URL}?${qs}`,{method:'GET',cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.json();});}
 function apiCallPost(body){return fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)}).then(r=>{if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.json();});}
@@ -1011,7 +1011,7 @@ function safeDate(t){const d=new Date(t);return isNaN(d)?new Date(0):d;}
 function fmtTime(s){s=Math.floor(s||0);return`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;}
 function getFolderColor(n){return folderColors[n]||defColor(n);}
 function getTagColor(n){return tagColors[n]||defColor(n);}
-function defColor(s){let h=0;s=String(s||'x');for(let i=0;i<s.length;i++)h=s.charCodeAt(i)+((h<<5)-h);return`hsl(${Math.abs(h%360)},62%,58%)`;}
+function defColor(s){let h=0;s=String(s||'x');for(let i=0;i<s.length;i++)h=s.charCodeAt(i)+((h<<5)-h);const hue=Math.abs(h)%360;return`hsl(${hue},55%,55%)`;}
 function dimC(c){return c.startsWith('hsl')?c.replace('hsl(','hsla(').replace(')',`,.14)`):c+'24';}
 function saveDuration(id,dur){if(dur>0){videoDurations[id]=dur;localStorage.setItem('bgm_videoDurations',JSON.stringify(videoDurations));}}
 function getDurationFor(item){const id=getYtId(item.url);return id&&videoDurations[id]||0;}
@@ -1140,7 +1140,7 @@ async function plFetchList(){const url=norm($('plUrl').value),folder=norm($('plF
 async function plStartSave(){const folder=norm($('plFolder').value)||'기타';const tag=norm($('plTag').value);const toSave=plVideos.filter(v=>!v.skipped);if(!toSave.length){$('plStep2').classList.add('hidden');$('plStep4').classList.remove('hidden');$('plResultText').innerHTML='<strong>모든 영상이 이미 등록되어 있습니다.</strong>';return;}$('plSaveBtn').disabled=true;plIsRunning=true;$('plStep2').classList.add('hidden');$('plStep3').classList.remove('hidden');let saved=0,failed=0;const fill=$('plProgressFill'),txt=$('plProgressText');for(let i=0;i<toSave.length;i++){if(!plIsRunning)break;const v=toSave[i];fill.style.width=Math.round((i/toSave.length)*100)+'%';txt.textContent=`저장 중 ${i+1} / ${toSave.length} — ${v.title.slice(0,38)}`;let ok=false;try{const url=`https://www.youtube.com/watch?v=${v.videoId}`;const result=await apiCall({action:'add',title:v.title,url,tag,folder});ok=(result.ok===true);}catch(e1){try{const url=`https://www.youtube.com/watch?v=${v.videoId}`;const result=await apiCallPost({action:'add',title:v.title,url,tag,folder});ok=(result.ok===true);}catch(e2){console.error(`[저장 실패] ${v.title}`,e2);}}if(ok)saved++;else failed++;await new Promise(r=>setTimeout(r,500));}fill.style.width='100%';$('plStep3').classList.add('hidden');$('plStep4').classList.remove('hidden');const skipped=plVideos.filter(v=>v.skipped).length;$('plResultText').innerHTML=`<strong>${saved}개 영상</strong>을 "<strong>${folder}</strong>" 폴더에 저장했습니다.`+(skipped?`<br><span class="pl-skipped">중복 ${skipped}개 건너뜀</span>`:'')+( failed?`<br><span style="color:var(--rose);">실패 ${failed}개</span>`:'');}
 
 // ============ COLOR PICKER ============
-function openColorPicker(type,name,cur){cpTarget={type,name};cpTemp=cur;els.cpTitle.textContent=`"${name}" 색상 변경`;els.cpInput.value=cur.startsWith('#')?cur:'#3b82f6';els.cpPresets.innerHTML='';COLOR_PRESETS.forEach(c=>{const d=document.createElement('div');d.className='cp-dot'+(c===cpTemp?' sel':'');d.style.background=c;d.onclick=()=>{cpTemp=c;els.cpInput.value=c;document.querySelectorAll('.cp-dot').forEach(x=>x.classList.remove('sel'));d.classList.add('sel');};els.cpPresets.appendChild(d);});els.cpOverlay.style.display='flex';}
+function openColorPicker(type,name,cur){cpTarget={type,name};cpTemp=cur;els.cpTitle.textContent=`"${name}" 색상 변경`;els.cpInput.value=cur.startsWith('#')?cur:'#d97a4a';els.cpPresets.innerHTML='';COLOR_PRESETS.forEach(c=>{const d=document.createElement('div');d.className='cp-dot'+(c===cpTemp?' sel':'');d.style.background=c;d.onclick=()=>{cpTemp=c;els.cpInput.value=c;document.querySelectorAll('.cp-dot').forEach(x=>x.classList.remove('sel'));d.classList.add('sel');};els.cpPresets.appendChild(d);});els.cpOverlay.style.display='flex';}
 function onCpInput(v){cpTemp=v;document.querySelectorAll('.cp-dot').forEach(x=>x.classList.remove('sel'));}
 function applyColorPicker(){if(!cpTarget)return;if(cpTarget.type==='folder'){folderColors[cpTarget.name]=cpTemp;localStorage.setItem('bgm_folderColors',JSON.stringify(folderColors));}else{tagColors[cpTarget.name]=cpTemp;localStorage.setItem('bgm_tagColors',JSON.stringify(tagColors));}closeColorPicker();renderMenus();renderGrid();renderActiveFilters();showToast('색상 변경됨');}
 function closeColorPicker(){els.cpOverlay.style.display='none';cpTarget=null;}
