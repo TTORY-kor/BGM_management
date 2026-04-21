@@ -271,7 +271,8 @@ body.queue-open .main-content{margin-right:var(--qw);}
 .board-title-txt::before{content:'';width:4px;height:14px;border-radius:2px;background:var(--grad);}
 .board-count-txt{font-size:.7rem;color:var(--muted);font-family:var(--mono);background:var(--surface);padding:2px 8px;border-radius:99px;border:1px solid var(--border);}
 .board-body{background:transparent;border:0;border-radius:0;transition:background var(--tr-slow);}
-.select-all-wrap{display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--muted);cursor:pointer;user-select:none;}
+.select-all-wrap{display:none;align-items:center;gap:6px;font-size:.72rem;color:var(--muted);cursor:pointer;user-select:none;}
+body.selection-mode .select-all-wrap{display:flex;}
 .select-all-wrap input{cursor:pointer;accent-color:var(--pri);}
 
 /* Skeleton loader */
@@ -294,14 +295,11 @@ body.queue-open .main-content{margin-right:var(--qw);}
 .empty-state .btn{margin:0 auto;}
 
 /* Top loading bar (YouTube/GitHub style) */
+/* Top loading bar — 실제 진행도 게이지 */
 #topLoadingBar{position:fixed;top:0;left:0;right:0;height:3px;background:transparent;z-index:9999;pointer-events:none;display:none;}
 #topLoadingBar.active{display:block;}
-#topLoadingBar::before{content:'';position:absolute;top:0;left:0;height:100%;background:var(--grad);box-shadow:0 0 10px var(--pri-glow);animation:top-loading 1.2s cubic-bezier(.4,0,.2,1) infinite;border-radius:0 2px 2px 0;}
-@keyframes top-loading{
-  0%{left:-30%;width:30%;}
-  50%{left:30%;width:40%;}
-  100%{left:100%;width:30%;}
-}
+#topLoadingBar .tlb-fill{height:100%;background:var(--grad);box-shadow:0 0 10px var(--pri-glow);width:0%;transition:width .25s ease-out,opacity .3s ease;border-radius:0 2px 2px 0;}
+#topLoadingBar.done .tlb-fill{opacity:0;}
 
 /* Grid with rounded gap-style cards */
 #bgmGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(218px,1fr));gap:16px;background:transparent;padding:14px;}
@@ -310,8 +308,9 @@ body.queue-open .main-content{margin-right:var(--qw);}
 .bgm-card.selected{background:var(--pri-dim)!important;box-shadow:0 0 0 2px var(--pri);}
 .bgm-card.selected .card-stripe{background:var(--pri)!important;}
 .card-stripe{display:none;}
-.card-check{position:absolute;top:10px;left:10px;z-index:4;width:22px;height:22px;border-radius:6px;background:rgba(0,0,0,.55);border:1.5px solid rgba(255,255,255,.45);cursor:pointer;display:grid;place-items:center;opacity:0;transition:var(--tr);backdrop-filter:blur(4px);}
-.bgm-card:hover .card-check,.bgm-card.selected .card-check{opacity:1;}
+.card-check{position:absolute;top:10px;left:10px;z-index:4;width:22px;height:22px;border-radius:6px;background:rgba(0,0,0,.55);border:1.5px solid rgba(255,255,255,.45);cursor:pointer;display:none;place-items:center;transition:var(--tr);backdrop-filter:blur(4px);}
+body.selection-mode .card-check{display:grid;}
+body.selection-mode .bgm-card.selected .card-check,body.selection-mode .bgm-card:hover .card-check{display:grid;}
 .card-check.checked{background:var(--pri);border-color:var(--pri);}
 .card-check.checked::after{content:'✓';color:#fff;font-size:.75rem;font-weight:700;}
 .card-thumb{position:relative;padding-bottom:56.25%;background:var(--surface3);overflow:hidden;margin:0;border-radius:var(--r-lg);margin:8px 8px 0;}
@@ -342,24 +341,28 @@ body.queue-open .main-content{margin-right:var(--qw);}
 .card-tag:hover{opacity:.75;}
 
 /* Compact list */
-#bgmGrid.compact{grid-template-columns:1fr;gap:6px;background:transparent;padding:10px;}
-#bgmGrid.compact .bgm-card{flex-direction:row;align-items:stretch;height:auto;border-radius:var(--r-lg);position:relative;}
+#bgmGrid.compact{grid-template-columns:1fr;gap:2px;background:transparent;padding:6px;}
+#bgmGrid.compact .bgm-card{flex-direction:row;align-items:stretch;height:auto;border-radius:var(--r-sm);position:relative;}
 #bgmGrid.compact .bgm-card:hover{background:var(--surface2);transform:none;}
-#bgmGrid.compact .list-folder-bar{position:absolute;left:0;top:8px;bottom:8px;width:3px;border-radius:0 2px 2px 0;pointer-events:none;}
-#bgmGrid.compact .card-check{position:relative;top:auto;left:auto;opacity:1;margin:auto 6px auto 10px;background:transparent;border-color:var(--border3);backdrop-filter:none;}
+#bgmGrid.compact .list-folder-bar{position:absolute;left:0;top:4px;bottom:4px;width:3px;border-radius:0 2px 2px 0;pointer-events:none;}
+#bgmGrid.compact .card-check{position:relative;top:auto;left:auto;opacity:1;margin:auto 4px auto 8px;background:transparent;border-color:var(--border3);backdrop-filter:none;width:18px;height:18px;}
 #bgmGrid.compact .card-check.checked{background:var(--pri);border-color:var(--pri);}
-#bgmGrid.compact .card-thumb{padding-bottom:0;width:80px;height:52px;flex-shrink:0;margin:6px 0 6px 6px;border-radius:var(--r-sm);}
+#bgmGrid.compact .card-thumb{padding-bottom:0;width:64px;height:36px;flex-shrink:0;margin:5px 0 5px 6px;border-radius:4px;}
 #bgmGrid.compact .card-thumb img{position:static;width:100%;height:100%;}
 #bgmGrid.compact .card-thumb-overlay,#bgmGrid.compact .card-play-icon,#bgmGrid.compact .card-fav-btn,#bgmGrid.compact .card-duration{display:none;}
-#bgmGrid.compact .card-inner{display:grid;grid-template-columns:minmax(0,1fr) 200px 260px;align-items:center;padding:0 16px 0 13px;gap:16px;flex-wrap:nowrap;flex:1;min-height:56px;}
-#bgmGrid.compact .card-title{-webkit-line-clamp:1;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.84rem;min-width:0;max-width:100%;}
-#bgmGrid.compact .card-tag{white-space:nowrap;font-size:.64rem;padding:2px 7px;}
-#bgmGrid.compact .list-title-wrap{min-width:0;display:flex;align-items:baseline;gap:4px;overflow:hidden;}
-#bgmGrid.compact .list-tags-col{display:flex;flex-wrap:wrap;gap:3px;align-items:center;overflow:hidden;max-height:24px;}
-#bgmGrid.compact .list-memo-col{font-size:.74rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px;}
+#bgmGrid.compact .card-inner{display:grid;grid-template-columns:minmax(0,1fr) 200px 260px;align-items:center;padding:0 14px 0 12px;gap:14px;flex-wrap:nowrap;flex:1;min-height:46px;}
+#bgmGrid.compact .card-title{-webkit-line-clamp:1;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.82rem;min-width:0;max-width:100%;}
+#bgmGrid.compact .card-tag{white-space:nowrap;font-size:.62rem;padding:1px 6px;}
+#bgmGrid.compact .list-title-wrap{min-width:0;display:flex;align-items:baseline;gap:8px;overflow:hidden;}
+#bgmGrid.compact .list-folder-name{font-size:.66rem;font-weight:600;color:var(--muted);white-space:nowrap;flex-shrink:0;max-width:90px;overflow:hidden;text-overflow:ellipsis;letter-spacing:.01em;cursor:pointer;transition:var(--tr);}
+#bgmGrid.compact .list-folder-name:hover{opacity:.7;text-decoration:underline;}
+#bgmGrid.compact .list-tags-col{display:flex;flex-wrap:wrap;gap:3px;align-items:center;overflow:hidden;max-height:20px;}
+#bgmGrid.compact .list-memo-col{font-size:.72rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px;}
 #bgmGrid.compact .list-memo-col .list-memo-text{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;}
 #bgmGrid.compact .list-memo-col.empty,#bgmGrid.compact .list-tags-col.empty{color:var(--faint);justify-content:center;}
 #bgmGrid.compact .list-dash{color:var(--faint);font-weight:400;}
+#bgmGrid.compact .card-actions{border:0;flex-shrink:0;display:flex;align-items:center;align-self:center;padding:0 8px 0 0;gap:2px;}
+#bgmGrid.compact .card-action-btn{width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:.85rem;border-radius:var(--r-sm);}
 
 .list-date{font-size:.65rem;color:var(--faint);font-family:var(--mono);white-space:nowrap;flex-shrink:0;}
 /* Inline memo shown next to title (muted text) */
@@ -370,12 +373,6 @@ body.queue-open .main-content{margin-right:var(--qw);}
 .list-memo-btn:hover{background:var(--pri-dim);color:var(--pri3);}
 .list-memo-btn.has-memo{color:var(--pri3);opacity:.85;}
 .list-right{display:flex;align-items:center;gap:5px;flex-shrink:0;margin-left:auto;}
-
-#bgmGrid.compact .card-actions{border:0;flex-shrink:0;display:flex;align-items:center;align-self:center;padding:0 10px 0 0;gap:2px;}
-#bgmGrid.compact .card-action-btn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:.9rem;border-radius:var(--r-sm);}
-.list-fav{width:34px;height:34px;border-radius:var(--r-sm);border:0;background:transparent;cursor:pointer;font-size:1rem;flex-shrink:0;display:grid;place-items:center;transition:var(--tr);color:var(--faint);line-height:1;}
-.list-fav:hover{color:var(--pri3);background:var(--pri-dim);}
-.list-fav.active{color:var(--pri3);}
 
 /* ============ PLAYER (Spotify-style) ============ */
 #player{position:fixed;bottom:0;left:var(--sw);right:0;height:var(--ph);background:var(--player-bg);border-top:1px solid rgba(255,255,255,.08);z-index:500;display:flex;align-items:center;gap:12px;padding:0 18px;transition:transform .28s cubic-bezier(.4,0,.2,1),left .24s cubic-bezier(.4,0,.2,1),right .24s cubic-bezier(.4,0,.2,1);color:#fff;}
@@ -572,7 +569,7 @@ body.queue-open #queuePanel{transform:none;}
 </style>
 </head>
 <body>
-<div id="topLoadingBar"></div>
+<div id="topLoadingBar"><div class="tlb-fill"></div></div>
 <div id="toast" class="toast"><div class="toast-icon">✓</div><span id="toastText"></span></div>
 
 <!-- Context Menu -->
@@ -746,7 +743,6 @@ body.queue-open #queuePanel{transform:none;}
         <div class="menu-item active" id="menu-all" onclick="setFilter('전체','folder')"><span class="menu-icon">⊞</span><span class="menu-label">전체 보기</span><span class="menu-count" id="allCount">0</span></div>
         <div class="menu-item" id="menu-favorites" onclick="setFilter('__favorites__','special')"><span class="menu-icon">★</span><span class="menu-label">즐겨찾기</span><span class="menu-count" id="favoriteCount">0</span></div>
         <div class="menu-item" id="menu-recent" onclick="setFilter('__recent__','special')"><span class="menu-icon">◷</span><span class="menu-label">최근 수정</span></div>
-        <div class="menu-item" id="menu-popular" onclick="setFilter('__popular__','special')"><span class="menu-icon">🔥</span><span class="menu-label">자주 듣는 곡</span></div>
       </div>
     </div>
     <div class="sb-sec">
@@ -800,12 +796,13 @@ body.queue-open #queuePanel{transform:none;}
 
   <div class="filterbar">
     <div class="search-box"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.4"/><path d="M10 10l2.5 2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><input type="text" id="searchInput" placeholder="제목, 태그, 폴더, 메모 검색..." oninput="handleSearch(this.value)" onfocus="this.select()"/><button class="search-clear" id="searchClearBtn" onclick="clearSearch()">✕</button></div>
-    <div class="sel-wrap"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><select id="sortSelect" onchange="handleSortChange(this.value)"><option value="updated_desc">최근 수정순</option><option value="created_desc">최근 등록순</option><option value="title_asc">제목 오름차순</option><option value="folder_asc">폴더 오름차순</option><option value="plays_desc">재생 많은순</option></select></div>
+    <div class="sel-wrap"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><select id="sortSelect" onchange="handleSortChange(this.value)"><option value="updated_desc">최근 수정순</option><option value="created_desc">최근 등록순</option><option value="title_asc">제목 오름차순</option><option value="folder_asc">폴더 오름차순</option></select></div>
     <div class="fb-sep"></div>
     <button class="btn ghost" onclick="clearAllFilters()" style="height:34px;font-size:.8rem;">초기화</button>
     <button class="btn ghost" onclick="copyCurrentViewSummary()" style="height:34px;font-size:.8rem;">🔗 복사</button>
     <button class="btn ghost" onclick="playAllFiltered()" style="height:34px;font-size:.8rem;">▶ 전체재생</button>
     <button class="btn" id="favoritesOnlyBtn" onclick="toggleFavoritesOnly()" style="height:34px;font-size:.8rem;">★ 즐겨찾기만</button>
+    <button class="btn" id="selectModeBtn" onclick="toggleSelectionMode()" style="height:34px;font-size:.8rem;">☑ 선택</button>
     <div class="fb-sep"></div>
     <div class="view-toggle-wrap"><button class="vt-btn active" id="vtGrid" onclick="setDensity('comfortable')" title="카드 뷰">⊞</button><button class="vt-btn" id="vtList" onclick="setDensity('compact')" title="리스트 뷰">≡</button></div>
   </div>
@@ -920,7 +917,6 @@ let themeMode=localStorage.getItem('bgm_theme')||'dark';
 let isModalOpen=false,isDetailOpen=false;
 let folderColors=JSON.parse(localStorage.getItem('bgm_folderColors')||'{}');
 let tagColors=JSON.parse(localStorage.getItem('bgm_tagColors')||'{}');
-let playCounts=JSON.parse(localStorage.getItem('bgm_playCounts')||'{}');
 let videoDurations=JSON.parse(localStorage.getItem('bgm_videoDurations')||'{}');
 let queue=[],queueIndex=-1,isPlaying=false,isShuffle=false,isRepeat=false;
 let originalQueue=[];
@@ -934,6 +930,7 @@ let selectedTags=JSON.parse(localStorage.getItem('bgm_selectedTags')||'[]');
 let tagFilterMode=localStorage.getItem('bgm_tagFilterMode')||'AND';
 let selectedFolders=JSON.parse(localStorage.getItem('bgm_selectedFolders')||'[]');
 let selectedIds=new Set();
+let selectionMode=localStorage.getItem('bgm_selectionMode')==='true';
 // Queue panel
 let queueOpen=localStorage.getItem('bgm_queueOpen')==='true';
 // Section collapse
@@ -957,15 +954,49 @@ const $=id=>document.getElementById(id);
 const els={overlay:$('inputOverlay'),formTitle:$('formTitle'),editId:$('editId'),inTitle:$('inTitle'),inUrl:$('inUrl'),inTag:$('inTag'),inFolder:$('inFolder'),saveBtn:$('saveBtn'),folderMenu:$('folderMenu'),bgmGrid:$('bgmGrid'),loading:$('loading'),skelLoader:$('skelLoader'),viewDesc:$('viewDesc'),messageBox:$('messageBox'),searchInput:$('searchInput'),emptyState:$('emptyState'),statusBar:$('statusBar'),sortSelect:$('sortSelect'),toastEl:$('toast'),toastText:$('toastText'),sideFilterInput:$('sideFilterInput'),allCount:$('allCount'),favoriteCount:$('favoriteCount'),favoritesOnlyBtn:$('favoritesOnlyBtn'),collapseBtn:$('collapseBtn'),vtGrid:$('vtGrid'),vtList:$('vtList'),urlPreviewWrap:$('urlPreviewWrap'),urlPreviewFrame:$('urlPreviewFrame'),tagPreviewChips:$('tagPreviewChips'),themeKnobIcon:$('themeKnobIcon'),player:$('player'),playerThumb:$('playerThumb'),playerTitle:$('playerTitle'),playerSub:$('playerSub'),btnPlay:$('btnPlay'),btnShuffle:$('btnShuffle'),btnRepeat:$('btnRepeat'),progressFill:$('progressFill'),progressBar:$('progressBar'),timeCurrent:$('timeCurrent'),timeDuration:$('timeDuration'),volSlider:$('volSlider'),volIcon:$('volIcon'),cpOverlay:$('colorPickerOverlay'),cpTitle:$('cpTitle'),cpPresets:$('cpPresets'),cpInput:$('cpInput'),quickUrlInput:$('quickUrlInput'),detailOverlay:$('detailOverlay'),detailTitle:$('detailTitle'),detailThumb:$('detailThumb'),detailMeta:$('detailMeta'),detailTags:$('detailTags'),activeFilters:$('activeFilters'),afChips:$('afChips'),afMode:$('afMode'),bulkBar:$('bulkBar'),bulkCount:$('bulkCount'),selectAllCb:$('selectAllCb'),queuePanel:$('queuePanel'),queueBody:$('queueBody'),queueToggleBtn:$('queueToggleBtn'),playerFavBtn:$('playerFavBtn'),tcTags:$('tcTags')};
 
 els.sortSelect.value=sortMode;
-applyDensity(false);applySidebarState();applyFavoritesToggleState();applyTheme(false);applyQueueState();applySectionCollapse();
+applyDensity(false);applySidebarState();applyFavoritesToggleState();applyTheme(false);applyQueueState();applySectionCollapse();applySelectionModeState();
 
 // ============ UTILS ============
 function showToast(t){els.toastText.textContent=t;els.toastEl.classList.add('show');clearTimeout(showToast._t);showToast._t=setTimeout(()=>els.toastEl.classList.remove('show'),2000);}
-function showTopBar(v){const bar=$('topLoadingBar');if(bar)bar.classList.toggle('active',!!v);}
+// 상단 로딩 게이지 — 실제 진행도 기반
+let _tlbTrickleTimer=null;
+function showTopBar(v){
+  const bar=$('topLoadingBar');if(!bar)return;
+  const fill=bar.querySelector('.tlb-fill');
+  if(v){
+    clearTimeout(_tlbTrickleTimer);
+    bar.classList.remove('done');bar.classList.add('active');
+    fill.style.transition='none';fill.style.opacity='1';fill.style.width='0%';
+    // 강제 reflow 후 애니메이션 시작
+    void fill.offsetWidth;
+    fill.style.transition='width .25s ease-out,opacity .3s ease';
+    fill.style.width='12%';
+    // trickle: 아직 끝나지 않은 동안 조금씩 진행되도록 가짜 증가
+    let pct=12;
+    _tlbTrickleTimer=setInterval(()=>{
+      pct+=Math.random()*(90-pct)*0.2;
+      if(pct>90)pct=90;
+      fill.style.width=pct+'%';
+    },400);
+  }else{
+    clearInterval(_tlbTrickleTimer);
+    fill.style.width='100%';
+    setTimeout(()=>{
+      bar.classList.add('done');
+      setTimeout(()=>{bar.classList.remove('active','done');fill.style.width='0%';},320);
+    },180);
+  }
+}
+// 여러 작업 동시 진행을 위한 카운터 기반 버전
+let _tlbCount=0;
+function topBarBegin(){_tlbCount++;if(_tlbCount===1)showTopBar(true);}
+function topBarEnd(){_tlbCount=Math.max(0,_tlbCount-1);if(_tlbCount===0)showTopBar(false);}
+// 배치 작업용: 현재 진행도를 수동으로 설정
+function topBarSet(pct){const bar=$('topLoadingBar');if(!bar)return;const fill=bar.querySelector('.tlb-fill');if(!bar.classList.contains('active')){bar.classList.add('active');fill.style.opacity='1';}clearInterval(_tlbTrickleTimer);fill.style.width=Math.max(0,Math.min(100,pct))+'%';}
 function showMessage(t,type='info'){els.messageBox.textContent=t;els.messageBox.className=`message-box show ${type}`;}
 function hideMessage(){els.messageBox.className='message-box';els.messageBox.textContent='';}
 function setLoading(v){
-  const bar=$('topLoadingBar');if(bar)bar.classList.toggle('active',!!v);
+  if(v)showTopBar(true);else showTopBar(false);
   if(v){els.skelLoader.style.display='grid';renderSkeleton();els.bgmGrid.style.display='none';els.emptyState.style.display='none';}
   else{els.skelLoader.style.display='none';}
 }
@@ -997,10 +1028,8 @@ function getFolderColor(n){return folderColors[n]||defColor(n);}
 function getTagColor(n){return tagColors[n]||defColor(n);}
 function defColor(s){let h=0;s=String(s||'x');for(let i=0;i<s.length;i++)h=s.charCodeAt(i)+((h<<5)-h);return`hsl(${Math.abs(h%360)},62%,58%)`;}
 function dimC(c){return c.startsWith('hsl')?c.replace('hsl(','hsla(').replace(')',`,.14)`):c+'24';}
-function savePlayCount(id){playCounts[id]=(playCounts[id]||0)+1;playCounts[`${id}_last`]=Date.now();localStorage.setItem('bgm_playCounts',JSON.stringify(playCounts));}
 function saveDuration(id,dur){if(dur>0){videoDurations[id]=dur;localStorage.setItem('bgm_videoDurations',JSON.stringify(videoDurations));}}
 function getDurationFor(item){const id=getYtId(item.url);return id&&videoDurations[id]||0;}
-function getPlayCount(itemId){return playCounts[itemId]||0;}
 
 // ============ THEME & SIDEBAR ============
 function toggleTheme(){themeMode=themeMode==='dark'?'light':'dark';localStorage.setItem('bgm_theme',themeMode);applyTheme(true);}
@@ -1014,6 +1043,8 @@ function applySectionCollapse(){Object.entries(sectionCollapsed).forEach(([k,v])
 function saveFavs(){localStorage.setItem('bgm_favoriteIds',JSON.stringify([...favoriteIds]));}
 function toggleFavorite(id){favoriteIds.has(id)?favoriteIds.delete(id):favoriteIds.add(id);saveFavs();renderMenus();renderGrid();updatePlayerFavBtn();showToast(favoriteIds.has(id)?'즐겨찾기 추가':'즐겨찾기 제거');}
 function toggleFavoritesOnly(){favoritesOnly=!favoritesOnly;localStorage.setItem('bgm_favoritesOnly',String(favoritesOnly));applyFavoritesToggleState();renderGrid();}
+function toggleSelectionMode(){selectionMode=!selectionMode;localStorage.setItem('bgm_selectionMode',String(selectionMode));applySelectionModeState();if(!selectionMode)clearSelection();}
+function applySelectionModeState(){document.body.classList.toggle('selection-mode',selectionMode);const btn=$('selectModeBtn');if(btn){btn.textContent=selectionMode?'☑ 선택 ON':'☑ 선택';btn.classList.toggle('active-state',selectionMode);}}
 function applyFavoritesToggleState(){els.favoritesOnlyBtn.textContent=favoritesOnly?'★ ON':'★ 즐겨찾기만';els.favoritesOnlyBtn.classList.toggle('active-state',favoritesOnly);}
 function updatePlayerFavBtn(){if(playingId&&favoriteIds.has(playingId))els.playerFavBtn.classList.add('active');else els.playerFavBtn.classList.remove('active');}
 function toggleCurrentFav(){if(playingId)toggleFavorite(playingId);}
@@ -1059,7 +1090,7 @@ function clearAllFilters(){
 function handleSearch(v){searchKeyword=norm(v).toLowerCase();$('searchClearBtn').classList.toggle('vis',searchKeyword.length>0);renderGrid();renderActiveFilters();}
 function clearSearch(){searchKeyword='';els.searchInput.value='';$('searchClearBtn').classList.remove('vis');renderGrid();renderActiveFilters();}
 function updateHeader(){
-  const MAP={__favorites__:'즐겨찾기',__recent__:'최근 수정',__popular__:'자주 듣는 곡'};
+  const MAP={__favorites__:'즐겨찾기',__recent__:'최근 수정'};
   let desc='전체';
   if(selectedTags.length||selectedFolders.length){
     const parts=[];
@@ -1092,8 +1123,7 @@ function openDetail(item){
   els.detailThumb.src=thumb(item.url);
   const foldersStr=(item.folders&&item.folders.length?item.folders:[item.folder||'기타']).join(' · ');
   const dur=getDurationFor(item);
-  const pc=getPlayCount(item.id);
-  els.detailMeta.innerHTML=`<div class="detail-meta-row"><span class="detail-meta-label">폴더</span><span class="detail-meta-val">${foldersStr}</span></div>${dur?`<div class="detail-meta-row"><span class="detail-meta-label">길이</span><span class="detail-meta-val">${fmtTime(dur)}</span></div>`:''}<div class="detail-meta-row"><span class="detail-meta-label">재생</span><span class="detail-meta-val">${pc}회</span></div><div class="detail-meta-row"><span class="detail-meta-label">등록</span><span class="detail-meta-val">${fmtDate(item.createdAt)}</span></div><div class="detail-meta-row"><span class="detail-meta-label">수정</span><span class="detail-meta-val">${fmtDate(item.updatedAt)}</span></div><div class="detail-meta-row"><span class="detail-meta-label">URL</span><a href="${item.url}" target="_blank" rel="noopener" style="color:var(--pri3);font-size:.7rem;">↗ 원본 열기</a></div><div class="detail-meta-row" style="align-items:flex-start;"><span class="detail-meta-label" style="padding-top:4px;">메모</span><textarea id="detailMemoInput" class="detail-memo-input" placeholder="메모를 입력하세요..." maxlength="300">${item.memo||''}</textarea></div>`;
+  els.detailMeta.innerHTML=`<div class="detail-meta-row"><span class="detail-meta-label">폴더</span><span class="detail-meta-val">${foldersStr}</span></div>${dur?`<div class="detail-meta-row"><span class="detail-meta-label">길이</span><span class="detail-meta-val">${fmtTime(dur)}</span></div>`:''}<div class="detail-meta-row"><span class="detail-meta-label">등록</span><span class="detail-meta-val">${fmtDate(item.createdAt)}</span></div><div class="detail-meta-row"><span class="detail-meta-label">수정</span><span class="detail-meta-val">${fmtDate(item.updatedAt)}</span></div><div class="detail-meta-row"><span class="detail-meta-label">URL</span><a href="${item.url}" target="_blank" rel="noopener" style="color:var(--pri3);font-size:.7rem;">↗ 원본 열기</a></div><div class="detail-meta-row" style="align-items:flex-start;"><span class="detail-meta-label" style="padding-top:4px;">메모</span><textarea id="detailMemoInput" class="detail-memo-input" placeholder="메모를 입력하세요..." maxlength="300">${item.memo||''}</textarea></div>`;
   els.detailTags.innerHTML='';
   (item.tags||[]).forEach(tag=>{const color=getTagColor(tag);const c=document.createElement('span');c.style.cssText=`display:inline-flex;align-items:center;padding:3px 9px;border-radius:4px;font-size:.66rem;font-weight:600;background:${dimC(color)};color:${color};cursor:pointer;`;c.textContent=`#${tag}`;c.onclick=()=>{closeDetail();setFilter(tag,'tag');};els.detailTags.appendChild(c);});
   els.detailOverlay.style.display='flex';
@@ -1143,7 +1173,6 @@ function renderMenus(){
   $('menu-all').classList.toggle('active',!isMulti&&currentFilter.type==='folder'&&currentFilter.value==='전체');
   $('menu-favorites').classList.toggle('active',!isMulti&&currentFilter.type==='special'&&currentFilter.value==='__favorites__');
   $('menu-recent').classList.toggle('active',!isMulti&&currentFilter.type==='special'&&currentFilter.value==='__recent__');
-  $('menu-popular').classList.toggle('active',!isMulti&&currentFilter.type==='special'&&currentFilter.value==='__popular__');
   els.folderMenu.innerHTML='';
   const allFolders=[...new Set(allItems.flatMap(i=>i.folders||[i.folder]))].filter(Boolean);
   const fCnt=Object.fromEntries(allFolders.map(f=>[f,allItems.filter(i=>(i.folders||[i.folder]).includes(f)).length]));
@@ -1302,14 +1331,15 @@ function openTagContextMenu(e,tag){
 async function deleteTagEverywhere(tag){
   const affected=allItems.filter(i=>(i.tags||[]).includes(tag));
   if(!affected.length){tagOrder=tagOrder.filter(t=>t!==tag);saveTagOrder();showToast('태그 삭제됨');return;}
-  let ok=0,fail=0;
-  for(const i of affected){
+  showTopBar(true);let ok=0,fail=0;
+  for(let idx=0;idx<affected.length;idx++){const i=affected[idx];
     const newTags=(i.tags||[]).filter(t=>t!==tag);
     try{const r=await apiEditItem(i,{tag:newTags.join('/')});if(r.ok)ok++;else fail++;}catch{fail++;}
+    topBarSet(((idx+1)/affected.length)*90);
   }
   tagOrder=tagOrder.filter(t=>t!==tag);saveTagOrder();
   selectedTags=selectedTags.filter(t=>t!==tag);localStorage.setItem('bgm_selectedTags',JSON.stringify(selectedTags));
-  await loadData(false);
+  showTopBar(false);await loadData(false);
   showToast(`태그 삭제: ${ok}곡${fail?` (${fail}곡 실패)`:''}`);
 }
 
@@ -1321,17 +1351,18 @@ async function confirmTagRename(){
   if(!newT||newT===oldT){closeTagEdit();return;}
   const affected=allItems.filter(i=>(i.tags||[]).includes(oldT));
   if(!affected.length){closeTagEdit();return;}
-  closeTagEdit();showToast('태그 이름 변경 중...');
+  closeTagEdit();showTopBar(true);
   let ok=0,fail=0;
-  for(const i of affected){
-    const newTags=(i.tags||[]).map(t=>t===oldT?newT:t).filter((t,i,a)=>a.indexOf(t)===i);
+  for(let idx=0;idx<affected.length;idx++){const i=affected[idx];
+    const newTags=(i.tags||[]).map(t=>t===oldT?newT:t).filter((t,ii,a)=>a.indexOf(t)===ii);
     try{const r=await apiEditItem(i,{tag:newTags.join('/')});if(r.ok)ok++;else fail++;}catch{fail++;}
+    topBarSet(((idx+1)/affected.length)*90);
   }
   // color/순서 이전
   if(tagColors[oldT]){tagColors[newT]=tagColors[oldT];delete tagColors[oldT];localStorage.setItem('bgm_tagColors',JSON.stringify(tagColors));}
   tagOrder=tagOrder.map(t=>t===oldT?newT:t);saveTagOrder();
   selectedTags=selectedTags.map(t=>t===oldT?newT:t);localStorage.setItem('bgm_selectedTags',JSON.stringify(selectedTags));
-  await loadData(false);
+  showTopBar(false);await loadData(false);
   showToast(`태그 변경: ${ok}곡${fail?` (${fail}곡 실패)`:''}`);
 }
 
@@ -1380,7 +1411,6 @@ function getFiltered(){
     }
   }else if(currentFilter.type==='special'&&currentFilter.value==='__favorites__'){f=f.filter(i=>favoriteIds.has(i.id));}
   else if(currentFilter.type==='special'&&currentFilter.value==='__recent__'){f=f.sort((a,b)=>safeDate(b.updatedAt)-safeDate(a.updatedAt)).slice(0,24);}
-  else if(currentFilter.type==='special'&&currentFilter.value==='__popular__'){f=f.filter(i=>getPlayCount(i.id)>0).sort((a,b)=>getPlayCount(b.id)-getPlayCount(a.id)).slice(0,30);}
   else if(currentFilter.value!=='전체'){
     if(currentFilter.type==='folder')f=f.filter(i=>(i.folders||[i.folder]).includes(currentFilter.value));
     else f=f.filter(i=>(i.tags||[]).includes(currentFilter.value));
@@ -1388,14 +1418,13 @@ function getFiltered(){
   if(favoritesOnly)f=f.filter(i=>favoriteIds.has(i.id));
   if(searchKeyword)f=f.filter(i=>[i.title,...(i.folders||[i.folder]),...(i.tags||[]),i.memo||''].join(' ').toLowerCase().includes(searchKeyword));
 
-  // Skip sort for recent/popular (already sorted)
-  if(!(currentFilter.type==='special'&&(currentFilter.value==='__recent__'||currentFilter.value==='__popular__'))){
+  // Skip sort for recent (already sorted)
+  if(!(currentFilter.type==='special'&&currentFilter.value==='__recent__')){
     f.sort((a,b)=>{
       switch(sortMode){
         case'created_desc':return safeDate(b.createdAt)-safeDate(a.createdAt);
         case'title_asc':return a.title.localeCompare(b.title,'ko');
         case'folder_asc':{const c=a.folder.localeCompare(b.folder,'ko');return c||a.title.localeCompare(b.title,'ko');}
-        case'plays_desc':return getPlayCount(b.id)-getPlayCount(a.id);
         default:return safeDate(b.updatedAt)-safeDate(a.updatedAt);
       }
     });
@@ -1415,7 +1444,7 @@ function createCard(item){
   card.dataset.itemId=item.id;
   card.addEventListener('click',e=>{
     if(e.target.closest('.card-action-btn,.card-fav-btn,.list-fav,.card-tag,.card-check,.list-memo-btn,input,textarea'))return;
-    if(e.ctrlKey||e.metaKey){toggleSelect(item.id);return;}
+    if(e.ctrlKey||e.metaKey){if(!selectionMode){selectionMode=true;localStorage.setItem('bgm_selectionMode','true');applySelectionModeState();}toggleSelect(item.id);return;}
     if(!isList)openDetail(item);else playFromItem(item);
   });
   card.addEventListener('contextmenu',e=>{
@@ -1465,8 +1494,12 @@ function createCard(item){
     else{const stops=colors.map((c,i)=>`${c} ${(i/colors.length)*100}%, ${c} ${((i+1)/colors.length)*100}%`).join(', ');bar.style.background=`linear-gradient(180deg, ${stops})`;}
     bar.title=flds.join(' · ');
     card.appendChild(bar);
-    // 제목 칸 (가장 넓음, flex 1)
+    // 제목 칸 (가장 넓음, flex 1) + 작은 폴더명 prefix
     const titleCol=document.createElement('div');titleCol.className='list-title-wrap';
+    const fcolor=getFolderColor(flds[0]);
+    const fprefix=document.createElement('span');fprefix.className='list-folder-name';fprefix.textContent=flds.join('·');fprefix.style.color=fcolor;
+    fprefix.addEventListener('click',e=>{e.stopPropagation();setFilter(flds[0],'folder');});
+    titleCol.appendChild(fprefix);
     const tt=document.createElement('div');tt.className='card-title';tt.textContent=item.title;
     titleCol.appendChild(tt);
     // 태그 칸 (고정 200px)
@@ -1499,8 +1532,6 @@ function createCard(item){
     const tt=document.createElement('div');tt.className='card-title';tt.textContent=item.title;
     const tg=document.createElement('div');tg.className='card-tags';(item.tags||[]).forEach(t=>tg.appendChild(makeTagChip(t)));
     inner.append(bdgWrap,tt,tg);
-    const pc=getPlayCount(item.id);
-    if(pc>0){const pcEl=document.createElement('div');pcEl.className='card-play-count';pcEl.innerHTML=`▶ ${pc}회 재생`;inner.appendChild(pcEl);}
   }
   card.appendChild(inner);
 
@@ -1672,7 +1703,7 @@ function clearSelection(){selectedIds.clear();document.querySelectorAll('.bgm-ca
 function bulkPlay(){const items=allItems.filter(i=>selectedIds.has(i.id));if(!items.length)return;queue=items;queueIndex=0;loadTrack(0);clearSelection();showToast(`${items.length}곡 재생`);}
 function bulkAddToQueue(){const items=allItems.filter(i=>selectedIds.has(i.id));items.forEach(i=>queue.push(i));renderQueuePanel();updateQueueBtnDot();clearSelection();showToast(`${items.length}곡 대기열 추가`);}
 function bulkToggleFav(){const items=allItems.filter(i=>selectedIds.has(i.id));const allFav=items.every(i=>favoriteIds.has(i.id));items.forEach(i=>{if(allFav)favoriteIds.delete(i.id);else favoriteIds.add(i.id);});saveFavs();renderMenus();renderGrid();updatePlayerFavBtn();showToast(allFav?'즐겨찾기 해제':'즐겨찾기 추가');}
-async function bulkDelete(){const items=allItems.filter(i=>selectedIds.has(i.id));if(!items.length)return;if(!confirm(`선택한 ${items.length}곡을 삭제하시겠습니까?`))return;showTopBar(true);let ok=0,fail=0;for(const i of items){try{const r=await apiCall({action:'delete',id:i.id});if(r.ok){ok++;favoriteIds.delete(i.id);}else fail++;}catch{fail++;}}saveFavs();clearSelection();showTopBar(false);await loadData(false);showToast(`${ok}곡 삭제${fail?` (${fail}곡 실패)`:''}`);}
+async function bulkDelete(){const items=allItems.filter(i=>selectedIds.has(i.id));if(!items.length)return;if(!confirm(`선택한 ${items.length}곡을 삭제하시겠습니까?`))return;showTopBar(true);let ok=0,fail=0;for(let idx=0;idx<items.length;idx++){const i=items[idx];try{const r=await apiCall({action:'delete',id:i.id});if(r.ok){ok++;favoriteIds.delete(i.id);}else fail++;}catch{fail++;}topBarSet(((idx+1)/items.length)*90);}saveFavs();clearSelection();showTopBar(false);await loadData(false);showToast(`${ok}곡 삭제${fail?` (${fail}곡 실패)`:''}`);}
 function bulkMoveFolder(){movePickerMode='bulk';openMovePicker();}
 
 // ============ MOVE PICKER ============
@@ -1693,7 +1724,7 @@ async function confirmMoveToFolder(){
   if(!items.length){closeMovePicker();return;}
   closeMovePicker();showTopBar(true);
   let ok=0,fail=0;
-  for(const i of items){try{const r=await apiEditItem(i,{folder});if(r.ok)ok++;else fail++;}catch{fail++;}}
+  for(let idx=0;idx<items.length;idx++){const i=items[idx];try{const r=await apiEditItem(i,{folder});if(r.ok)ok++;else fail++;}catch{fail++;}topBarSet(((idx+1)/items.length)*90);}
   clearSelection();showTopBar(false);await loadData(false);showToast(`${ok}곡 이동${fail?` (${fail}곡 실패)`:''}`);
 }
 
@@ -1717,7 +1748,6 @@ function loadTrack(idx){
   els.player.classList.remove('hidden');playingId=item.id;updatePlayingHighlight();updatePlayerFavBtn();
   clearInterval(progressTimer);els.progressFill.style.width='0%';els.timeCurrent.textContent='0:00';els.timeDuration.textContent='--:--';
   isPlaying=true;els.btnPlay.textContent='⏸';
-  savePlayCount(item.id);
   if(window.ytPlayer){window.ytPlayer.loadVideoById(ytId);}
   else if(!window.YT){const tag=document.createElement('script');tag.src='https://www.youtube.com/iframe_api';document.head.appendChild(tag);window.onYouTubeIframeAPIReady=()=>initYTPlayer(ytId);}
   else{initYTPlayer(ytId);}
@@ -1790,7 +1820,7 @@ function updateQueueBtnDot(){els.queueToggleBtn.classList.toggle('has-queue',que
 
 // ============ IO ============
 async function copyText(text,msg='복사됨'){try{await navigator.clipboard.writeText(text);showToast(msg);}catch{showMessage('복사에 실패했습니다.','error');}}
-async function copyCurrentViewSummary(){const f=getFiltered();if(!f.length)return showMessage('복사할 목록이 없습니다.','error');const label=currentFilter.value==='전체'?'전체':currentFilter.type==='special'?({'__favorites__':'즐겨찾기','__recent__':'최근 수정','__popular__':'자주 듣는 곡'}[currentFilter.value]||''):currentFilter.value;const text=f.map(i=>`${i.title}\n${i.url}`).join('\n\n');await copyText(text,`"${label||'목록'}" ${f.length}개 복사됨`);}
+async function copyCurrentViewSummary(){const f=getFiltered();if(!f.length)return showMessage('복사할 목록이 없습니다.','error');const label=currentFilter.value==='전체'?'전체':currentFilter.type==='special'?({'__favorites__':'즐겨찾기','__recent__':'최근 수정'}[currentFilter.value]||''):currentFilter.value;const text=f.map(i=>`${i.title}\n${i.url}`).join('\n\n');await copyText(text,`"${label||'목록'}" ${f.length}개 복사됨`);}
 async function fetchYtTitle(url){try{const r=await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`);const d=await r.json();return d.title;}catch{return'';}}
 async function saveMemo(id,memo){try{await apiCall({action:'memo',id,memo});}catch(e){console.error('[메모 저장 실패]',e);}}
 // 공통 수정 함수 — 지정하지 않은 필드는 기존 값 유지 (특히 memo 보존)
