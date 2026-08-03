@@ -684,6 +684,32 @@ body:not(.sb-col) .sb-bottom-btn.theme-btn{flex:0 0 40px;}
   .form-actions .btn{min-width:0;flex:1 1 100%;}
 }
 
+
+/* Batch URL registration + top tag filter */
+.url-input-box{align-items:flex-start;height:auto;min-height:40px;padding-top:8px;padding-bottom:8px;}
+.url-input-box textarea{flex:1;min-width:0;min-height:24px;max-height:92px;resize:vertical;background:transparent;border:0;outline:none;color:var(--url-text);font-size:.85rem;font-weight:500;line-height:1.45;}
+.url-input-box textarea::placeholder{color:var(--muted);font-weight:400;}
+.tag-chooser{display:none;padding:10px 18px;}
+.tag-chooser.show{display:block;}
+.tag-chooser>.tc-label,.tag-chooser>.tc-trigger{display:none!important;}
+.tag-chooser .tc-panel{display:block!important;position:static;inset:auto;background:transparent;border:0;border-radius:0;box-shadow:none;padding:0;animation:none;}
+.tag-chooser .tc-panel-head{margin-bottom:8px;}
+.tag-filter-top-btn.active-state{background:var(--pri-dim);color:var(--pri3);border-color:var(--pri-ring);font-weight:700;}
+.batch-list{max-height:280px;overflow:auto;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface2);margin-top:10px;}
+.batch-row{display:grid;grid-template-columns:24px 1fr auto;gap:9px;align-items:start;padding:9px 11px;border-bottom:1px solid var(--border);}
+.batch-row:last-child{border-bottom:0;}
+.batch-num{font-family:var(--mono);font-size:.66rem;color:var(--muted);padding-top:2px;}
+.batch-main{min-width:0;}
+.batch-title{font-size:.78rem;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.batch-url{font-size:.64rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
+.batch-state{font-size:.66rem;font-weight:700;white-space:nowrap;}
+.batch-state.dup{color:var(--amber)}.batch-state.ok{color:var(--green)}.batch-state.bad{color:var(--rose)}
+.batch-progress{display:none;margin-top:12px;}.batch-progress.show{display:block;}
+.batch-progress-bg{height:7px;background:var(--border);border-radius:99px;overflow:hidden;}
+.batch-progress-fill{height:100%;width:0;background:var(--grad);transition:width .2s ease;}
+.batch-progress-text{font-size:.7rem;color:var(--muted);margin-top:6px;font-family:var(--mono);}
+@media(max-width:720px){.topbar-row2{align-items:stretch}.url-input-box{flex-basis:100%}.batch-row{grid-template-columns:20px 1fr}.batch-state{grid-column:2}}
+
 </style>
 </head>
 <body>
@@ -802,7 +828,7 @@ body:not(.sb-col) .sb-bottom-btn.theme-btn{flex:0 0 40px;}
     <div class="pl-step" id="plStep1">
       <div class="field"><label class="field-label">재생목록 URL</label><input type="text" id="plUrl" placeholder="https://www.youtube.com/playlist?list=..."/></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <div class="field"><label class="field-label">저장할 폴더<span class="req">*</span></label><input type="text" id="plFolder" placeholder="예: 전투 / 슬픔" maxlength="100"/></div>
+        <div class="field"><label class="field-label">저장할 시나리오명<span class="req">*</span></label><input type="text" id="plFolder" placeholder="예: 킬링 레비아탄" maxlength="100"/></div>
         <div class="field"><label class="field-label">태그 <span style="font-weight:400;color:var(--faint);text-transform:none;letter-spacing:0">(/ 구분)</span></label><input type="text" id="plTag" placeholder="긴장/야간" maxlength="200"/></div>
       </div>
       <div style="font-size:.7rem;color:var(--muted);line-height:1.7;padding:10px 12px;background:var(--surface2);border-radius:var(--r-sm);border:1px solid var(--border);">💡 재생목록이 <strong style="color:var(--text2);">공개</strong> 상태여야 하며, 최대 <strong style="color:var(--text2);">200개</strong>까지 처리합니다.</div>
@@ -834,20 +860,37 @@ body:not(.sb-col) .sb-bottom-btn.theme-btn{flex:0 0 40px;}
       <div class="field span-2"><label class="field-label" for="inTitle">제목 / 장면 설명<span class="req">*</span></label><input type="text" id="inTitle" placeholder="예: 이별 후 새벽 산책" maxlength="200"/></div>
       <div class="field span-2"><label class="field-label" for="inUrl">유튜브 URL<span class="req">*</span></label><input type="text" id="inUrl" placeholder="https://www.youtube.com/watch?v=..." oninput="onUrlInputPreview()"/><div id="urlPreviewWrap"><iframe id="urlPreviewFrame" allowfullscreen loading="lazy"></iframe></div></div>
       <div class="field">
-        <label class="field-label" for="inFolder">폴더 <span style="font-weight:400;color:var(--faint);text-transform:none;letter-spacing:0">(/ 구분)</span></label>
+        <label class="field-label" for="inFolder">시나리오명 <span style="font-weight:400;color:var(--faint);text-transform:none;letter-spacing:0">(/ 구분)</span></label>
         <div class="folder-input-wrap" id="folderInputWrap">
-          <input type="text" id="inFolder" placeholder="전투/긴장감" maxlength="100" autocomplete="off" oninput="onFolderInput()" onfocus="onFolderFocus()" onkeydown="onFolderKeydown(event)"/>
+          <input type="text" id="inFolder" placeholder="예: 시나리오명 / 챕터명" maxlength="100" autocomplete="off" oninput="onFolderInput()" onfocus="onFolderFocus()" onkeydown="onFolderKeydown(event)"/>
           <div class="folder-dropdown" id="folderDropdown"></div>
         </div>
       </div>
       <div class="field"><label class="field-label" for="inTag">태그 <span style="font-weight:400;color:var(--faint);text-transform:none;letter-spacing:0">(/ 구분)</span></label><input type="text" id="inTag" placeholder="추격씬/야간" maxlength="200" oninput="onTagInputPreview()"/><div id="tagPreviewChips"></div><div id="inTagSuggest" class="tag-suggest"></div></div>
     </div>
-    <div class="form-hint">폴더·태그 모두 <strong style="color:var(--pri3)">/</strong> 로 구분해 여러 개 입력 가능합니다.</div>
+    <div class="form-hint">시나리오명·태그 모두 <strong style="color:var(--pri3)">/</strong> 로 구분해 여러 개 입력 가능합니다.</div>
     <div class="form-actions"><button class="btn primary" id="saveBtn" onclick="saveToSheet()">저장</button><button class="btn ghost" onclick="toggleInput(false)">취소</button></div>
     <div class="form-footer"><span class="kbd">N</span> 추가 · <span class="kbd">Ctrl+K</span> 검색 · <span class="kbd">Q</span> 큐 · <span class="kbd">Esc</span> 닫기</div>
   </div>
 </div>
 
+
+
+<!-- Batch URL Add Modal -->
+<div id="batchAddOverlay" class="tool-overlay">
+  <div class="tool-card">
+    <div class="modal-head"><h3>여러 곡 일괄등록</h3><button class="modal-close" onclick="closeBatchAdd()">✕</button></div>
+    <p style="font-size:.77rem;color:var(--muted);line-height:1.7;margin-bottom:12px;">붙여넣은 YouTube URL의 제목을 자동으로 불러와 같은 시나리오명과 태그로 등록합니다.</p>
+    <div class="form-grid">
+      <div class="field"><label class="field-label">시나리오명<span class="req">*</span></label><input id="batchFolder" type="text" placeholder="예: 킬링 레비아탄" maxlength="100"></div>
+      <div class="field"><label class="field-label">공통 태그 <span style="font-weight:400;color:var(--faint);text-transform:none;letter-spacing:0">(/ 구분)</span></label><input id="batchTag" type="text" placeholder="예: 전투/긴장"></div>
+    </div>
+    <div id="batchSummary" class="form-hint" style="margin-top:10px;"></div>
+    <div id="batchList" class="batch-list"></div>
+    <div id="batchProgress" class="batch-progress"><div class="batch-progress-bg"><div id="batchProgressFill" class="batch-progress-fill"></div></div><div id="batchProgressText" class="batch-progress-text"></div></div>
+    <div class="form-actions"><button class="btn primary" id="batchSaveBtn" onclick="startBatchAdd()">일괄 저장</button><button class="btn ghost" onclick="closeBatchAdd()">취소</button></div>
+  </div>
+</div>
 
 <!-- JSON Export Modal -->
 <div id="exportOverlay">
@@ -952,8 +995,9 @@ body:not(.sb-col) .sb-bottom-btn.theme-btn{flex:0 0 40px;}
 <main class="main-content">
   <div class="topbar">
     <div class="topbar-row2">
-      <div class="url-input-box"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.4"/><path d="M10 10l2.5 2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><input type="text" id="quickUrlInput" placeholder="YouTube URL 붙여넣기 (예: https://www.youtube.com/watch?v=...)" onkeydown="if(event.key==='Enter')quickAddFromUrl()"/></div>
+      <div class="url-input-box"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="margin-top:4px"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.4"/><path d="M10 10l2.5 2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><textarea id="quickUrlInput" rows="1" placeholder="YouTube URL 붙여넣기 · 여러 곡은 줄바꿈으로 구분" onkeydown="if(event.key==='Enter'&&(event.ctrlKey||event.metaKey)){event.preventDefault();quickAddFromUrl()}"></textarea></div>
       <button class="btn primary" onclick="quickAddFromUrl()" style="height:40px;padding:0 18px;font-size:.83rem;">＋ 곡 추가</button>
+      <button class="btn tag-filter-top-btn" id="topTagFilterBtn" onclick="toggleTopTagFilter()" style="height:40px;padding:0 14px;font-size:.83rem;flex-shrink:0;">🏷 태그 필터</button>
       <button class="btn" onclick="openPlModal()" style="height:40px;padding:0 14px;font-size:.83rem;flex-shrink:0;">≡ 재생목록</button>
     </div>
   </div>
@@ -1139,6 +1183,7 @@ let dragFolderName=null;
 let tagOrder=JSON.parse(localStorage.getItem('bgm_tagOrder')||'[]');
 let dragTagName=null;
 let ctxMenuItem=null;
+let batchItems=[];let batchRunning=false;
 let importPayload=null;
 let healthIssueIds=[];
 let playerStateRestored=false;
@@ -1358,16 +1403,72 @@ function qeCopyUrl(){copyText(els.inUrl.value,'URL 복사됨');}
 function qeOpenOriginal(){const url=els.inUrl.value;if(url)window.open(url,'_blank');}
 
 // ============ QUICK ADD ============
-async function quickAddFromUrl(){const url=norm(els.quickUrlInput.value);if(!url)return;if(getPlId(url)){els.quickUrlInput.value='';openPlModal(url);return;}if(!isYt(url)){showMessage('유효한 유튜브 URL을 입력해주세요.','error');return;}const dup=allItems.find(i=>getYtId(i.url)===getYtId(url));if(dup){showMessage(`이미 등록된 곡입니다: [${dup.folder}] ${dup.title}`,'error');return;}openAddForm();els.inUrl.value=url;els.quickUrlInput.value='';await onUrlInputPreview();}
-
-// ============ PLAYLIST IMPORT ============
-function getPlId(url){if(!url)return null;const m=url.match(/[?&]list=([^&#]+)/);return(m&&m[1]&&!m[1].startsWith('WL')&&!m[1].startsWith('LL'))?m[1]:null;}
+function extractQuickUrls(text){
+  return [...new Set(String(text||'').split(/[\s,]+/).map(norm).filter(Boolean).filter(isYt))];
+}
+async function quickAddFromUrl(){
+  const raw=els.quickUrlInput.value;
+  const urls=extractQuickUrls(raw);
+  if(!urls.length){showMessage('유효한 유튜브 URL을 입력해주세요.','error');return;}
+  if(urls.length>1){els.quickUrlInput.value='';await openBatchAdd(urls);return;}
+  const url=urls[0];
+  if(getPlId(url)){els.quickUrlInput.value='';openPlModal(url);return;}
+  const dup=allItems.find(i=>getYtId(i.url)===getYtId(url));
+  if(dup){showMessage(`이미 등록된 곡입니다: [${(dup.folders||[dup.folder]).join(' / ')}] ${dup.title}`,'error');return;}
+  openAddForm();els.inUrl.value=url;els.quickUrlInput.value='';await onUrlInputPreview();
+}
+async function openBatchAdd(urls){
+  const existing=new Map(allItems.map(i=>[getYtId(i.url),i]));
+  batchItems=urls.map(url=>({url,id:getYtId(url),title:'제목 불러오는 중...',duplicate:existing.has(getYtId(url)),valid:!!getYtId(url)}));
+  $('batchFolder').value='';$('batchTag').value='';$('batchProgress').classList.remove('show');$('batchSaveBtn').disabled=true;
+  $('batchAddOverlay').style.display='flex';renderBatchList();
+  for(let i=0;i<batchItems.length;i++){
+    const item=batchItems[i];
+    if(!item.valid){item.title='잘못된 URL';continue;}
+    if(item.duplicate){item.title=existing.get(item.id).title;continue;}
+    item.title=await fetchYtTitle(item.url)||`YouTube 영상 ${item.id}`;
+    renderBatchList();
+  }
+  renderBatchList();$('batchSaveBtn').disabled=!batchItems.some(x=>x.valid&&!x.duplicate);
+}
+function renderBatchList(){
+  const list=$('batchList');list.innerHTML='';
+  batchItems.forEach((item,i)=>{
+    const row=document.createElement('div');row.className='batch-row';
+    const state=item.duplicate?'<span class="batch-state dup">중복</span>':!item.valid?'<span class="batch-state bad">오류</span>':'<span class="batch-state ok">등록</span>';
+    row.innerHTML=`<span class="batch-num">${i+1}</span><div class="batch-main"><div class="batch-title"></div><div class="batch-url"></div></div>${state}`;
+    row.querySelector('.batch-title').textContent=item.title;row.querySelector('.batch-url').textContent=item.url;list.appendChild(row);
+  });
+  const valid=batchItems.filter(x=>x.valid&&!x.duplicate).length,dup=batchItems.filter(x=>x.duplicate).length,bad=batchItems.filter(x=>!x.valid).length;
+  $('batchSummary').textContent=`총 ${batchItems.length}개 · 등록 ${valid}개 · 중복 ${dup}개 · 오류 ${bad}개`;
+}
+function closeBatchAdd(){if(batchRunning)return;$('batchAddOverlay').style.display='none';batchItems=[];}
+async function startBatchAdd(){
+  const folder=norm($('batchFolder').value),tag=norm($('batchTag').value);
+  if(!folder){showMessage('시나리오명을 입력해주세요.','error');$('batchFolder').focus();return;}
+  const targets=batchItems.filter(x=>x.valid&&!x.duplicate);if(!targets.length)return;
+  batchRunning=true;$('batchSaveBtn').disabled=true;$('batchProgress').classList.add('show');
+  let saved=0,failed=0;
+  for(let i=0;i<targets.length;i++){
+    const item=targets[i];$('batchProgressFill').style.width=Math.round(i/targets.length*100)+'%';$('batchProgressText').textContent=`${i+1}/${targets.length} 저장 중 · ${item.title.slice(0,38)}`;
+    try{let r;try{r=await apiCall({action:'add',title:item.title,url:item.url,tag,folder,memo:''});}catch{r=await apiCallPost({action:'add',title:item.title,url:item.url,tag,folder,memo:''});}if(r.ok===true)saved++;else failed++;}catch{failed++;}
+    await new Promise(r=>setTimeout(r,350));
+  }
+  $('batchProgressFill').style.width='100%';$('batchProgressText').textContent=`완료 · 저장 ${saved}개 · 실패 ${failed}개`;
+  batchRunning=false;await loadData(true);setTimeout(()=>{closeBatchAdd();showToast(`${saved}개 곡 일괄등록 완료`);},650);
+}
+function toggleTopTagFilter(force){
+  const chooser=$('tagChooser'),btn=$('topTagFilterBtn');
+  const open=typeof force==='boolean'?force:!chooser.classList.contains('show');
+  chooser.classList.toggle('show',open);btn.classList.toggle('active-state',open);
+  if(open)renderTagChooser();
+}
 function openPlModal(prefillUrl=''){$('plStep1').classList.remove('hidden');$('plStep2').classList.add('hidden');$('plStep3').classList.add('hidden');$('plStep4').classList.add('hidden');$('plUrl').value=prefillUrl||'';$('plFolder').value='';$('plTag').value='';$('plFetchBtn').disabled=false;$('plFetchBtn').textContent='목록 가져오기';plStep1Msg('','');plVideos=[];$('playlistOverlay').style.display='flex';setTimeout(()=>$('plFolder').focus(),80);}
 function closePlModal(){$('playlistOverlay').style.display='none';plIsRunning=false;plVideos=[];}
 function plBack(){$('plStep2').classList.add('hidden');$('plStep1').classList.remove('hidden');}
 function plStep1Msg(text,type){const el=$('plStep1Msg');if(!text){el.style.display='none';return;}el.style.cssText=`display:block;font-size:.78rem;padding:9px 12px;border-radius:var(--r-sm);${type==='error'?'background:var(--rose-dim);color:var(--rose);border:1px solid rgba(220,38,38,.25);':type==='info'?'background:var(--pri-dim);color:var(--pri3);border:1px solid var(--pri-ring);':'background:var(--green-dim);color:var(--green);border:1px solid rgba(22,163,74,.25);'}`;el.textContent=text;}
-async function plFetchList(){const url=norm($('plUrl').value),folder=norm($('plFolder').value);if(!url){plStep1Msg('재생목록 URL을 입력해주세요.','error');return;}if(!folder){plStep1Msg('저장할 폴더 이름을 입력해주세요.','error');return;}const plId=getPlId(url);if(!plId){plStep1Msg('유효한 YouTube 재생목록 URL이 아닙니다.','error');return;}$('plFetchBtn').disabled=true;$('plFetchBtn').textContent='가져오는 중...';plStep1Msg('재생목록 정보를 가져오고 있습니다...','info');try{let resp;try{resp=await fetch(`https://inv.nadeko.net/api/v1/playlists/${plId}?fields=title,videos&page=1`,{cache:'no-store'});}catch(e1){resp=await fetch(`https://invidious.nerdvpn.de/api/v1/playlists/${plId}?fields=title,videos&page=1`,{cache:'no-store'});}if(!resp.ok)throw new Error(`API 오류 (${resp.status})`);const data=await resp.json();if(!data.videos||!data.videos.length)throw new Error('재생목록이 비어 있거나 비공개입니다.');const existingIds=new Set(allItems.map(i=>getYtId(i.url)).filter(Boolean));plVideos=data.videos.slice(0,200).map(v=>({videoId:v.videoId,title:v.title||`영상 ${v.videoId}`,skipped:existingIds.has(v.videoId)}));$('plPreviewCount').textContent=`총 ${plVideos.length}개 영상 (이미 등록: ${plVideos.filter(v=>v.skipped).length}개 건너뜀)`;const list=$('plPreviewList');list.innerHTML='';plVideos.forEach(v=>{const row=document.createElement('div');row.className='pl-preview-item';const img=document.createElement('img');img.className='pl-preview-thumb';img.src=`https://img.youtube.com/vi/${v.videoId}/default.jpg`;img.alt='';const title=document.createElement('div');title.className='pl-preview-title';title.textContent=v.title;row.append(img,title);if(v.skipped){const skip=document.createElement('span');skip.className='pl-preview-skip';skip.textContent='중복';row.appendChild(skip);}list.appendChild(row);});$('plStep1').classList.add('hidden');$('plStep2').classList.remove('hidden');$('plSaveBtn').disabled=false;$('plSaveBtn').textContent='전체 저장 시작';}catch(e){console.error(e);plStep1Msg(`가져오기 실패: ${e.message}  재생목록이 공개 상태인지 확인해주세요.`,'error');$('plFetchBtn').disabled=false;$('plFetchBtn').textContent='목록 가져오기';}}
-async function plStartSave(){const folder=norm($('plFolder').value)||'기타';const tag=norm($('plTag').value);const toSave=plVideos.filter(v=>!v.skipped);if(!toSave.length){$('plStep2').classList.add('hidden');$('plStep4').classList.remove('hidden');$('plResultText').innerHTML='<strong>모든 영상이 이미 등록되어 있습니다.</strong>';return;}$('plSaveBtn').disabled=true;plIsRunning=true;$('plStep2').classList.add('hidden');$('plStep3').classList.remove('hidden');let saved=0,failed=0;const fill=$('plProgressFill'),txt=$('plProgressText');for(let i=0;i<toSave.length;i++){if(!plIsRunning)break;const v=toSave[i];fill.style.width=Math.round((i/toSave.length)*100)+'%';txt.textContent=`저장 중 ${i+1} / ${toSave.length} — ${v.title.slice(0,38)}`;let ok=false;try{const url=`https://www.youtube.com/watch?v=${v.videoId}`;const result=await apiCall({action:'add',title:v.title,url,tag,folder});ok=(result.ok===true);}catch(e1){try{const url=`https://www.youtube.com/watch?v=${v.videoId}`;const result=await apiCallPost({action:'add',title:v.title,url,tag,folder});ok=(result.ok===true);}catch(e2){console.error(`[저장 실패] ${v.title}`,e2);}}if(ok)saved++;else failed++;await new Promise(r=>setTimeout(r,500));}fill.style.width='100%';$('plStep3').classList.add('hidden');$('plStep4').classList.remove('hidden');const skipped=plVideos.filter(v=>v.skipped).length;$('plResultText').innerHTML=`<strong>${saved}개 영상</strong>을 "<strong>${folder}</strong>" 폴더에 저장했습니다.`+(skipped?`<br><span class="pl-skipped">중복 ${skipped}개 건너뜀</span>`:'')+( failed?`<br><span style="color:var(--rose);">실패 ${failed}개</span>`:'');}
+async function plFetchList(){const url=norm($('plUrl').value),folder=norm($('plFolder').value);if(!url){plStep1Msg('재생목록 URL을 입력해주세요.','error');return;}if(!folder){plStep1Msg('저장할 시나리오명을 입력해주세요.','error');return;}const plId=getPlId(url);if(!plId){plStep1Msg('유효한 YouTube 재생목록 URL이 아닙니다.','error');return;}$('plFetchBtn').disabled=true;$('plFetchBtn').textContent='가져오는 중...';plStep1Msg('재생목록 정보를 가져오고 있습니다...','info');try{let resp;try{resp=await fetch(`https://inv.nadeko.net/api/v1/playlists/${plId}?fields=title,videos&page=1`,{cache:'no-store'});}catch(e1){resp=await fetch(`https://invidious.nerdvpn.de/api/v1/playlists/${plId}?fields=title,videos&page=1`,{cache:'no-store'});}if(!resp.ok)throw new Error(`API 오류 (${resp.status})`);const data=await resp.json();if(!data.videos||!data.videos.length)throw new Error('재생목록이 비어 있거나 비공개입니다.');const existingIds=new Set(allItems.map(i=>getYtId(i.url)).filter(Boolean));plVideos=data.videos.slice(0,200).map(v=>({videoId:v.videoId,title:v.title||`영상 ${v.videoId}`,skipped:existingIds.has(v.videoId)}));$('plPreviewCount').textContent=`총 ${plVideos.length}개 영상 (이미 등록: ${plVideos.filter(v=>v.skipped).length}개 건너뜀)`;const list=$('plPreviewList');list.innerHTML='';plVideos.forEach(v=>{const row=document.createElement('div');row.className='pl-preview-item';const img=document.createElement('img');img.className='pl-preview-thumb';img.src=`https://img.youtube.com/vi/${v.videoId}/default.jpg`;img.alt='';const title=document.createElement('div');title.className='pl-preview-title';title.textContent=v.title;row.append(img,title);if(v.skipped){const skip=document.createElement('span');skip.className='pl-preview-skip';skip.textContent='중복';row.appendChild(skip);}list.appendChild(row);});$('plStep1').classList.add('hidden');$('plStep2').classList.remove('hidden');$('plSaveBtn').disabled=false;$('plSaveBtn').textContent='전체 저장 시작';}catch(e){console.error(e);plStep1Msg(`가져오기 실패: ${e.message}  재생목록이 공개 상태인지 확인해주세요.`,'error');$('plFetchBtn').disabled=false;$('plFetchBtn').textContent='목록 가져오기';}}
+async function plStartSave(){const folder=norm($('plFolder').value)||'기타';const tag=norm($('plTag').value);const toSave=plVideos.filter(v=>!v.skipped);if(!toSave.length){$('plStep2').classList.add('hidden');$('plStep4').classList.remove('hidden');$('plResultText').innerHTML='<strong>모든 영상이 이미 등록되어 있습니다.</strong>';return;}$('plSaveBtn').disabled=true;plIsRunning=true;$('plStep2').classList.add('hidden');$('plStep3').classList.remove('hidden');let saved=0,failed=0;const fill=$('plProgressFill'),txt=$('plProgressText');for(let i=0;i<toSave.length;i++){if(!plIsRunning)break;const v=toSave[i];fill.style.width=Math.round((i/toSave.length)*100)+'%';txt.textContent=`저장 중 ${i+1} / ${toSave.length} — ${v.title.slice(0,38)}`;let ok=false;try{const url=`https://www.youtube.com/watch?v=${v.videoId}`;const result=await apiCall({action:'add',title:v.title,url,tag,folder});ok=(result.ok===true);}catch(e1){try{const url=`https://www.youtube.com/watch?v=${v.videoId}`;const result=await apiCallPost({action:'add',title:v.title,url,tag,folder});ok=(result.ok===true);}catch(e2){console.error(`[저장 실패] ${v.title}`,e2);}}if(ok)saved++;else failed++;await new Promise(r=>setTimeout(r,500));}fill.style.width='100%';$('plStep3').classList.add('hidden');$('plStep4').classList.remove('hidden');const skipped=plVideos.filter(v=>v.skipped).length;$('plResultText').innerHTML=`<strong>${saved}개 영상</strong>을 "<strong>${folder}</strong>" 시나리오에 저장했습니다.`+(skipped?`<br><span class="pl-skipped">중복 ${skipped}개 건너뜀</span>`:'')+( failed?`<br><span style="color:var(--rose);">실패 ${failed}개</span>`:'');}
 
 // ============ COLOR PICKER ============
 function openColorPicker(type,name,cur){cpTarget={type,name};cpTemp=cur;els.cpTitle.textContent=`"${name}" 색상 변경`;els.cpInput.value=cur.startsWith('#')?cur:'#d97a4a';els.cpPresets.innerHTML='';COLOR_PRESETS.forEach(c=>{const d=document.createElement('div');d.className='cp-dot'+(c===cpTemp?' sel':'');d.style.background=c;d.onclick=()=>{cpTemp=c;els.cpInput.value=c;document.querySelectorAll('.cp-dot').forEach(x=>x.classList.remove('sel'));d.classList.add('sel');};els.cpPresets.appendChild(d);});els.cpOverlay.style.display='flex';}
@@ -1473,7 +1574,7 @@ function renderMenus(){
   els.allCount.textContent=allItems.length;els.favoriteCount.textContent=favoriteIds.size;
 }
 
-function renderTagChooser(){
+function renderTagChooser(){const topBtn=$('topTagFilterBtn');if(topBtn)topBtn.textContent=selectedTags.length?`🏷 태그 필터 ${selectedTags.length}`:'🏷 태그 필터';
   const panel=$('tcPanel'),trigger=$('tcTrigger'),badge=$('tcBadge'),label=$('tcTriggerLabel'),tags=$('tcTags'),mode=$('tcMode');
   if(!tags)return;
   const allTags=[...new Set(allItems.flatMap(i=>i.tags||[]))].filter(Boolean);
@@ -2400,6 +2501,7 @@ document.addEventListener('click',e=>{const dd=$('folderDropdown');if(dd&&!$('fo
 els.overlay.addEventListener('click',e=>{if(e.target===els.overlay)toggleInput(false);});
 els.detailOverlay.addEventListener('click',e=>{if(e.target===els.detailOverlay)closeDetail();});
 $('exportOverlay')?.addEventListener('click',e=>{if(e.target===$('exportOverlay'))closeExportModal();});
+$('batchAddOverlay')?.addEventListener('click',e=>{if(e.target===$('batchAddOverlay'))closeBatchAdd();});
 $('importOverlay')?.addEventListener('click',e=>{if(e.target===$('importOverlay'))closeImportModal();});
 $('healthOverlay')?.addEventListener('click',e=>{if(e.target===$('healthOverlay'))closeHealthModal();});
 const importDrop=$('importDrop');
@@ -2421,6 +2523,7 @@ document.addEventListener('keydown',e=>{
     if($('movePickerOverlay').style.display==='flex'){closeMovePicker();return;}
     if($('playlistOverlay').style.display==='flex'){closePlModal();return;}
     if($('exportOverlay')?.style.display==='flex'){closeExportModal();return;}
+    if($('batchAddOverlay')?.style.display==='flex'){closeBatchAdd();return;}
     if($('importOverlay')?.style.display==='flex'){closeImportModal();return;}
     if($('healthOverlay')?.style.display==='flex'){closeHealthModal();return;}
     if(isDetailOpen){closeDetail();return;}
