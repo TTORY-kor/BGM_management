@@ -631,6 +631,59 @@ body.queue-open #queuePanel{transform:none;}
 .search-box,.sel-wrap,.sb-search{box-shadow:none;}
 .modal-card,.detail-card,.playlist-card,.tool-card,.move-card,.cp-card{border-color:var(--border2);}
 
+
+/* Overflow and compact controls */
+body{min-width:0;}
+.sidebar,.main-content,.topbar,.filterbar,.board-wrap,.board-body,#bgmGrid,.bgm-card,.card-inner,.modal-card,.tool-card,.detail-card,.playlist-card{min-width:0;}
+.brand-name,.brand-sub,.menu-label,.fg-name,.board-title-txt,.player-title,.player-sub,.qi-title,.qi-sub,.health-title{
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.btn,.bulk-btn,.sb-bottom-btn,.mini-button{max-width:100%;}
+.btn span,.bulk-btn span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.topbar{flex-wrap:wrap;}
+.topbar-row2{min-width:0;}
+.url-input-box{min-width:220px;}
+.url-input-box input{min-width:0;}
+.filterbar>*{min-width:0;}
+.sel-wrap{max-width:220px;}
+.sel-wrap select{min-width:0;max-width:170px;text-overflow:ellipsis;}
+.card-title,.card-memo,.detail-card h3,.tool-summary,.form-hint,.message-box,.pl-result,.tool-check span{
+  overflow-wrap:anywhere;word-break:break-word;
+}
+.card-tags{min-width:0;}
+.card-tag{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tc-chip,.af-chip{max-width:min(220px,100%);overflow:hidden;text-overflow:ellipsis;}
+.ctx-item span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.form-actions{flex-wrap:wrap;}
+.form-actions .btn{min-width:120px;}
+.tool-drop span{display:block;overflow-wrap:anywhere;}
+.sb-bottom{justify-content:center;}
+.sb-bottom-btn.theme-btn{
+  flex:0 0 40px;width:40px;padding:0;font-size:1rem;
+}
+.sb-bottom-btn.theme-btn .sb-btn-label{display:none!important;}
+body:not(.sb-col) .sb-bottom-btn.theme-btn{flex:0 0 40px;}
+@media(max-width:1100px){
+  #bgmGrid.compact .card-inner{grid-template-columns:minmax(0,1fr) 160px 190px;}
+}
+@media(max-width:820px){
+  #bgmGrid.compact .card-inner{grid-template-columns:minmax(0,1fr) 120px;}
+  #bgmGrid.compact .list-memo-col{display:none;}
+  .topbar-row2{flex-wrap:wrap;}
+  .url-input-box{flex-basis:100%;min-width:0;}
+}
+@media(max-width:620px){
+  .topbar,.filterbar{padding-left:10px;padding-right:10px;}
+  .btn{padding:0 10px;}
+  .board-header{align-items:flex-start;}
+  .bh-left{min-width:0;max-width:100%;}
+  .board-title-txt{max-width:calc(100vw - 110px);}
+  #bgmGrid.compact .card-inner{display:flex;min-height:52px;padding-right:8px;gap:8px;}
+  #bgmGrid.compact .list-tags-col,#bgmGrid.compact .list-memo-col{display:none;}
+  #bgmGrid.compact .card-actions{padding-right:4px;}
+  .form-actions .btn{min-width:0;flex:1 1 100%;}
+}
+
 </style>
 </head>
 <body>
@@ -828,15 +881,15 @@ body.queue-open #queuePanel{transform:none;}
 <div id="importOverlay" class="tool-overlay">
   <div class="tool-card">
     <div class="modal-head"><h3>JSON 가져오기</h3><button class="modal-close" onclick="closeImportModal()">✕</button></div>
-    <p style="font-size:.77rem;color:var(--muted);line-height:1.7;margin-bottom:12px;">이 사이트에서 내보낸 <strong style="color:var(--text2)">bgm-library JSON</strong>을 다시 합칩니다. 기존 데이터는 자동으로 삭제하지 않습니다.</p>
+    <p style="font-size:.77rem;color:var(--muted);line-height:1.7;margin-bottom:12px;">이 사이트의 <strong style="color:var(--text2)">bgm-library JSON</strong>과 <strong style="color:var(--text2)">TRPG Watch 시나리오 JSON</strong>을 자동 감지해 합칩니다. 기존 데이터는 자동으로 삭제하지 않습니다.</p>
     <input type="file" id="importFileInput" accept=".json,application/json" hidden onchange="handleImportFile(this.files[0])">
     <div class="tool-drop" id="importDrop" onclick="$('importFileInput').click()">
       <strong>JSON 파일을 선택하거나 여기에 드롭</strong>
-      <span>파일은 브라우저에서 읽은 뒤 Google Sheet에 추가됩니다.</span>
+      <span>BGM Manager와 TRPG Watch 형식을 자동으로 감지합니다.</span>
     </div>
     <div id="importSummary" class="tool-summary" style="display:none;"></div>
     <div class="tool-options">
-      <label class="tool-check"><input type="checkbox" id="importMergeDup" checked><span>같은 YouTube 영상이 이미 있으면 새로 추가하지 않고 폴더·태그를 합칩니다.</span></label>
+      <label class="tool-check"><input type="checkbox" id="importMergeDup" checked><span>같은 YouTube 영상은 새로 추가하지 않고 폴더·태그를 합칩니다. 여러 시나리오의 동일 곡도 한 곡으로 병합됩니다.</span></label>
       <label class="tool-check"><input type="checkbox" id="importKeepMemo" checked><span>기존 곡의 메모가 있으면 유지하고, 비어 있을 때만 가져온 메모를 사용합니다.</span></label>
     </div>
     <div class="import-progress" id="importProgress"><div class="import-bar"><div class="import-fill" id="importFill"></div></div><div class="import-text" id="importText">준비 중...</div></div>
@@ -887,8 +940,8 @@ body.queue-open #queuePanel{transform:none;}
     <div class="sb-hint">폴더 드래그로 순서/카테고리 이동<br>우클릭 → 색상 변경</div>
   </div>
   <div class="sb-bottom">
-    <button class="sb-bottom-btn theme-btn" onclick="toggleTheme()" title="테마 전환"><span id="themeKnobIcon">🌙</span><span class="sb-btn-label" id="themeLabel">다크 모드</span></button>
-    <button class="sb-bottom-btn" onclick="openImportModal()" title="JSON 가져오기" style="flex-shrink:0;width:40px;">⇧</button>
+    <button class="sb-bottom-btn theme-btn" onclick="toggleTheme()" title="다크/라이트 모드 전환" aria-label="다크/라이트 모드 전환"><span id="themeKnobIcon">☀️</span></button>
+    <button class="sb-bottom-btn" onclick="openImportModal()" title="BGM Manager / TRPG Watch JSON 가져오기" style="flex-shrink:0;width:40px;">⇧</button>
     <button class="sb-bottom-btn" onclick="openExportModal()" title="JSON 내보내기" style="flex-shrink:0;width:40px;">⇩</button>
     <button class="sb-bottom-btn" onclick="openHealthModal()" title="라이브러리 점검" style="flex-shrink:0;width:40px;">✓</button>
     <button class="sb-bottom-btn" onclick="loadData(true)" title="새로고침" style="flex-shrink:0;width:40px;">↻</button>
@@ -2086,25 +2139,74 @@ function closeImportModal(){
   if($('importStartBtn').disabled&&$('importProgress').classList.contains('show'))return;
   $('importOverlay').style.display='none';
 }
-async function handleImportFile(file){
-  if(!file)return;
-  try{
-    const data=JSON.parse(await file.text());
-    if(!data||!Array.isArray(data.songs))throw new Error('songs 배열이 없는 파일입니다.');
+function normalizeImportJson(data){
+  if(data && Array.isArray(data.songs)){
     const songs=data.songs.map((s,idx)=>({
       title:norm(s.title)||`제목 없음 ${idx+1}`,
       url:norm(s.youtube_url),
       memo:norm(s.memo),
       folders:Array.isArray(s.folder_paths)?s.folder_paths.map(norm).filter(Boolean):[],
-      tags:Array.isArray(s.tag_names)?s.tag_names.map(norm).filter(Boolean):[]
+      tags:Array.isArray(s.tag_names)?s.tag_names.map(norm).filter(Boolean):[],
+      sourceType:'manager'
     })).filter(s=>s.url);
+    return {type:'manager',label:'BGM Manager',songs};
+  }
+
+  if(data && Array.isArray(data.scenarios)){
+    const songs=[];
+    data.scenarios.forEach((scenario,sIdx)=>{
+      const folder=norm(scenario.name)||`시나리오 ${sIdx+1}`;
+      const collect=(items,kind)=>{
+        (items||[]).forEach((item,iIdx)=>{
+          const rawId=norm(item.id);
+          const videoId=getYtId(rawId)||(/^[A-Za-z0-9_-]{11}$/.test(rawId)?rawId:'');
+          if(!videoId)return;
+          const tags=[];
+          if(kind==='sfx')tags.push('SFX');
+          if(item.loop)tags.push('반복 재생');
+          let memo=norm(item.memo);
+          const metaLine=memo.split(/\r?\n/).find(line=>line.startsWith('[[BGM-CONVERTER-META]]'));
+          if(metaLine){
+            try{
+              const meta=JSON.parse(metaLine.slice('[[BGM-CONVERTER-META]]'.length));
+              if(Array.isArray(meta.tag_names))tags.push(...meta.tag_names.map(norm).filter(Boolean));
+              memo=memo.split(/\r?\n/).filter(line=>!line.startsWith('[[BGM-CONVERTER-META]]')).join('\n').trim();
+            }catch{}
+          }
+          songs.push({
+            title:norm(item.title)||`제목 없음 ${iIdx+1}`,
+            url:`https://www.youtube.com/watch?v=${videoId}`,
+            memo,
+            folders:[folder],
+            tags:[...new Set(tags)],
+            sourceType:'watch'
+          });
+        });
+      };
+      collect(scenario.bgm,'bgm');
+      collect(scenario.sfx,'sfx');
+    });
+    return {type:'watch',label:'TRPG Watch',songs};
+  }
+
+  throw new Error('지원하는 JSON 형식을 찾지 못했습니다.');
+}
+
+async function handleImportFile(file){
+  if(!file)return;
+  try{
+    const data=JSON.parse(await file.text());
+    const parsed=normalizeImportJson(data);
+    const songs=parsed.songs;
     if(!songs.length)throw new Error('가져올 수 있는 곡이 없습니다.');
-    importPayload={songs,fileName:file.name};
+    importPayload={songs,fileName:file.name,sourceType:parsed.type};
     const ids=new Set(songs.map(s=>getYtId(s.url)).filter(Boolean));
     const existing=new Set(allItems.map(i=>getYtId(i.url)).filter(Boolean));
     const duplicate=[...ids].filter(id=>existing.has(id)).length;
+    const folders=new Set(songs.flatMap(s=>s.folders||[]));
+    const tags=new Set(songs.flatMap(s=>s.tags||[]));
     $('importSummary').style.display='block';
-    $('importSummary').innerHTML=`<strong>${songs.length}곡</strong>을 확인했습니다.<br>현재 라이브러리와 같은 영상: ${duplicate}곡 · 새 영상: ${songs.length-duplicate}곡`;
+    $('importSummary').innerHTML=`<strong>${parsed.label}</strong> 형식으로 감지했습니다.<br><strong>${songs.length}곡</strong> · 폴더 ${folders.size}개 · 태그 ${tags.size}개<br>현재 라이브러리와 같은 영상: ${duplicate}곡 · 새 영상: ${Math.max(0,songs.length-duplicate)}곡`;
     $('importStartBtn').disabled=false;
   }catch(e){
     importPayload=null;$('importStartBtn').disabled=true;
@@ -2113,6 +2215,19 @@ async function handleImportFile(file){
 }
 async function startJsonImport(){
   if(!importPayload||!importPayload.songs.length)return;
+  const groupedMap=new Map();
+  importPayload.songs.forEach(song=>{
+    const id=getYtId(song.url)||song.url;
+    if(!groupedMap.has(id))groupedMap.set(id,{...song,folders:[...(song.folders||[])],tags:[...(song.tags||[])]});
+    else{
+      const prev=groupedMap.get(id);
+      prev.folders=[...new Set([...(prev.folders||[]),...(song.folders||[])])];
+      prev.tags=[...new Set([...(prev.tags||[]),...(song.tags||[])])];
+      if(!prev.memo&&song.memo)prev.memo=song.memo;
+      if((prev.title||'').startsWith('제목 없음')&&song.title)prev.title=song.title;
+    }
+  });
+  importPayload={...importPayload,songs:[...groupedMap.values()]};
   const btn=$('importStartBtn');btn.disabled=true;
   $('importProgress').classList.add('show');
   const mergeDup=$('importMergeDup').checked,keepMemo=$('importKeepMemo').checked;
