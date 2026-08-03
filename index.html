@@ -556,6 +556,29 @@ body.queue-open #queuePanel{transform:none;}
 @media(max-width:1100px){#queuePanel{width:280px;}:root{--qw:280px;}}
 @media(max-width:960px){body{flex-direction:column;overflow:auto;}.sidebar{width:100%;}body.sb-col .sidebar{width:100%;}.main-content{overflow:visible;}body.queue-open .main-content{margin-right:0;}body.queue-open #player{right:0;}#queuePanel{width:100%;}.filterbar,.board-wrap,.message-box{margin-left:12px;margin-right:12px;}.form-grid{grid-template-columns:1fr;}.span-2{grid-column:auto;}.player-info{width:130px;}}
 @media(max-width:620px){#bgmGrid{grid-template-columns:1fr;}.form-actions{flex-direction:column;}.player-progress-wrap{display:none;}.vol-slider-h{display:none;}}
+
+/* ============ JSON EXPORT ============ */
+#exportOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.68);backdrop-filter:blur(8px);z-index:720;justify-content:center;align-items:center;padding:20px;}
+.export-card{background:var(--surface);border:1px solid var(--border2);padding:22px;border-radius:var(--r-xl);width:100%;max-width:560px;box-shadow:var(--sh-lg);animation:modal-in .18s ease;max-height:90vh;overflow-y:auto;}
+.export-scope-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.export-scope{display:flex;align-items:flex-start;gap:9px;padding:11px 12px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface2);cursor:pointer;transition:var(--tr);}
+.export-scope:hover{border-color:var(--pri);background:var(--pri-dim);}
+.export-scope input{margin-top:3px;accent-color:var(--pri);}
+.export-scope strong{display:block;font-size:.79rem;color:var(--text);}
+.export-scope small{display:block;margin-top:2px;font-size:.66rem;color:var(--muted);line-height:1.5;}
+.export-folder-box{border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface2);overflow:hidden;}
+.export-folder-tools{display:flex;align-items:center;gap:8px;padding:9px 10px;border-bottom:1px solid var(--border);}
+.export-folder-tools input{flex:1;height:30px;padding:0 9px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface);color:var(--text);outline:none;font-size:.75rem;}
+.export-folder-list{max-height:230px;overflow-y:auto;padding:5px;}
+.export-folder-item{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:var(--r-sm);cursor:pointer;font-size:.78rem;color:var(--text2);}
+.export-folder-item:hover{background:var(--pri-dim);}
+.export-folder-item input{accent-color:var(--pri);}
+.export-folder-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.export-folder-count{margin-left:auto;color:var(--muted);font-size:.64rem;font-family:var(--mono);}
+.export-summary{margin-top:12px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--bg3);font-size:.74rem;color:var(--muted);line-height:1.7;}
+.export-summary strong{color:var(--pri3);}
+@media(max-width:620px){.export-scope-list{grid-template-columns:1fr;}}
+
 </style>
 </head>
 <body>
@@ -720,6 +743,34 @@ body.queue-open #queuePanel{transform:none;}
   </div>
 </div>
 
+
+<!-- JSON Export Modal -->
+<div id="exportOverlay">
+  <div class="export-card">
+    <div class="modal-head"><h3>JSON 내보내기</h3><button class="modal-close" onclick="closeExportModal()">✕</button></div>
+    <div class="export-scope-list">
+      <label class="export-scope"><input type="radio" name="exportScope" value="all" checked onchange="updateExportPreview()"><span><strong>전체 라이브러리</strong><small>모든 폴더와 곡을 백업합니다.</small></span></label>
+      <label class="export-scope"><input type="radio" name="exportScope" value="current" onchange="updateExportPreview()"><span><strong>현재 화면</strong><small>현재 검색·태그·폴더 필터 결과만 내보냅니다.</small></span></label>
+      <label class="export-scope"><input type="radio" name="exportScope" value="folders" onchange="updateExportPreview()"><span><strong>폴더 직접 선택</strong><small>원하는 폴더만 골라 내보냅니다.</small></span></label>
+      <label class="export-scope"><input type="radio" name="exportScope" value="selected" onchange="updateExportPreview()"><span><strong>선택한 곡</strong><small>체크한 곡만 내보냅니다.</small></span></label>
+    </div>
+    <div id="exportFolderSection" style="display:none;">
+      <div class="field-label" style="margin-bottom:6px;">내보낼 폴더</div>
+      <div class="export-folder-box">
+        <div class="export-folder-tools">
+          <input id="exportFolderSearch" type="text" placeholder="폴더 검색" oninput="renderExportFolderList()">
+          <button class="btn ghost" style="height:30px;padding:0 9px;font-size:.7rem;" onclick="setAllExportFolders(true)">전체 선택</button>
+          <button class="btn ghost" style="height:30px;padding:0 9px;font-size:.7rem;" onclick="setAllExportFolders(false)">해제</button>
+        </div>
+        <div id="exportFolderList" class="export-folder-list"></div>
+      </div>
+    </div>
+    <label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:.75rem;color:var(--text2);cursor:pointer;"><input type="checkbox" id="exportPretty" checked style="accent-color:var(--pri);"> 보기 좋게 들여쓰기</label>
+    <div id="exportSummary" class="export-summary"></div>
+    <div class="form-actions"><button class="btn primary" onclick="downloadExportJson()">JSON 다운로드</button><button class="btn ghost" onclick="closeExportModal()">취소</button></div>
+  </div>
+</div>
+
 <!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="brand">
@@ -748,6 +799,7 @@ body.queue-open #queuePanel{transform:none;}
   </div>
   <div class="sb-bottom">
     <button class="sb-bottom-btn theme-btn" onclick="toggleTheme()" title="테마 전환"><span id="themeKnobIcon">🌙</span><span class="sb-btn-label" id="themeLabel">다크 모드</span></button>
+    <button class="sb-bottom-btn" onclick="openExportModal()" title="JSON 내보내기" style="flex-shrink:0;width:40px;">⇩</button>
     <button class="sb-bottom-btn" onclick="loadData(true)" title="새로고침" style="flex-shrink:0;width:40px;">↻</button>
   </div>
 </aside>
@@ -1800,6 +1852,103 @@ function makeQueueItem(item,idx,isNow){
 function clearQueue(){if(queueIndex>=0)queue=[queue[queueIndex]];renderQueuePanel();showToast('대기열 정리');}
 function updateQueueBtnDot(){els.queueToggleBtn.classList.toggle('has-queue',queue.length>queueIndex+1);}
 
+
+// ============ JSON EXPORT ============
+let exportFolderSelection=new Set();
+
+function openExportModal(){
+  if(!allItems.length)return showMessage('내보낼 곡이 없습니다.','error');
+  exportFolderSelection=new Set(getFolderList());
+  const selectedRadio=document.querySelector('input[name="exportScope"][value="selected"]');
+  if(selectedRadio)selectedRadio.disabled=selectedIds.size===0;
+  document.querySelector('input[name="exportScope"][value="all"]').checked=true;
+  $('exportFolderSearch').value='';
+  renderExportFolderList();
+  updateExportPreview();
+  $('exportOverlay').style.display='flex';
+}
+function closeExportModal(){$('exportOverlay').style.display='none';}
+function getExportScope(){return document.querySelector('input[name="exportScope"]:checked')?.value||'all';}
+function renderExportFolderList(){
+  const list=$('exportFolderList');if(!list)return;
+  const kw=norm($('exportFolderSearch').value).toLowerCase();
+  const folders=getFolderList().filter(f=>!kw||f.toLowerCase().includes(kw));
+  list.innerHTML='';
+  if(!folders.length){list.innerHTML='<div style="padding:18px;text-align:center;color:var(--faint);font-size:.74rem;">일치하는 폴더가 없습니다.</div>';return;}
+  folders.forEach(folder=>{
+    const count=allItems.filter(i=>(i.folders||[i.folder]).includes(folder)).length;
+    const label=document.createElement('label');label.className='export-folder-item';
+    const cb=document.createElement('input');cb.type='checkbox';cb.checked=exportFolderSelection.has(folder);
+    cb.addEventListener('change',()=>{cb.checked?exportFolderSelection.add(folder):exportFolderSelection.delete(folder);updateExportPreview();});
+    const dot=document.createElement('span');dot.className='export-folder-dot';dot.style.background=getFolderColor(folder);
+    const name=document.createElement('span');name.textContent=folder;
+    const cnt=document.createElement('span');cnt.className='export-folder-count';cnt.textContent=count;
+    label.append(cb,dot,name,cnt);list.appendChild(label);
+  });
+}
+function setAllExportFolders(on){
+  exportFolderSelection=on?new Set(getFolderList()):new Set();
+  renderExportFolderList();updateExportPreview();
+}
+function getExportSelection(){
+  const scope=getExportScope();
+  let items=[],includedFolders=new Set();
+  if(scope==='all'){
+    items=[...allItems];includedFolders=new Set(getFolderList());
+  }else if(scope==='current'){
+    items=getFiltered();items.forEach(i=>(i.folders||[i.folder]).filter(Boolean).forEach(f=>includedFolders.add(f)));
+  }else if(scope==='selected'){
+    items=allItems.filter(i=>selectedIds.has(String(i.id))||selectedIds.has(i.id));
+    items.forEach(i=>(i.folders||[i.folder]).filter(Boolean).forEach(f=>includedFolders.add(f)));
+  }else{
+    includedFolders=new Set(exportFolderSelection);
+    items=allItems.filter(i=>(i.folders||[i.folder]).some(f=>includedFolders.has(f)));
+  }
+  return{scope,items,includedFolders};
+}
+function buildExportData(){
+  const{items,includedFolders}=getExportSelection();
+  const songs=items.map(i=>{
+    const originalFolders=(i.folders&&i.folders.length?i.folders:[i.folder||'기타']).filter(Boolean);
+    const paths=originalFolders.filter(f=>includedFolders.has(f));
+    return{
+      youtube_url:i.url,
+      title:i.title,
+      thumbnail_url:thumb(i.url),
+      memo:i.memo||'',
+      folder_paths:paths.length?paths:originalFolders,
+      tag_names:[...(i.tags||[])]
+    };
+  });
+  const usedTags=[...new Set(songs.flatMap(s=>s.tag_names))];
+  const folders=[...includedFolders].map(path=>({name:path,color:getFolderColor(path),path}));
+  const tags=usedTags.map(name=>({name,color:getTagColor(name)}));
+  return{version:1,exported_at:new Date().toISOString(),source_app:'youtube-bgm-manager',folders,tags,songs};
+}
+function updateExportPreview(){
+  const scope=getExportScope();
+  $('exportFolderSection').style.display=scope==='folders'?'block':'none';
+  const{items,includedFolders}=getExportSelection();
+  const tags=new Set(items.flatMap(i=>i.tags||[]));
+  const summary=$('exportSummary');
+  if(scope==='selected'&&!selectedIds.size){summary.innerHTML='선택한 곡이 없습니다. 먼저 곡 선택 모드에서 내보낼 곡을 체크하세요.';return;}
+  summary.innerHTML=`<strong>${items.length}곡</strong> · ${includedFolders.size}개 폴더 · ${tags.size}개 태그를 내보냅니다.<br>여러 폴더에 속한 곡은 현재 내보내기 범위에 포함된 폴더 경로만 저장됩니다.`;
+}
+function safeExportFilename(name){return norm(name).replace(/[\\/:*?"<>|]+/g,'-').replace(/\s+/g,'-').replace(/^-+|-+$/g,'').slice(0,60)||'bgm-library';}
+function downloadExportJson(){
+  const data=buildExportData();
+  if(!data.songs.length)return showMessage('내보낼 곡이 없습니다.','error');
+  const pretty=$('exportPretty').checked;
+  const text=JSON.stringify(data,null,pretty?2:0);
+  const blob=new Blob([text],{type:'application/json;charset=utf-8'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  const scope=getExportScope();
+  const scopeName=scope==='all'?'전체':scope==='current'?'현재목록':scope==='selected'?'선택곡':[...exportFolderSelection].slice(0,2).join('_')||'선택폴더';
+  const date=new Date().toISOString().slice(0,10);
+  a.href=url;a.download=`bgm-library-${safeExportFilename(scopeName)}-${date}.json`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+  closeExportModal();showToast(`${data.songs.length}곡 JSON 내보내기 완료`);
+}
+
 // ============ IO ============
 async function copyText(text,msg='복사됨'){try{await navigator.clipboard.writeText(text);showToast(msg);}catch{showMessage('복사에 실패했습니다.','error');}}
 async function copyCurrentViewSummary(){const f=getFiltered();if(!f.length)return showMessage('복사할 목록이 없습니다.','error');const label=currentFilter.value==='전체'?'전체':currentFilter.type==='special'?({'__favorites__':'즐겨찾기','__recent__':'최근 수정'}[currentFilter.value]||''):currentFilter.value;const text=f.map(i=>`${i.title}\n${i.url}`).join('\n\n');await copyText(text,`"${label||'목록'}" ${f.length}개 복사됨`);}
@@ -1903,6 +2052,7 @@ function onFolderKeydown(e){
 document.addEventListener('click',e=>{const dd=$('folderDropdown');if(dd&&!$('folderInputWrap')?.contains(e.target))dd.classList.remove('open');});
 els.overlay.addEventListener('click',e=>{if(e.target===els.overlay)toggleInput(false);});
 els.detailOverlay.addEventListener('click',e=>{if(e.target===els.detailOverlay)closeDetail();});
+$('exportOverlay')?.addEventListener('click',e=>{if(e.target===$('exportOverlay'))closeExportModal();});
 
 // ============ KEYBOARD SHORTCUTS ============
 document.addEventListener('keydown',e=>{
@@ -1916,6 +2066,7 @@ document.addEventListener('keydown',e=>{
     if(els.cpOverlay.style.display==='flex'){closeColorPicker();return;}
     if($('movePickerOverlay').style.display==='flex'){closeMovePicker();return;}
     if($('playlistOverlay').style.display==='flex'){closePlModal();return;}
+    if($('exportOverlay')?.style.display==='flex'){closeExportModal();return;}
     if(isDetailOpen){closeDetail();return;}
     if(isModalOpen){toggleInput(false);return;}
     if(selectedIds.size){clearSelection();return;}
